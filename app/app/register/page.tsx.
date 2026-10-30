@@ -1,0 +1,96 @@
+
+"use client";
+
+import { useState } from "react";
+
+export default function Register() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+
+  function register(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!name.trim() || !email.trim() || !phone.trim() || password.length < 8) {
+      setMessage("Enter all details. Password must be at least 8 characters.");
+      return;
+    }
+
+    setMessage("Registration interface ready. Secure account creation will be enabled after Supabase setup.");
+  }
+
+  return (
+    <main style={{
+      minHeight: "100vh",
+      background: "#f1f5fb",
+      display: "grid",
+      placeItems: "center",
+      padding: 20,
+      fontFamily: "Arial"
+    }}>
+      <form onSubmit={register} style={{
+        background: "white",
+        padding: 28,
+        borderRadius: 18,
+        width: "100%",
+        maxWidth: 420,
+        boxSizing: "border-box"
+      }}>
+        <h1 style={{color:"#0753b8", textAlign:"center"}}>BWK</h1>
+        <h2 style={{textAlign:"center", color:"#102b55"}}>Join DollarFetch</h2>
+        <p style={{textAlign:"center", color:"#667085"}}>
+          Create your member account
+        </p>
+
+        {[
+          {label:"Full name", value:name, set:setName, type:"text"},
+          {label:"Email address", value:email, set:setEmail, type:"email"},
+          {label:"M-Pesa phone number", value:phone, set:setPhone, type:"tel"},
+          {label:"Password (minimum 8 characters)", value:password, set:setPassword, type:"password"}
+        ].map((field) => (
+          <label key={field.label} style={{
+            display:"block", marginTop:16, color:"#102b55"
+          }}>
+            {field.label}
+            <input
+              required
+              type={field.type}
+              value={field.value}
+              onChange={(e) => field.set(e.target.value)}
+              style={{
+                display:"block",
+                width:"100%",
+                boxSizing:"border-box",
+                padding:13,
+                marginTop:7,
+                border:"1px solid #ccd5e2",
+                borderRadius:9
+              }}
+            />
+          </label>
+        ))}
+
+        <button type="submit" style={{
+          width:"100%",
+          padding:15,
+          marginTop:22,
+          border:0,
+          borderRadius:9,
+          background:"#0753b8",
+          color:"white",
+          fontWeight:"bold"
+        }}>
+          Create account
+        </button>
+
+        {message && <p role="status" style={{color:"#0753b8"}}>{message}</p>}
+
+        <p style={{textAlign:"center", color:"#667085"}}>
+          Already registered? <a href="/login">Log in</a>
+        </p>
+      </form>
+    </main>
+  );
+}
