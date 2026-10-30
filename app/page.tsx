@@ -30,7 +30,10 @@ export default function Home() {
         }}>BWK</div>
         <h2>DollarFetch</h2>
       </header>
-
+<div style={{display:"flex", gap:"12px", marginTop:"15px"}}>
+  <a href="/register" style={{background:"#0753b8", color:"white", padding:"12px 18px", borderRadius:"8px", textDecoration:"none"}}>Register</a>
+  <a href="/login" style={{background:"#073b83", color:"white", padding:"12px 18px", borderRadius:"8px", textDecoration:"none"}}>Login</a>
+</div>
       <section style={{ padding: "25px", maxWidth: "900px", margin: "auto" }}>
         <h1>Welcome to DollarFetch</h1>
         <p>Your financial dashboard.</p>
