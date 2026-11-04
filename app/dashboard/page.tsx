@@ -474,4 +474,83 @@ export default function DashboardPage() {
         </nav>
       </main>
     );
+}function UsdKesConverter() {
+  const [usd, setUsd] = useState("1");
+  const [rate, setRate] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function getRate() {
+      try {
+        const response = await fetch(
+          "https://open.er-api.com/v6/latest/USD"
+        );
+        const data = await response.json();
+
+        if (!response.ok || data.result !== "success" || !data.rates?.KES) {
+          throw new Error("Exchange rate unavailable");
+        }
+
+        if (active) {
+          setRate(data.rates.KES);
+          setError("");
+        }
+      } catch {
+        if (active) setError("Unable to load exchange rate. Try again later.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    getRate();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const kes = rate === null ? null : Number(usd || 0) * rate;
+
+  return (
+    <section className="section">
+      <h2>USD to KES Converter</h2>
+      <p className="muted">Convert US Dollars into Kenyan Shillings.</p>
+
+      <div className="field">
+        <label>Amount in USD ($)</label>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          value={usd}
+          onChange={e => setUsd(e.target.value)}
+          placeholder="Enter USD amount"
+        />
+      </div>
+
+      {loading ? (
+        <p className="muted">Loading exchange rate...</p>
+      ) : error ? (
+        <p className="notice">{error}</p>
+      ) : (
+        <>
+          <div className="rowline">
+            <span>Exchange rate</span>
+            <b>1 USD = {rate?.toFixed(2)} KES</b>
+          </div>
+          <div className="notice">
+            <b>Estimated conversion</b>
+            <h2>
+              KES {kes?.toLocaleString("en-KE", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </h2>
+          </div>
+        </>
+      )}
+    </section>
+  );
 }
