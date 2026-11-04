@@ -5,36 +5,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const methods = [
-  {
-    id: "M-PESA",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg",
-    alt: "M-PESA logo"
-  },
-  {
-    id: "Postbank",
-    logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128",
-    alt: "Postbank logo"
-  },
-  {
-    id: "Equity Bank",
-    logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128",
-    alt: "Equity Bank logo"
-  },
-  {
-    id: "Binance",
-    logo: "https://cdn.simpleicons.org/binance/F0B90B",
-    alt: "Binance logo"
-  },
-  {
-    id: "Airtel Money",
-    logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128",
-    alt: "Airtel Money logo"
-  },
-  {
-    id: "SIM Toolkit",
-    logo: "https://cdn-icons-png.flaticon.com/512/0/191.png",
-    alt: "SIM Toolkit icon"
-  }
+  { id: "M-PESA", logo: "https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg", alt: "M-PESA logo" },
+  { id: "Postbank", logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128", alt: "Postbank logo" },
+  { id: "Equity Bank", logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128", alt: "Equity Bank logo" },
+  { id: "Binance", logo: "https://cdn.simpleicons.org/binance/F0B90B", alt: "Binance logo" },
+  { id: "Airtel Money", logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128", alt: "Airtel Money logo" },
+  { id: "SIM Toolkit", logo: "https://cdn-icons-png.flaticon.com/512/0/191.png", alt: "SIM Toolkit icon" }
 ];
 
 export default function Dashboard() {
@@ -74,11 +50,9 @@ export default function Dashboard() {
       setName(metadata.full_name || "Member");
       setEmail(user.email || "");
       setPhone(metadata.phone || "Not provided");
-
       setPaymentPhone(
         metadata.activation_payment_phone || metadata.phone || ""
       );
-
       setMethod(metadata.activation_payment_method || "M-PESA");
 
       const { data, error } = await supabase
@@ -114,7 +88,6 @@ export default function Dashboard() {
         setStatus(data.status);
       }
 
-      // Load member referral information
       const { data: codeData } = await supabase
         .from("member_referral_codes")
         .select("referral_code")
@@ -131,7 +104,6 @@ export default function Dashboard() {
       const referrals = referralData || [];
 
       setReferralCount(referrals.length);
-
       setPendingReferrals(
         referrals.filter(r => r.status === "pending").length
       );
@@ -692,4 +664,9 @@ export default function Dashboard() {
               }}>
                 Rewards are recorded after administrator approval
                 of the referred member's activation. Payouts are
-  
+                handled manually and are not automatic.
+              </p>
+            </>
+          )}
+
+          {tab === "Profil
