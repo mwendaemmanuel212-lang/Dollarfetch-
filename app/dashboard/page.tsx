@@ -217,7 +217,13 @@ export default function DashboardPage() {
               <div className="pagetitle">{tab}</div>
             </div>
             <div className="topright">
-              <span className="status">● Pending activation</span>
+              <span className="logo">
+  {item.logo ? (
+    <img src={item.logo} alt={`${item.id} logo`} />
+  ) : (
+    <span className="logoFallback">SIM</span>
+  )}
+</span>
               <button className="btn" onClick={logout}>Log out</button>
             </div>
           </header>
