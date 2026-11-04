@@ -1,111 +1,79 @@
 
-"use client";
-
-import { useState } from "react";
-
 export default function Home() {
-  const [tab, setTab] = useState("Dashboard");
-
   return (
     <main style={{
       minHeight: "100vh",
-      background: "#f1f5fb",
+      background: "linear-gradient(135deg,#f8f0ff,#e6c9ff,#7100c9)",
+      color: "#31006b",
       fontFamily: "Arial, sans-serif",
-      color: "#102b55"
+      padding: "25px",
+      boxSizing: "border-box",
+      textAlign: "center"
     }}>
-      <header style={{
-        background: "#073b83",
-        color: "white",
-        padding: "24px",
-        display: "flex",
-        alignItems: "center",
-        gap: "15px"
-      }}>
-        <div style={{
-          background: "white",
-          color: "#0753b8",
-          padding: "13px",
-          borderRadius: "12px",
-          fontWeight: "bold"
-        }}>BWK</div>
-        <h2>DollarFetch</h2>
+      <header style={{padding: "20px"}}>
+        <h1 style={{fontSize: 32}}>BWK | DollarFetch</h1>
+        <p>Simple. Secure. Reliable.</p>
       </header>
 
-      <div style={{display:"flex", gap:"12px", margin:"15px"}}>
-        <a href="/register" style={{
-          background:"#0753b8", color:"white",
-          padding:"12px 18px", borderRadius:"8px",
-          textDecoration:"none"
-        }}>Register</a>
-
-        <button
-  onClick={() => window.location.href = "/app/login"}
-  style={{
-    background: "#073b83",
-    color: "white",
-    padding: "12px 18px",
-    borderRadius: "8px",
-    border: "none"
-  }}
->
-  Login
-</button>
-          background:"#073b83", color:"white",
-          padding:"12px 18px", borderRadius:"8px",
-          textDecoration:"none"
-        }}>Login</a>
-      </div>
-
-      <section style={{ padding:"25px", maxWidth:"900px", margin:"auto" }}>
-        <h1>Welcome to DollarFetch</h1>
-        <p>Your financial dashboard.</p>
+      <section style={{
+        maxWidth: 700,
+        margin: "60px auto",
+        padding: 25
+      }}>
+        <h1 style={{fontSize: 42}}>Hello, we are ready</h1>
+        <p style={{fontSize: 18,lineHeight: 1.6}}>
+          Join BWK DollarFetch today and unlock opportunities
+          to earn, transact and withdraw your earnings safely.
+        </p>
 
         <div style={{
-          background:"#0753b8", color:"white",
-          padding:"25px", borderRadius:"16px", marginTop:"25px"
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 15,
+          marginTop: 35
         }}>
-          <p>AVAILABLE BALANCE</p>
-          <h1>KES 0.00</h1>
-          <small>Demonstration balance only</small>
-        </div>
+          <a href="/register" style={{
+            background: "#6500bd",
+            color: "white",
+            padding: "16px 35px",
+            borderRadius: 12,
+            textDecoration: "none",
+            fontWeight: "bold"
+          }}>Register</a>
 
-        <div style={{
-          display:"grid",
-          gridTemplateColumns:"repeat(2, minmax(0, 1fr))",
-          gap:"15px", marginTop:"25px"
-        }}>
-          {["Deposit","Withdraw","Transactions","Profile"].map(item => (
-            <button key={item}
-              onClick={() => setTab(item)}
-              style={{
-                padding:"22px", border:"1px solid #dce5f2",
-                borderRadius:"12px", background:"white",
-                color:"#0753b8", fontWeight:"bold", fontSize:"16px"
-              }}>
-              {item}
-            </button>
-          ))}
+          <a href="/app/login" style={{
+            background: "white",
+            color: "#6500bd",
+            padding: "16px 35px",
+            borderRadius: 12,
+            border: "2px solid #6500bd",
+            textDecoration: "none",
+            fontWeight: "bold"
+          }}>Login</a>
         </div>
-
-        {tab !== "Dashboard" && (
-          <div style={{
-            marginTop:"25px", background:"white",
-            padding:"25px", borderRadius:"12px"
-          }}>
-            <h2>{tab}</h2>
-            <p>
-              {tab === "Withdraw"
-                ? "Withdrawal requests require administrator authorization."
-                : tab === "Deposit"
-                ? "M-Pesa STK Push integration will be added later."
-                : "Your account information will appear here."}
-            </p>
-            <button onClick={() => setTab("Dashboard")}>
-              Back to dashboard
-            </button>
-          </div>
-        )}
       </section>
+
+      <section style={{
+        background: "white",
+        borderRadius: 15,
+        padding: 20,
+        maxWidth: 900,
+        margin: "auto"
+      }}>
+        <h3>Secure Platform · Fast Transactions</h3>
+        <h3>Trusted Community · 24/7 Support</h3>
+      </section>
+
+      <footer style={{
+        marginTop: 60,
+        padding: 20,
+        background: "#31006b",
+        color: "white",
+        borderRadius: 12
+      }}>
+        Powered by <strong>BWK Manny</strong> © 2026
+      </footer>
     </main>
   );
 }
