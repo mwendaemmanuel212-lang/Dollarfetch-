@@ -146,6 +146,65 @@ export default function Dashboard() {
   }, []);
 
   async function savePaymentChoice() {
+  setMessage("");
+
+  if (method === "M-PESA" || method === "Airtel Money") {
+    const digits = paymentPhone.replace(/\D/g, "");
+
+    const valid =
+      /^254[17]\d{8}$/.test(digits) ||
+      /^0[17]\d{8}$/.test(digits) ||
+      /^[17]\d{8}$/.test(digits);
+
+    if (!valid) {
+      setMessage("Enter a valid Kenyan phone number.");
+      return;
+    }
+  }
+
+  setSaving(true);
+
+  const { data: auth } = await supabase.auth.getUser();
+
+  if (!auth.user) {
+    setSaving(false);
+    setMessage("Please log in again.");
+    return;
+  }
+
+  const amount = method === "SIM Toolkit" ? 300 : 2;
+  const currency = method === "SIM Toolkit" ? "KES" : "USD";
+
+  const { error: updateError } = await supabase
+    .from("activation_requests")
+    .update({ amount, currency })
+    .eq("user_id", auth.user.id)
+    .eq("status", "pending");
+
+  if (updateError) {
+    setSaving(false);
+    setMessage("Could not save the activation amount: " + updateError.message);
+    return;
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      activation_payment_method: method,
+      activation_payment_phone: paymentPhone
+    }
+  });
+
+  setSaving(false);
+
+  if (error) {
+    setMessage(error.message);
+    return;
+  }
+
+  setMessage(
+    "Your payment choice and activation amount have been saved. Payment is not connected yet. Do not send money until official instructions appear."
+  );
+  }
     setMessage("");
 
     if (
