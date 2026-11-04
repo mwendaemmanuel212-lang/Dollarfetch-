@@ -144,3 +144,190 @@ export default function DashboardPage() {
     },
   };
   
+
+  if (loading) {
+    return (
+      <main style={styles.page}>
+        <div style={styles.content}>
+          <p>Loading your DollarFetch account...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!user) return null;
+
+  return (
+    <main style={styles.page}>
+      <header style={styles.header}>
+        <div>
+          <div style={styles.logo}>BWK</div>
+          <div>DollarFetch</div>
+        </div>
+
+        <button style={styles.button} onClick={logout}>
+          Log out
+        </button>
+      </header>
+
+      <div style={styles.content}>
+        <h2>Welcome to DollarFetch</h2>
+        <p>{user.email}</p>
+
+        <nav
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
+            marginBottom: "20px",
+          }}
+        >
+          {(
+            [
+              "Dashboard",
+              "Activation",
+              "Deposit",
+              "Withdraw",
+              "Transactions",
+              "Referrals",
+              "Profile",
+            ] as Tab[]
+          ).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => {
+                setActiveTab(tab);
+                setMessage("");
+              }}
+              style={{
+                ...styles.button,
+                background: activeTab === tab ? "#102d69" : "#dce8fa",
+                color: activeTab === tab ? "#fff" : "#17345f",
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </nav>
+
+        {message && (
+          <div
+            style={{
+              ...styles.card,
+              borderLeft: "4px solid #1769e0",
+            }}
+          >
+            {message}
+          </div>
+        )}
+
+        {activeTab === "Dashboard" && (
+          <>
+            <section style={styles.card}>
+              <h3>Account Overview</h3>
+              <h1>$0.00</h1>
+              <p>Demo wallet balance</p>
+              <p>Account: Awaiting activation verification</p>
+            </section>
+
+            <section style={styles.card}>
+              <h3>Quick Actions</h3>
+              <button
+                style={styles.button}
+                onClick={() => setActiveTab("Activation")}
+              >
+                Activate Account
+              </button>{" "}
+              <button
+                style={styles.button}
+                onClick={() => setActiveTab("Deposit")}
+              >
+                Deposit
+              </button>{" "}
+              <button
+                style={styles.button}
+                onClick={() => setActiveTab("Withdraw")}
+              >
+                Withdraw
+              </button>
+            </section>
+
+            <section style={styles.card}>
+              <h3>Important Notice</h3>
+              <p>
+                Your account becomes active only after your activation
+                payment has been verified by the administrator.
+              </p>
+            </section>
+          </>
+        )}
+
+        {activeTab === "Activation" && (
+          <section style={styles.card}>
+            <h3>Account Activation</h3>
+            <h1>$2.00 USD</h1>
+            <p>Choose your preferred payment method.</p>
+
+            <label>Payment method</label>
+            <select
+              style={styles.input}
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            >
+              {methods.map((method) => (
+                <option key={method} value={method}>
+                  {method}
+                </option>
+              ))}
+            </select>
+
+            <label>Payment amount (USD)</label>
+            <input
+              style={styles.input}
+              type="number"
+              min="2"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+
+            <label>M-PESA phone number (include country code, e.g. +254)</label>
+            <input
+              style={styles.input}
+              placeholder="+2547XXXXXXXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+
+            <p>
+              Payment processing is not yet connected. Submitting this
+              request does not make a payment or activate your account.
+            </p>
+
+            <button
+              style={styles.button}
+              onClick={submitActivation}
+              disabled={Number(amount) < 2}
+            >
+              Submit Activation Request
+            </button>
+          </section>
+        )}
+
+        {activeTab === "Deposit" && (
+          <section style={styles.card}>
+            <h3>Deposit</h3>
+            <p>Deposit options will be available when payment integration is connected.</p>
+            <p>No funds are collected or credited through this page yet.</p>
+          </section>
+        )}
+
+        {activeTab === "Withdraw" && (
+          <section style={styles.card}>
+            <h3>Withdraw Funds</h3>
+            <p>
+              Withdrawal requests require administrator authorization.
+            </p>
+            <p>Withdrawal processing is not yet connected.</p>
+          </section>
+        )}
+            
