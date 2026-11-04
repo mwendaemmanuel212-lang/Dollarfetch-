@@ -120,7 +120,7 @@ export default function Register() {
       </form>
 
       <p>{message}</p>
-      <a href="/login">Already registered? Log in</a>
+      <a href="/app/login">Already registered? Log in</a>
     </main>
   );
 }
