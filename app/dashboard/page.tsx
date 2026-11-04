@@ -22,8 +22,70 @@ const methods = [
   "SIM Toolkit",
 ];
 
+const paymentBrand: Record<
+  string,
+  { short: string; color: string; detail: string }
+> = {
+  "M-PESA": {
+    short: "M",
+    color: "#35a853",
+    detail: "Mobile money",
+  },
+  Postbank: {
+    short: "PB",
+    color: "#1464a5",
+    detail: "Bank transfer",
+  },
+  "Equity Bank": {
+    short: "E",
+    color: "#e32636",
+    detail: "Bank transfer",
+  },
+  Binance: {
+    short: "B",
+    color: "#f0b90b",
+    detail: "Crypto payment",
+  },
+  "Airtel Money": {
+    short: "A",
+    color: "#e40000",
+    detail: "Mobile money",
+  },
+  "SIM Toolkit": {
+    short: "SIM",
+    color: "#55318b",
+    detail: "Manual M-PESA",
+  },
+};
+
 const adminEmail = "mwendaemmanuel212@gmail.com";
-const whatsapp = "https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f";
+const whatsapp =
+  "https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f";
+
+function PaymentBadge({ name }: { name: string }) {
+  const brand = paymentBrand[name];
+
+  return (
+    <span
+      style={{
+        width: 46,
+        height: 46,
+        minWidth: 46,
+        borderRadius: 12,
+        background: brand.color,
+        color: name === "Binance" ? "#171717" : "#ffffff",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: name === "SIM Toolkit" ? 11 : 19,
+        fontWeight: 800,
+        letterSpacing: "-0.5px",
+      }}
+    >
+      {brand.short}
+    </span>
+  );
+}
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -39,10 +101,12 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false);
 
   const active = status === "active" || status === "approved";
+
   const name =
     user?.user_metadata?.full_name ||
     user?.email?.split("@")[0] ||
     "Member";
+
   const memberPhone =
     user?.user_metadata?.phone ||
     user?.user_metadata?.activation_payment_phone ||
@@ -120,19 +184,23 @@ export default function DashboardPage() {
       method === "M-PESA" &&
       !/^\+\d{8,15}$/.test(phone.trim())
     ) {
-      setMessage("Enter your phone with country code, e.g. +254712345678.");
+      setMessage(
+        "Enter your phone with country code, e.g. +254712345678."
+      );
       return;
     }
 
     setSending(true);
     setMessage("");
 
-    const { error: metadataError } = await supabase.auth.updateUser({
-      data: {
-        activation_payment_method: method,
-        activation_payment_phone: method === "M-PESA" ? phone.trim() : null,
-      },
-    });
+    const { error: metadataError } =
+      await supabase.auth.updateUser({
+        data: {
+          activation_payment_method: method,
+          activation_payment_phone:
+            method === "M-PESA" ? phone.trim() : null,
+        },
+      });
 
     if (metadataError) {
       setMessage(metadataError.message);
@@ -153,7 +221,9 @@ export default function DashboardPage() {
       setMessage("Request failed: " + error.message);
     } else {
       setStatus("pending");
-      setMessage("Your activation request has been submitted. Await payment verification by the administrator.");
+      setMessage(
+        "Your activation request has been submitted. Await payment verification by the administrator."
+      );
     }
 
     setSending(false);
@@ -178,12 +248,20 @@ export default function DashboardPage() {
   }
 
   const earnedRewards = referrals
-    .filter((r) => r.status === "earned" || r.status === "paid")
-    .reduce((sum, r) => sum + Number(r.reward_amount || 0), 0);
+    .filter(
+      (r) => r.status === "earned" || r.status === "paid"
+    )
+    .reduce(
+      (sum, r) => sum + Number(r.reward_amount || 0),
+      0
+    );
 
   const pendingRewards = referrals
     .filter((r) => r.status === "pending")
-    .reduce((sum, r) => sum + Number(r.reward_amount || 0), 0);
+    .reduce(
+      (sum, r) => sum + Number(r.reward_amount || 0),
+      0
+    );
 
   if (loading) {
     return (
@@ -203,6 +281,27 @@ export default function DashboardPage() {
     "Referrals",
     "Profile",
   ];
+
+  const paymentGridStyle: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: 12,
+    marginTop: 15,
+  };
+
+  const paymentCardStyle: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: 14,
+    borderRadius: 13,
+    border: "1px solid #e7e2f2",
+    background: "#ffffff",
+    textAlign: "left",
+    width: "100%",
+    cursor: "pointer",
+    color: "#25213b",
+  };
 
   return (
     <div className="shell">
@@ -238,7 +337,10 @@ export default function DashboardPage() {
 
         <div className="help">
           <b>Need assistance?</b>
-          <p>Contact BWK DollarFetch through our official WhatsApp channel.</p>
+          <p>
+            Contact BWK DollarFetch through our official WhatsApp
+            channel.
+          </p>
           <a href={whatsapp} target="_blank" rel="noreferrer">
             WhatsApp Support →
           </a>
@@ -268,16 +370,18 @@ export default function DashboardPage() {
             <div>
               <span className="blue">MEMBER OVERVIEW</span>
               <h2>Welcome, {name}</h2>
-              <p>Manage your DollarFetch account and member activity.</p>
+              <p>
+                Manage your DollarFetch account and member activity.
+              </p>
             </div>
 
-            <label>{active ? "ACCOUNT ACTIVE" : status.toUpperCase()}</label>
+            <label>
+              {active ? "ACCOUNT ACTIVE" : status.toUpperCase()}
+            </label>
           </div>
 
           {message && (
-            <div className="notice">
-              {message}
-            </div>
+            <div className="notice">{message}</div>
           )}
 
           {tab === "Dashboard" && (
@@ -291,7 +395,13 @@ export default function DashboardPage() {
 
                 <article>
                   <small>ACCOUNT STATUS</small>
-                  <h2>{active ? "Active" : status === "pending" ? "Pending" : "Not activated"}</h2>
+                  <h2>
+                    {active
+                      ? "Active"
+                      : status === "pending"
+                        ? "Pending"
+                        : "Not activated"}
+                  </h2>
                   <p>Activation verification</p>
                 </article>
 
@@ -305,8 +415,14 @@ export default function DashboardPage() {
               {!active && (
                 <div className="notice">
                   <b>Your account needs activation.</b>
-                  <p>Submit your activation request and wait for the administrator to verify payment.</p>
-                  <button className="back" onClick={() => setTab("Activation")}>
+                  <p>
+                    Submit your activation request and wait for
+                    the administrator to verify payment.
+                  </p>
+                  <button
+                    className="back"
+                    onClick={() => setTab("Activation")}
+                  >
                     Open Activation
                   </button>
                 </div>
@@ -342,10 +458,26 @@ export default function DashboardPage() {
               <section className="panel">
                 <h3>Member Information</h3>
                 <div className="activity">
-                  <div><span>Full name</span><br /><b>{name}</b></div>
-                  <div><span>Email address</span><br /><b>{user?.email}</b></div>
-                  <div><span>Phone number</span><br /><b>{memberPhone}</b></div>
-                  <div><span>Member ID</span><br /><b>{user?.id}</b></div>
+                  <div>
+                    <span>Full name</span>
+                    <br />
+                    <b>{name}</b>
+                  </div>
+                  <div>
+                    <span>Email address</span>
+                    <br />
+                    <b>{user?.email}</b>
+                  </div>
+                  <div>
+                    <span>Phone number</span>
+                    <br />
+                    <b>{memberPhone}</b>
+                  </div>
+                  <div>
+                    <span>Member ID</span>
+                    <br />
+                    <b>{user?.id}</b>
+                  </div>
                 </div>
               </section>
             </>
@@ -362,32 +494,58 @@ export default function DashboardPage() {
                 </div>
               ) : status === "pending" ? (
                 <div className="notice">
-                  Your activation request is pending administrator verification.
+                  Your activation request is pending administrator
+                  verification.
                 </div>
               ) : (
                 <>
-                  <p style={{ marginTop: 18 }}>Choose your preferred payment method:</p>
+                  <p style={{ marginTop: 18 }}>
+                    Choose your preferred payment method:
+                  </p>
 
-                  <select
-                    value={method}
-                    onChange={(e) => setMethod(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: 13,
-                      border: "1px solid #e1e7f0",
-                      borderRadius: 10,
-                      marginTop: 10,
-                      background: "white",
-                    }}
-                  >
+                  <div style={paymentGridStyle}>
                     {methods.map((m) => (
-                      <option key={m} value={m}>{m}</option>
+                      <button
+                        type="button"
+                        key={m}
+                        onClick={() => setMethod(m)}
+                        style={{
+                          ...paymentCardStyle,
+                          border:
+                            method === m
+                              ? "2px solid #7041c5"
+                              : "1px solid #e7e2f2",
+                          background:
+                            method === m ? "#f5efff" : "#ffffff",
+                        }}
+                      >
+                        <PaymentBadge name={m} />
+                        <span>
+                          <b style={{ display: "block" }}>{m}</b>
+                          <small style={{ color: "#77718b" }}>
+                            {paymentBrand[m].detail}
+                          </small>
+                        </span>
+                        {method === m && (
+                          <span
+                            style={{
+                              marginLeft: "auto",
+                              color: "#7041c5",
+                              fontWeight: 800,
+                            }}
+                          >
+                            ✓
+                          </span>
+                        )}
+                      </button>
                     ))}
-                  </select>
+                  </div>
 
                   {method === "M-PESA" && (
                     <div style={{ marginTop: 15 }}>
-                      <label>M-PESA phone number with country code</label>
+                      <label>
+                        M-PESA phone number with country code
+                      </label>
                       <input
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -406,8 +564,15 @@ export default function DashboardPage() {
                   {method === "SIM Toolkit" && (
                     <div className="notice" style={{ marginTop: 15 }}>
                       <b>Manual M-PESA SIM Toolkit instructions</b>
-                      <p>Open M-PESA SIM Toolkit, select Send Money, enter the recipient number 0732659971, and enter KES 300. Check the recipient and amount carefully before confirming with your own M-PESA PIN.</p>
-                      <p>The website cannot enter your PIN or automatically fill secure SIM Toolkit fields.</p>
+                      <p>
+                        Open M-PESA SIM Toolkit and select Send Money.
+                        Verify the recipient number and amount with
+                        the administrator before making any payment.
+                      </p>
+                      <p>
+                        The website cannot enter your PIN or
+                        automatically fill secure SIM Toolkit fields.
+                      </p>
                       <a href="tel:*334%23">Open M-PESA menu</a>
                     </div>
                   )}
@@ -416,13 +581,20 @@ export default function DashboardPage() {
                     className="back"
                     disabled={sending}
                     onClick={submitActivation}
-                    style={{ marginTop: 18, opacity: sending ? 0.6 : 1 }}
+                    style={{
+                      marginTop: 18,
+                      opacity: sending ? 0.6 : 1,
+                    }}
                   >
-                    {sending ? "Submitting..." : "Submit Activation Request"}
+                    {sending
+                      ? "Submitting..."
+                      : "Submit Activation Request"}
                   </button>
 
                   <p style={{ marginTop: 14 }}>
-                    Other payment methods must be configured and verified before sending money. A submitted request does not prove payment.
+                    Other payment methods must be configured and
+                    verified before sending money. A submitted
+                    request does not prove payment.
                   </p>
                 </>
               )}
@@ -434,17 +606,39 @@ export default function DashboardPage() {
               <h3>Deposit Funds</h3>
               <p>Available payment options</p>
 
-              <div className="actions">
+              <div style={paymentGridStyle}>
                 {methods.map((m) => (
-                  <button key={m}>
-                    <b>{m}</b>
-                    <small>Payment integration not yet connected</small>
-                  </button>
+                  <div
+                    key={m}
+                    style={{
+                      ...paymentCardStyle,
+                      cursor: "default",
+                    }}
+                  >
+                    <PaymentBadge name={m} />
+                    <span>
+                      <b style={{ display: "block" }}>{m}</b>
+                      <small style={{ color: "#77718b" }}>
+                        {paymentBrand[m].detail}
+                      </small>
+                      <small
+                        style={{
+                          display: "block",
+                          color: "#a16b12",
+                          marginTop: 4,
+                        }}
+                      >
+                        Setup pending
+                      </small>
+                    </span>
+                  </div>
                 ))}
               </div>
 
               <div className="notice" style={{ marginTop: 18 }}>
-                Deposits are not automatically credited yet. Payment verification and wallet crediting must be connected before deposits can be processed.
+                Deposits are not automatically credited yet.
+                Payment verification and wallet crediting must be
+                connected before deposits can be processed.
               </div>
             </section>
           )}
@@ -454,7 +648,10 @@ export default function DashboardPage() {
               <h3>Withdraw Funds</h3>
               <div className="notice">
                 <b>Administrator authorization required</b>
-                <p>Every withdrawal must be reviewed and authorized by the administrator before funds are released.</p>
+                <p>
+                  Every withdrawal must be reviewed and authorized
+                  by the administrator before funds are released.
+                </p>
               </div>
               <p>Withdrawal processing is not connected yet.</p>
             </section>
@@ -463,7 +660,11 @@ export default function DashboardPage() {
           {tab === "Transactions" && (
             <section className="panel">
               <h3>Transaction History</h3>
-              <p>Your deposits, withdrawals and other wallet activity will appear here when transaction processing is connected.</p>
+              <p>
+                Your deposits, withdrawals and other wallet activity
+                will appear here when transaction processing is
+                connected.
+              </p>
               <div className="empty">
                 <span className="blue">TRANSACTION RECORDS</span>
                 <h3>No transactions to display</h3>
@@ -488,96 +689,4 @@ export default function DashboardPage() {
                 <article>
                   <small>PENDING REWARDS</small>
                   <h2>${pendingRewards.toFixed(2)}</h2>
-                  <p>Awaiting activation verification</p>
-                </article>
-              </div>
-
-              <section className="panel">
-                <h3>Your Referral Code</h3>
-                <p>Share your invitation link with new members.</p>
-
-                <div style={{
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  marginTop: 18,
-                }}>
-                  <strong style={{
-                    background: "#edf4ff",
-                    color: "#1769e0",
-                    padding: 13,
-                    borderRadius: 9,
-                    flex: 1,
-                  }}>
-                    {referralCode || "Referral code unavailable"}
-                  </strong>
-
-                  <button className="back" onClick={copyReferral}>
-                    {copied ? "Copied!" : "Copy Referral Link"}
-                  </button>
-                </div>
-
-                <p style={{ marginTop: 15 }}>
-                  Only referrals whose activation is verified qualify for the $0.50 reward.
-                </p>
-              </section>
-
-              <section className="panel">
-                <h3>Referred Members</h3>
-                {referrals.length === 0 ? (
-                  <p style={{ marginTop: 15 }}>No referrals recorded yet.</p>
-                ) : (
-                  referrals.map((r, i) => (
-                    <div className="activity" key={i}>
-                      <div>
-                        <span>Referral reward</span><br />
-                        <b>{r.currency} {Number(r.reward_amount).toFixed(2)}</b>
-                      </div>
-                      <div>
-                        <span>Status</span><br />
-                        <b>{r.status}</b>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </section>
-            </>
-          )}
-
-          {tab === "Profile" && (
-            <section className="panel">
-              <h3>Member Profile</h3>
-              <div className="activity">
-                <div><span>Full name</span><br /><b>{name}</b></div>
-                <div><span>Email</span><br /><b>{user?.email}</b></div>
-                <div><span>Phone</span><br /><b>{memberPhone}</b></div>
-                <div><span>Account status</span><br /><b>{active ? "Active" : status}</b></div>
-                <div><span>Member ID</span><br /><b>{user?.id}</b></div>
-                <div><span>Joined</span><br /><b>{user?.created_at ? new Date(user.created_at).toLocaleDateString() : "—"}</b></div>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 22 }}>
-                <a className="back" href={whatsapp} target="_blank" rel="noreferrer">
-                  WhatsApp Support
-                </a>
-                {user?.email === adminEmail && (
-                  <a className="back" href="/admin">
-                    Open Admin Panel
-                  </a>
-                )}
-                <button className="back" onClick={logout}>
-                  Log Out
-                </button>
-              </div>
-            </section>
-          )}
-
-          <footer>
-            <span>BWK DollarFetch © 2026</span>
-            <span>Member dashboard</span>
-          </footer>
-        </div>
-      </div>
-    </div>
-  );
-                       }
+                  <p>Awaiting ac
