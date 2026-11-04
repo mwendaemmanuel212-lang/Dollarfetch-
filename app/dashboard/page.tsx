@@ -207,7 +207,28 @@ export default function Dashboard() {
   }
     setMessage("");
 
-    if (
+    if ({method === "SIM Toolkit" && (
+  <div style={{
+    marginTop: 20,
+    padding: 18,
+    background: "#fff8e8",
+    borderRadius: 12,
+    border: "1px solid #edcf91"
+  }}>
+    <h3>SIM Toolkit Payment</h3>
+    <p>Activation fee: <strong>KES 300</strong></p>
+    <p>Send money to:</p>
+    <h2 style={{ color: "#31006b" }}>0732659971</h2>
+    <p>
+      Open your M-PESA SIM Toolkit, choose Send Money,
+      enter the recipient number and KES 300, then confirm
+      using your own M-PESA PIN.
+    </p>
+    <small>
+      Your account will remain pending until payment is verified.
+    </small>
+  </div>
+)}
       method === "M-PESA" ||
       method === "Airtel Money"
     ) {
