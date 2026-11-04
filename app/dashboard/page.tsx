@@ -269,7 +269,7 @@ export default function DashboardPage() {
             <a className="social-link telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer"><Icon name="telegram" size={21}/> Telegram Channel</a>
           </div>
                 </>}
-
+          <UsdKesConverter />
         {screen === "Activation" && <>
           <div className="pagehead">
             <h1>Activate Account</h1>
