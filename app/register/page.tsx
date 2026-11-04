@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -10,6 +9,7 @@ export default function Register() {
   const [countryCode, setCountryCode] = useState("+254");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +27,8 @@ export default function Register() {
         data: {
           full_name: name,
           phone: fullPhone,
-          country_code: countryCode
+          country_code: countryCode,
+          referral_code: referralCode.trim().toUpperCase()
         }
       }
     });
@@ -74,11 +75,8 @@ export default function Register() {
           onChange={e => setEmail(e.target.value)} />
 
         <label>Country code</label>
-        <select
-          style={style}
-          value={countryCode}
-          onChange={e => setCountryCode(e.target.value)}
-        >
+        <select style={style} value={countryCode}
+          onChange={e => setCountryCode(e.target.value)}>
           <option value="+254">Kenya (+254)</option>
           <option value="+256">Uganda (+256)</option>
           <option value="+255">Tanzania (+255)</option>
@@ -92,29 +90,29 @@ export default function Register() {
         </select>
 
         <label>M-PESA phone number</label>
-        <input
-          required
-          type="tel"
-          style={style}
-          placeholder="712345678"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-        />
+        <input required type="tel" style={style}
+          placeholder="712345678" value={phone}
+          onChange={e => setPhone(e.target.value)} />
 
         <label>Password (at least 8 characters)</label>
         <input required minLength={8} type="password"
           style={style} value={password}
           onChange={e => setPassword(e.target.value)} />
 
-        <button disabled={loading}
-          style={{
-            width: "100%",
-            padding: 14,
-            background: "#073b83",
-            color: "white",
-            border: "none",
-            borderRadius: 6
-          }}>
+        <label>Referral code (optional)</label>
+        <input style={style}
+          placeholder="Enter invitation code"
+          value={referralCode}
+          onChange={e => setReferralCode(e.target.value)} />
+
+        <button disabled={loading} style={{
+          width: "100%",
+          padding: 14,
+          background: "#073b83",
+          color: "white",
+          border: "none",
+          borderRadius: 6
+        }}>
           {loading ? "Creating account..." : "Create account"}
         </button>
       </form>
