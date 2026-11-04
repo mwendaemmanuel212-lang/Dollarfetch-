@@ -1,14 +1,35 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 const methods = [
-  { id: "M-PESA", mark: "M", color: "#168b45" },
-  { id: "Postbank", mark: "PB", color: "#174a8b" },
-  { id: "Equity Bank", mark: "E", color: "#d21f35" },
-  { id: "Binance", mark: "B", color: "#d9a500" },
-  { id: "Airtel Money", mark: "A", color: "#e32636" }
+  {
+    id: "M-PESA",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg",
+    alt: "M-PESA logo"
+  },
+  {
+    id: "Postbank",
+    logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128",
+    alt: "Postbank logo"
+  },
+  {
+    id: "Equity Bank",
+    logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128",
+    alt: "Equity Bank logo"
+  },
+  {
+    id: "Binance",
+    logo: "https://cdn.simpleicons.org/binance/F0B90B",
+    alt: "Binance logo"
+  },
+  {
+    id: "Airtel Money",
+    logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128",
+    alt: "Airtel Money logo"
+  }
 ];
 
 export default function Dashboard() {
@@ -101,6 +122,7 @@ export default function Dashboard() {
       method === "Airtel Money"
     ) {
       const digits = paymentPhone.replace(/\D/g, "");
+
       const valid =
         /^254[17]\d{8}$/.test(digits) ||
         /^0[17]\d{8}$/.test(digits) ||
@@ -152,9 +174,6 @@ export default function Dashboard() {
     );
   }
 
-  // ACTIVATION PAGE
-  // Members cannot access the dashboard until verified active.
-
   if (status !== "active") {
     return (
       <main style={{
@@ -177,7 +196,6 @@ export default function Dashboard() {
           </h2>
 
           <h2>Activate Your Account</h2>
-
           <p>Welcome, {name}!</p>
 
           <div style={{
@@ -197,55 +215,90 @@ export default function Dashboard() {
 
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2,minmax(0,1fr))",
-            gap: 10
+            gridTemplateColumns: "1fr",
+            gap: 12
           }}>
             {methods.map(item => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => setMethod(item.id)}
+                aria-label={`Select ${item.id}`}
+                aria-pressed={method === item.id}
                 style={{
-                  padding: 14,
-                  borderRadius: 12,
+                  width: "100%",
+                  minHeight: 86,
+                  padding: "14px 18px",
+                  borderRadius: 14,
                   border: method === item.id
-                    ? `2px solid ${item.color}`
-                    : "1px solid #ddd",
+                    ? "3px solid #6500bd"
+                    : "1px solid #ded6e8",
                   background: method === item.id
-                    ? "#faf7ff"
-                    : "white",
+                    ? "#f7efff"
+                    : "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 16,
                   textAlign: "left",
                   cursor: "pointer",
-                  color: dark
+                  color: dark,
+                  boxShadow: method === item.id
+                    ? "0 0 0 2px #6500bd18"
+                    : "0 2px 8px #31006b0a"
                 }}
               >
                 <span style={{
-                  display: "inline-flex",
+                  width: 112,
+                  height: 54,
+                  flexShrink: 0,
+                  display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 35,
-                  height: 35,
+                  background: "#fff",
                   borderRadius: 9,
-                  background: item.color,
-                  color: "white",
-                  fontWeight: "bold",
-                  marginBottom: 8
+                  padding: 5
                 }}>
-                  {item.mark}
+                  <img
+                    src={item.logo}
+                    alt={item.alt}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: 48,
+                      objectFit: "contain"
+                    }}
+                  />
                 </span>
 
-                <strong style={{ display: "block" }}>
-                  {item.id}
-                </strong>
-
-                {method === item.id && (
-                  <small style={{
-                    color: item.color,
-                    fontWeight: "bold"
+                <span style={{ flex: 1 }}>
+                  <strong style={{
+                    display: "block",
+                    fontSize: 16
                   }}>
-                    Selected
-                  </small>
-                )}
+                    {item.id}
+                  </strong>
+
+                  {method === item.id && (
+                    <small style={{
+                      display: "block",
+                      color: purple,
+                      fontWeight: "bold",
+                      marginTop: 5
+                    }}>
+                      ✓ Selected
+                    </small>
+                  )}
+                </span>
+
+                <span style={{
+                  width: 23,
+                  height: 23,
+                  borderRadius: "50%",
+                  border: method === item.id
+                    ? "7px solid #6500bd"
+                    : "2px solid #b8adca",
+                  boxSizing: "border-box",
+                  flexShrink: 0
+                }} />
               </button>
             ))}
           </div>
@@ -292,9 +345,7 @@ export default function Dashboard() {
               fontWeight: "bold"
             }}
           >
-            {saving
-              ? "Saving..."
-              : "Save Payment Choice"}
+            {saving ? "Saving..." : "Save Payment Choice"}
           </button>
 
           <p style={{
@@ -345,8 +396,6 @@ export default function Dashboard() {
       </main>
     );
   }
-
-  // ACTIVE MEMBER DASHBOARD
 
   const menu = [
     "Dashboard",
