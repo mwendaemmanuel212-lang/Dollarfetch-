@@ -1,36 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Tab = "Dashboard" | "Activation" | "Deposit" | "Withdraw" | "Transactions" | "Referrals" | "Profile";
+type Screen = "Home" | "Earnings" | "Rewards" | "Settings" | "Activation" | "Deposit" | "Withdraw";
 
-const payments = [
-  { id: "M-PESA", mark: "M", color: "#36a843", note: "Safaricom mobile money" },
-  { id: "Postbank", mark: "P", color: "#164b86", note: "Postbank payment" },
-  { id: "Equity Bank", mark: "E", color: "#d52d35", note: "Equity payment" },
-  { id: "Binance", mark: "◆", color: "#f3ba2f", note: "Cryptocurrency payment" },
-  { id: "Airtel Money", mark: "A", color: "#e32636", note: "Airtel mobile money" },
-  { id: "SIM Toolkit", mark: "SIM", color: "#596477", note: "Manual mobile payment" },
+const paymentMethods = [
+  { id: "M-PESA", note: "Safaricom mobile money", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/M-PESA_LOGO-01.svg" },
+  { id: "Postbank", note: "Kenya Post Office Savings Bank", logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=256" },
+  { id: "Equity Bank", note: "Equity Bank Kenya", logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=256" },
+  { id: "Binance", note: "Cryptocurrency payment", logo: "https://cdn.simpleicons.org/binance/F0B90B" },
+  { id: "Airtel Money", note: "Airtel mobile money", logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=256" },
+  { id: "SIM Toolkit", note: "Mobile SIM menu payment", logo: "" },
 ];
 
-const tabs: { name: Tab; icon: string }[] = [
-  { name: "Dashboard", icon: "⌂" },
-  { name: "Activation", icon: "✦" },
-  { name: "Deposit", icon: "＋" },
-  { name: "Withdraw", icon: "↗" },
-  { name: "Transactions", icon: "↔" },
-  { name: "Referrals", icon: "♧" },
-  { name: "Profile", icon: "◎" },
-];
+function Icon({ name, size = 24 }: { name: string; size?: number }) {
+  const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const paths: Record<string, ReactNode> = {
+    bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></>,
+    user: <><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></>,
+    wallet: <><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v16H6.5A2.5 2.5 0 0 1 4 17.5z"/><path d="M4 7h14a2 2 0 0 1 2 2v2h-5a2 2 0 0 0 0 4h5v2"/><path d="M15 13h.01"/></>,
+    rocket: <><path d="M5 14c-2 1-3 4-3 5 1 0 4-1 5-3"/><path d="M9 15 5 11c2-5 7-8 15-8 0 8-3 13-8 15z"/><path d="M14 10h.01"/><path d="m8 17 4-4"/></>,
+    card: <><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 9h18M7 15h3"/></>,
+    gift: <><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M2 6h20v4H2zM12 6v15M12 6H8a2 2 0 1 1 2-2c0 2 2 2 2 2zm0 0h4a2 2 0 1 0-2-2c0 2-2 2-2 2z"/></>,
+    chart: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2z"/></>,
+    arrow: <><path d="M5 12h14M13 6l6 6-6 6"/></>,
+    shield: <><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/><path d="m9 12 2 2 4-4"/></>,
+    copy: <><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3"/></>,
+    logout: <><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></>,
+    whatsapp: <><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.5 8.2c.3-.6.6-.6.9-.6h.5c.2 0 .4.1.5.4l.8 1.8c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4 0 .7.6 1 1.5 1.8 2.5 2.3.3.1.5.1.7-.1l.8-1c.2-.2.4-.3.7-.2l1.7.8c.3.1.4.3.4.5 0 .3-.2 1.2-.8 1.6-.5.4-1.2.6-2 .4-1.1-.2-2.5-.9-3.9-2.1-1.2-1.1-2-2.5-2.3-3.5-.3-.9 0-1.8.3-2.3Z"/></>,
+    telegram: <><path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z"/><path d="m10.1 13.9 5.2-5.1"/></>,
+  };
+  return <svg {...common}>{paths[name] || paths.wallet}</svg>;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [tab, setTab] = useState<Tab>("Dashboard");
+  const [screen, setScreen] = useState<Screen>("Home");
   const [method, setMethod] = useState("M-PESA");
   const [phone, setPhone] = useState("");
   const [reference, setReference] = useState("");
@@ -38,10 +49,10 @@ export default function DashboardPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    let active = true;
-    async function load() {
+    let mounted = true;
+    async function loadUser() {
       const { data, error } = await supabase.auth.getUser();
-      if (!active) return;
+      if (!mounted) return;
       if (error || !data.user) {
         router.replace("/app/login");
         return;
@@ -49,13 +60,21 @@ export default function DashboardPage() {
       setUser(data.user);
       setLoading(false);
     }
-    load();
-    return () => { active = false; };
+    loadUser();
+    return () => { mounted = false; };
   }, [router]);
 
-  const name = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Member";
-  const email = user?.email || "";
-  const referralCode = user?.user_metadata?.referral_code || "";
+  const memberName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "Member";
+
+  function openScreen(next: Screen) {
+    setScreen(next);
+    setMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   async function logout() {
     await supabase.auth.signOut();
@@ -64,12 +83,12 @@ export default function DashboardPage() {
 
   async function submitActivation() {
     setMessage("");
-    if (method === "M-PESA" && !/^\+254\d{9}$/.test(phone)) {
+    if (method === "M-PESA" && !/^\+254\d{9}$/.test(phone.trim())) {
       setMessage("Enter your M-PESA number with country code, e.g. +254712345678.");
       return;
     }
     if (method !== "M-PESA" && !reference.trim()) {
-      setMessage("Enter your payment reference or transaction details.");
+      setMessage("Enter the payment transaction reference/details.");
       return;
     }
     if (!user?.id) {
@@ -82,170 +101,157 @@ export default function DashboardPage() {
       amount: 2,
       currency: "USD",
       method,
-      phone: method === "M-PESA" ? phone : reference,
+      phone: method === "M-PESA" ? phone.trim() : reference.trim(),
       status: "pending",
     });
     setBusy(false);
     setMessage(error
-      ? error.message
-      : "Request submitted. Your account stays pending until an administrator verifies the payment.");
+      ? `Could not submit: ${error.message}`
+      : "Payment details submitted. Your account stays Pending until an administrator verifies the payment.");
     if (!error) {
       setPhone("");
       setReference("");
     }
   }
 
-  function go(next: Tab) {
-    setTab(next);
-    setMenuOpen(false);
-    setMessage("");
-  }
-
-  if (loading) {
-    return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
-  }
+  if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
 
   return (
-    <main className="app">
+    <main className="df-app">
       <style>{`
         *{box-sizing:border-box}
-        .app{min-height:100vh;background:#f5f2fa;color:#261d35;font-family:Arial,Helvetica,sans-serif}
-        .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#7043ad}
-        .spinner{width:36px;height:36px;border:4px solid #e5d9f4;border-top-color:#7043ad;border-radius:50%;animation:spin .8s linear infinite}
+        body{margin:0;background:#f5f0ff}
+        .df-app{min-height:100vh;background:linear-gradient(180deg,#16003e 0,#2b0872 34%,#f6f1ff 34%,#f6f1ff 100%);color:#211044;font-family:Arial,Helvetica,sans-serif;padding-bottom:100px}
+        .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#6730c8}
+        .spinner{width:36px;height:36px;border:4px solid #e8ddff;border-top-color:#6726d9;border-radius:50%;animation:spin .8s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
-        .layout{display:flex;min-height:100vh}
-        .sidebar{width:250px;flex-shrink:0;background:linear-gradient(180deg,#25123f,#43236c);color:white;padding:23px 16px;display:flex;flex-direction:column;min-height:100vh}
-        .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 30px}
-        .brandmark{width:43px;height:43px;border-radius:13px;background:linear-gradient(135deg,#b38af0,#7848bf);display:grid;place-items:center;font-size:22px;font-weight:900}
-        .brandname{font-weight:800;font-size:18px}.brandsub{font-size:11px;color:#cbb8e5;margin-top:4px}
-        .navlabel{font-size:10px;letter-spacing:1.5px;color:#ae98cb;padding:0 12px 12px;font-weight:bold}
-        .nav{display:grid;gap:7px}.nav button{border:0;border-radius:10px;padding:12px;background:transparent;color:#dfd2ee;text-align:left;display:flex;gap:13px;align-items:center;cursor:pointer;font-size:14px}
-        .nav button.active,.nav button:hover{background:#ffffff20;color:white}.navicon{width:20px;text-align:center;font-size:19px}
-        .sidebottom{margin-top:auto}.telegram{display:block;margin-top:25px;padding:14px;border:1px solid #ffffff25;border-radius:12px;background:#ffffff13;color:white;text-decoration:none}
-        .telegram b{display:block;font-size:13px;margin-bottom:5px}.telegram span{font-size:11px;color:#d0c0e5}
-        .sideuser{display:flex;gap:10px;align-items:center;border-top:1px solid #ffffff25;margin-top:18px;padding:17px 4px 0}
-        .avatar{width:35px;height:35px;border-radius:50%;display:grid;place-items:center;background:#e7d9fa;color:#51317d;font-weight:bold}
-        .username{font-size:12px;font-weight:bold}.useremail{font-size:10px;color:#c8b7df;margin-top:4px;overflow-wrap:anywhere;max-width:150px}
-        .main{flex:1;min-width:0}.topbar{height:72px;background:white;border-bottom:1px solid #eee8f5;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
-        .topleft{display:flex;align-items:center;gap:13px}.menubtn{display:none;width:40px;height:40px;border:0;border-radius:9px;background:#f0e8fa;color:#60388f;font-size:22px}
-        .pagetitle{font-size:18px;font-weight:800}.status{font-size:11px;font-weight:bold;color:#986300;background:#fff2d7;padding:8px 11px;border-radius:20px}
-        .topright{display:flex;align-items:center;gap:12px}.content{max-width:1350px;margin:auto;padding:27px 28px 35px}
-        .welcome{margin-bottom:21px}.welcome h1{font-size:25px;margin:0 0 7px}.welcome p{font-size:13px;color:#877d94;margin:0}
-        .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.card{background:white;border:1px solid #eee8f5;border-radius:15px;padding:20px;box-shadow:0 5px 18px #30204b08}
-        .staticon,.actionicon{width:37px;height:37px;border-radius:10px;background:#f0e8fc;color:#7545b4;display:grid;place-items:center;font-size:19px;margin-bottom:14px}
-        .statlabel{font-size:12px;color:#827990}.statvalue{font-size:27px;font-weight:800;margin:12px 0 6px}.statnote{font-size:11px;color:#948ba2}
-        .section{margin-top:21px}.sectiontitle{font-size:16px;font-weight:800;margin:0 0 14px}.sub{font-size:12px;line-height:1.6;color:#857c91;margin:-6px 0 17px}
-        .actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.action{border:1px solid #eee8f5;background:white;border-radius:13px;padding:16px;text-align:left;cursor:pointer;color:#302344}
-        .action strong{display:block;font-size:13px;margin-bottom:5px}.action span{font-size:11px;color:#898095}
-        .banner{margin-top:20px;padding:20px;border-radius:15px;background:linear-gradient(110deg,#43216e,#7849b8);color:white;display:flex;align-items:center;justify-content:space-between;gap:14px}
-        .banner h3{font-size:16px;margin:0 0 7px}.banner p{font-size:12px;color:#e2d6f1;margin:0}
-        .btn{border:0;border-radius:9px;padding:11px 16px;background:#7545b4;color:white;font-weight:bold;font-size:12px;cursor:pointer}
-        .btn:disabled{opacity:.55}.btnlight{background:white;color:#59328e;text-decoration:none;white-space:nowrap}
-        .methods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
-        .method{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid #ece6f4;border-radius:12px;background:white;padding:13px;cursor:pointer;color:#302344}
-        .method.selected{border:2px solid #8050bf;background:#faf7ff;padding:12px}
-        .logo{width:48px;height:43px;border-radius:10px;display:grid;place-items:center;color:white;font-weight:900;font-size:19px;flex-shrink:0}
-        .methodname{font-size:13px;font-weight:800}.methodnote{font-size:10px;color:#898095;margin-top:5px}
-        .field{margin:16px 0}.field label{display:block;font-size:12px;font-weight:bold;margin-bottom:7px}
-        .field input{width:100%;padding:13px;border:1px solid #e5deee;border-radius:9px;background:white;color:#302344;font-size:13px}
-        .notice,.message{padding:13px;border-radius:10px;font-size:12px;line-height:1.6;margin:14px 0;background:#f8f3ff;border:1px solid #e8dcf8;color:#654590}
-        .empty{text-align:center;padding:35px 15px;color:#817990}.emptyicon{font-size:30px;margin-bottom:12px}.empty strong{display:block;color:#433653;font-size:14px;margin-bottom:7px}.empty p{font-size:12px;line-height:1.6;margin:0}
-        .profile{padding:14px 0;border-bottom:1px solid #f0ecf5}.profilelabel{font-size:11px;color:#898095;margin-bottom:5px}.profilevalue{font-size:13px;font-weight:bold;overflow-wrap:anywhere}
-        .footer{text-align:center;color:#9b93a7;font-size:10px;padding:25px 10px 5px}.footer a{color:#7545b4;text-decoration:none;font-weight:bold}
-        @media(max-width:850px){.sidebar{position:fixed;z-index:20;left:0;top:0;bottom:0;transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 30px #170b2c25}.sidebar.open{transform:translateX(0)}.menubtn{display:block}.topbar{height:65px;padding:0 15px}.content{padding:21px 15px 30px}.grid{grid-template-columns:1fr}.actions{grid-template-columns:repeat(2,minmax(0,1fr))}.methods{grid-template-columns:1fr}.banner{align-items:flex-start;flex-direction:column}.status{display:none}}
-        @media(max-width:390px){.welcome h1{font-size:21px}.action{padding:12px}}
+        .wrap{width:min(100%,760px);margin:auto;padding:20px 17px 35px}
+        .top{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:8px 2px 24px}
+        .brand{display:flex;align-items:center;gap:10px;font-size:25px;font-weight:900;letter-spacing:-1px}
+        .brandmark{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#fff,#cbb0ff);color:#4c13bb;display:grid;place-items:center;font-size:26px;font-weight:900}
+        .brand small{display:block;font-size:10px;letter-spacing:1.5px;color:#d9c9ff;margin-top:3px}
+        .topicons{display:flex;gap:10px}
+        .round{width:43px;height:43px;border-radius:50%;border:1px solid #ffffff55;background:#ffffff18;color:#fff;display:grid;place-items:center}
+        .hero{position:relative;overflow:hidden;border-radius:25px;padding:26px 22px 28px;min-height:190px;background:radial-gradient(circle at 78% 40%,#8f3dff 0,#5412c5 35%,#25005d 100%);color:#fff;box-shadow:0 15px 32px #4a13a744}
+        .hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #ffffff28;border-radius:50%;right:-50px;top:-90px;box-shadow:0 0 0 24px #ffffff08,0 0 0 48px #ffffff08}
+        .hero h1{font-size:30px;line-height:1.1;margin:12px 0 8px;max-width:70%;position:relative;z-index:1}
+        .hero p{margin:0;color:#e4d4ff;font-size:14px;position:relative;z-index:1}
+        .hero-art{position:absolute;right:18px;bottom:13px;font-size:94px;filter:drop-shadow(0 12px 12px #14002f88);z-index:1}
+        .hero-tag{font-size:10px;letter-spacing:2px;color:#d7c2ff;font-weight:800}
+        .balance{margin-top:17px;background:linear-gradient(115deg,#fff,#f0e6ff);border:1px solid #e5d5ff;border-radius:22px;padding:19px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px #43128a12}
+        .balance-icon{width:62px;height:62px;flex-shrink:0;border-radius:18px;background:linear-gradient(145deg,#8d35f4,#4a0cbd);color:#fff;display:grid;place-items:center}
+        .balance-label{font-size:13px;color:#77658f;font-weight:700}
+        .balance-value{font-size:34px;font-weight:900;letter-spacing:-1.5px;margin-top:4px;color:#18083d}
+        .balance-note{font-size:10px;color:#8d7da2;margin-top:3px}
+        .actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:17px}
+        .action{border:1px solid #e4d5ff;background:#fff;border-radius:17px;min-height:112px;padding:13px 5px;color:#4e16b7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:12px;box-shadow:0 7px 18px #4811a20d}
+        .action span{text-align:center;color:#2c1653}
+        .referral{margin-top:17px;border-radius:22px;background:linear-gradient(110deg,#fff,#e8d7ff);border:1px solid #e0ccff;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px #43128a12}
+        .gift{font-size:52px}
+        .referral small{font-size:12px;color:#705a8c;font-weight:700}
+        .referral strong{display:block;font-size:32px;color:#4b12b2;margin:3px 0}
+        .referral p{margin:0;font-size:11px;color:#705a8c}
+        .secure{margin-top:16px;border-radius:18px;padding:16px;background:linear-gradient(110deg,#26005e,#6a19d4);color:#fff;display:flex;align-items:center;gap:14px}
+        .secure b{display:block;font-size:14px}.secure small{display:block;color:#dfcaff;margin-top:4px;font-size:11px}
+        .socials{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+        .social-link{display:flex;align-items:center;justify-content:center;gap:9px;padding:13px 10px;border-radius:13px;text-decoration:none;font-size:12px;font-weight:800;background:#fff;border:1px solid #e7dcf5;color:#4b168f;box-shadow:0 6px 18px #39116b0b}
+        .social-link.whatsapp{color:#168b4b}.social-link.telegram{color:#168ac0}
+        .section{margin-top:20px;background:#fff;border:1px solid #e9def8;border-radius:20px;padding:19px;box-shadow:0 8px 22px #39116b0c}
+        .section h2{margin:0 0 7px;font-size:19px;color:#2b1154}
+        .muted{font-size:12px;color:#857796;line-height:1.6;margin:0 0 15px}
+        .primary{border:0;border-radius:13px;padding:14px 18px;background:linear-gradient(100deg,#7d24ed,#4300ae);color:white;font-weight:800;width:100%;font-size:14px}
+        .method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+        .method{border:1px solid #e7ddf2;border-radius:13px;background:#fff;padding:11px;display:flex;align-items:center;gap:10px;text-align:left;color:#261244;min-width:0}
+        .method.selected{border:2px solid #7524e5;background:#faf6ff;padding:10px}
+        .logo{width:43px;height:40px;flex-shrink:0;display:grid;place-items:center;background:#fff;border:1px solid #f0eaf7;border-radius:9px;overflow:hidden}
+        .logo img{width:100%;height:100%;object-fit:contain;padding:4px}.logo-failed:after{content:"";display:block}
+        .method b{font-size:12px;display:block}.method small{font-size:9px;color:#8a7b9a;display:block;margin-top:4px}
+        .field{margin:14px 0}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}
+        .field input{width:100%;padding:13px;border:1px solid #e2d8ed;border-radius:10px;font-size:14px;color:#25133e;background:#fff}
+        .notice{background:#f5edff;color:#59318e;border:1px solid #e6d7ff;border-radius:11px;padding:12px;font-size:12px;line-height:1.5;margin:13px 0}
+        .message{background:#f4efff;color:#4c2382;padding:12px;border-radius:10px;font-size:12px;line-height:1.5;margin:12px 0}
+        .bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid #e9def8;display:grid;grid-template-columns:repeat(4,1fr);padding:10px max(8px,env(safe-area-inset-right)) calc(9px + env(safe-area-inset-bottom));max-width:760px;margin:auto;border-radius:20px 20px 0 0}
+        .bottom button{border:0;background:transparent;color:#817198;display:grid;justify-items:center;gap:4px;font-size:10px;font-weight:700;padding:4px}
+        .bottom button.active{color:#5c14c8}
+        .bottom button.active:after{content:"";width:34px;height:3px;border-radius:3px;background:#6a20d7;margin-top:2px}
+        .pagehead{display:flex;align-items:center;justify-content:space-between;margin:7px 0 17px;color:#fff}
+        .pagehead h1{font-size:22px;margin:0}
+        .back{border:1px solid #ffffff55;background:#ffffff18;color:white;border-radius:10px;padding:9px 12px}
+        .rowline{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid #f0eaf6;font-size:13px}
+        .rowline:last-child{border-bottom:0}
+        @media(max-width:390px){.wrap{padding-left:12px;padding-right:12px}.brand{font-size:21px}.hero h1{font-size:26px}.hero-art{font-size:75px}.balance-value{font-size:29px}.actions{gap:6px}.action{font-size:10px;min-height:102px}}
       `}</style>
 
-      <div className="layout">
-        <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-          <div className="brand">
-            <div className="brandmark">D</div>
-            <div><div className="brandname">DollarFetch</div><div className="brandsub">Powered by BWK</div></div>
+      <div className="wrap">
+        <header className="top">
+          <div className="brand"><div className="brandmark">D$</div><div>DollarFetch<small>POWERED BY BWK SOLUTIONS</small></div></div>
+          <div className="topicons">
+            <button className="round" aria-label="Notifications"><Icon name="bell" /></button>
+            <button className="round" aria-label="Profile" onClick={() => openScreen("Settings")}><Icon name="user" /></button>
           </div>
-          <div className="navlabel">MAIN MENU</div>
-          <nav className="nav">
-            {tabs.map((item) => (
-              <button key={item.name} className={tab === item.name ? "active" : ""} onClick={() => go(item.name)}>
-                <span className="navicon">{item.icon}</span>{item.name}
-              </button>
-            ))}
-          </nav>
-          <div className="sidebottom">
-            <a className="telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer">
-              <b>✈ Join Our Telegram Channel</b><span>Updates and announcements</span>
-            </a>
-            <div className="sideuser">
-              <div className="avatar">{String(name).charAt(0).toUpperCase()}</div>
-              <div><div className="username">{name}</div><div className="useremail">{email}</div></div>
-            </div>
+        </header>
+
+        {screen === "Home" && <>
+          <section className="hero">
+            <div className="hero-tag">YOUR MEMBER DASHBOARD</div>
+            <h1>Hello, {memberName}!</h1>
+            <p>Let鈥檚 grow your earnings today.</p>
+            <div className="hero-art">馃挵</div>
+          </section>
+          <section className="balance">
+            <div className="balance-icon"><Icon name="wallet" size={32} /></div>
+            <div><div className="balance-label">Your Balance</div><div className="balance-value">$0.00</div><div className="balance-note">Demo balance 鈥� no funds credited</div></div>
+          </section>
+          <section className="actions">
+            <button className="action" onClick={() => openScreen("Activation")}><Icon name="rocket" size={29}/><span>Activate Account</span></button>
+            <button className="action" onClick={() => openScreen("Deposit")}><Icon name="card" size={29}/><span>Deposit</span></button>
+            <button className="action" onClick={() => openScreen("Withdraw")}><Icon name="wallet" size={29}/><span>Withdraw</span></button>
+            <button className="action" onClick={() => openScreen("Rewards")}><Icon name="gift" size={29}/><span>Referral</span></button>
+          </section>
+          <button className="referral" style={{width:"100%",textAlign:"left"}} onClick={() => openScreen("Rewards")}>
+            <div className="gift">馃巵</div><div><small>REFERRAL REWARD</small><strong>$0.50</strong><p>Invite friends and earn more!</p></div>
+          </button>
+          <div className="secure"><Icon name="shield" size={38}/><div><b>Your account is secure</b><small>Protected member access</small></div></div>
+          <div className="socials">
+            <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
+            <a className="social-link telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer"><Icon name="telegram" size={21}/> Telegram Channel</a>
           </div>
-        </aside>
+        </>}
 
-        <section className="main">
-          <header className="topbar">
-            <div className="topleft">
-              <button className="menubtn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open menu">☰</button>
-              <div className="pagetitle">{tab}</div>
-            </div>
-            <div className="topright">
-              <span className="status">● Pending activation</span>
-              <button className="btn" onClick={logout}>Log out</button>
-            </div>
-          </header>
+        {screen === "Activation" && <>
+          <div className="pagehead"><h1>Activate Account</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
+          <section className="section">
+            <h2>Unlock your account</h2><p className="muted">Activation fee: <b>$2 USD</b>. Choose a payment method below. Your account remains Pending until payment is verified by an administrator.</p>
+            <div className="method-grid">{paymentMethods.map(p => <button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={() => {setMethod(p.id);setMessage("");}}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`} onError={e=>{e.currentTarget.style.display="none"; e.currentTarget.parentElement?.classList.add("logo-failed");}}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
+            {method==="M-PESA" ? <div className="field"><label>M-PESA phone number (include country code)</label><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/></div> : <div className="field"><label>{method} payment reference / transaction details</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/></div>}
+            <div className="notice">Submitting details does not automatically activate your account. An administrator must verify the payment first. M-PESA STK Push will be connected in a later step.</div>
+            {message && <div className="message">{message}</div>}
+            <button className="primary" disabled={busy} onClick={submitActivation}>{busy?"Submitting...":"Submit payment details"}</button>
+          </section>
+        </>}
 
-          <div className="content">
-            {tab === "Dashboard" && (
-              <>
-                <div className="welcome"><h1>Welcome, {name} 👋</h1><p>Here is your DollarFetch member dashboard.</p></div>
-                <div className="grid">
-                  <div className="card"><div className="staticon">$</div><div className="statlabel">Wallet Balance</div><div className="statvalue">$0.00</div><div className="statnote">Demo balance — no funds credited</div></div>
-                  <div className="card"><div className="staticon">✦</div><div className="statlabel">Account Status</div><div className="statvalue" style={{fontSize:21}}>Pending</div><div className="statnote">Awaiting payment verification</div></div>
-                  <div className="card"><div className="staticon">♧</div><div className="statlabel">Referral Reward</div><div className="statvalue">$0.50</div><div className="statnote">Per eligible referral, subject to rules</div></div>
-                </div>
-                <div className="section"><div className="sectiontitle">Quick actions</div><div className="actions">
-                  {tabs.slice(1).map((item) => <button className="action" key={item.name} onClick={() => go(item.name)}><div className="actionicon">{item.icon}</div><strong>{item.name}</strong><span>Open {item.name.toLowerCase()} section</span></button>)}
-                </div></div>
-                <div className="banner"><div><h3>Join the DollarFetch community</h3><p>Follow our Telegram channel for updates and announcements.</p></div><a className="btn btnlight" href="https://t.me/dollafetch" target="_blank" rel="noreferrer">Join Telegram</a></div>
-              </>
-            )}
+        {screen === "Deposit" && <>
+          <div className="pagehead"><h1>Deposit</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
+          <section className="section"><h2>Choose payment method</h2><p className="muted">Select the payment option you want to use. Payment processing will be connected after the dashboard is approved.</p>
+            <div className="method-grid">{paymentMethods.map(p=><button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={()=>setMethod(p.id)}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
+            <div className="notice">Selected method: <b>{method}</b>. Deposits are not yet connected to a live payment gateway.</div>
+          </section>
+        </>}
 
-            {tab === "Activation" && (
-              <>
-                <div className="welcome"><h1>Account Activation</h1><p>Submit your $2 activation payment details for administrator verification.</p></div>
-                <div className="card">
-                  <div className="sectiontitle">Choose payment method</div>
-                  <p className="sub">Select one option below. Your account is activated only after an administrator verifies payment.</p>
-                  <div className="methods">
-                    {payments.map((item) => (
-                      <button type="button" key={item.id} className={`method ${method === item.id ? "selected" : ""}`} onClick={() => {setMethod(item.id);setMessage("");}}>
-                        <span className="logo" style={{background:item.color,color:item.id === "Binance" ? "#222" : "#fff"}}>{item.mark}</span>
-                        <span><span className="methodname">{item.id}</span><span className="methodnote">{item.note}</span></span>
-                        <span style={{marginLeft:"auto",color:"#8050bf"}}>{method === item.id ? "●" : "○"}</span>
-                      </button>
-                    ))}
-                  </div>
-                  {method === "M-PESA" ? (
-                    <div className="field"><label>M-PESA phone number</label><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" /></div>
-                  ) : (
-                    <div className="field"><label>Payment reference / transaction details</label><input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Enter payment reference" /></div>
-                  )}
-                  <div className="notice">This form submits a request only. It does not make or automatically verify a payment. Confirm payment instructions with the administrator before sending money.</div>
-                  {message && <div className="message">{message}</div>}
-                  <button className="btn" disabled={busy} onClick={submitActivation}>{busy ? "Submitting..." : "Submit Activation Request"}</button>
-                </div>
-              </>
-            )}
+        {screen === "Withdraw" && <>
+          <div className="pagehead"><h1>Withdraw</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
+          <section className="section"><h2>Withdrawal requests</h2><p className="muted">Withdrawals require administrator authorization before any payment is released.</p><div className="notice">Your available balance is currently $0.00. Withdrawal requests will be enabled after the wallet and admin approval process are connected.</div></section>
+        </>}
 
-            {tab === "Deposit" && <><div className="welcome"><h1>Deposit</h1><p>Deposit services are not connected yet.</p></div><div className="card empty"><div className="emptyicon">＋</div><strong>Deposits coming soon</strong><p>Payment integration is still being prepared. Do not send money using unverified instructions.</p></div></>}
-            {tab === "Withdraw" && <><div className="welcome"><h1>Withdraw</h1><p>Withdrawals require administrator authorization.</p></div><div className="card empty"><div className="emptyicon">↗</div><strong>Withdrawals are not available yet</strong><p>The withdrawal service is not connected. Future requests will require administrator review and approval.</p></div></>}
-            {tab === "Transactions" && <><div className="welcome"><h1>Transactions</h1><p>Your payment and account activity.</p></div><div className="card empty"><div className="emptyicon">↔</div><strong>No transactions to display</strong><p>Transaction history will appear here when recording is connected.</p></div></>}
-            {tab === "Referrals" && <><div className="welcome"><h1>Referral program</h1><p>Invite people to join DollarFetch.</p></div><div className="card"><div className="sectiontitle">Referral reward: $0.50</div><p className="sub">Rewards are subject to program rules and verification.</p>{referralCode ? <div className="field"><label>Your referral code</label><input readOnly value={String(referralCode)} /></div> : <div className="notice">Your referral code has not been generated yet.</div>}</div></>}
-            {tab === "Profile" && <><div className="welcome"><h1>My Profile</h1><p>Your registered account information.</p></div><div className="card"><div className="profile"><div className="profilelabel">Full name</div><div className="profilevalue">{name}</div></div><div className="profile"><div className="profilelabel">Email address</div><div className="profilevalue">{email}</div></div><div className="profile"><div className="profilelabel">Account status</div><div className="profilevalue">Pending activation</div></div></div></>}
+        {screen === "Earnings" && <>
+          <div className="pagehead"><h1>Earnings</h1></div>
+          <section className="section"><h2>Your earnings</h2><p className="muted">Your earnings summary will appear here when earning activity is connected.</p><div className="rowline"><span>Total earnings</span><b>$0.00</b></div><div className="rowline"><span>Available balance</span><b>$0.00</b></div></section>
+        </>}
 
-            <footer className="footer">© {new Date().getFullYear()} DollarFetch · Powered by BWK · <a href="https://t.me/dollafetch" target="_blank" rel="noreferrer">Telegram Channel</a></footer>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+        {screen === "Rewards" && <>
+          <div className="pagehead"><h1>Referral Rewards</h1></div>
+          <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p><div className="rowline"><span>Reward per eligible referral</span><b>$0.50</b></div><div className="rowline"><span>Your referral code</span><b>{user?.user_metadata?.referral_code || "Not assigned"}</b></div></section>
+        </>}
+
+        {screen === "Settings" && <>
+          <div className="pagehead"><h1>Settings</
