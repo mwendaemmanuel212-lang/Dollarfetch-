@@ -47,6 +47,13 @@ export default function Dashboard() {
   const [method, setMethod] = useState("M-PESA");
   const [paymentPhone, setPaymentPhone] = useState("");
 
+  const [referralCode, setReferralCode] = useState("");
+  const [referralCount, setReferralCount] = useState(0);
+  const [pendingReferrals, setPendingReferrals] = useState(0);
+  const [earnedRewards, setEarnedRewards] = useState(0);
+  const [paidRewards, setPaidRewards] = useState(0);
+  const [copyMessage, setCopyMessage] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -72,9 +79,7 @@ export default function Dashboard() {
         metadata.activation_payment_phone || metadata.phone || ""
       );
 
-      setMethod(
-        metadata.activation_payment_method || "M-PESA"
-      );
+      setMethod(metadata.activation_payment_method || "M-PESA");
 
       const { data, error } = await supabase
         .from("activation_requests")
@@ -83,9 +88,7 @@ export default function Dashboard() {
         .maybeSingle();
 
       if (error) {
-        setMessage(
-          "Activation setup is not ready. Please contact support."
-        );
+        setMessage("Activation setup is not ready. Please contact support.");
         setLoading(false);
         return;
       }
@@ -101,9 +104,7 @@ export default function Dashboard() {
           });
 
         if (insertError) {
-          setMessage(
-            "Could not create your activation record. Please try again."
-          );
+          setMessage("Could not create your activation record. Please try again.");
           setLoading(false);
           return;
         }
@@ -113,19 +114,64 @@ export default function Dashboard() {
         setStatus(data.status);
       }
 
+      // Load member referral information
+      const { data: codeData } = await supabase
+        .from("member_referral_codes")
+        .select("referral_code")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      setReferralCode(codeData?.referral_code || "");
+
+      const { data: referralData } = await supabase
+        .from("member_referrals")
+        .select("status, reward_amount")
+        .eq("referrer_user_id", user.id);
+
+      const referrals = referralData || [];
+
+      setReferralCount(referrals.length);
+
+      setPendingReferrals(
+        referrals.filter(r => r.status === "pending").length
+      );
+
+      setEarnedRewards(
+        referrals
+          .filter(r => r.status === "earned")
+          .reduce((total, r) => total + Number(r.reward_amount), 0)
+      );
+
+      setPaidRewards(
+        referrals
+          .filter(r => r.status === "paid")
+          .reduce((total, r) => total + Number(r.reward_amount), 0)
+      );
+
       setLoading(false);
     }
 
     loadAccount();
   }, []);
 
+  async function copyReferralCode() {
+    if (!referralCode) {
+      setCopyMessage("Your referral code is not available yet.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(referralCode);
+      setCopyMessage("Referral code copied successfully!");
+    } catch {
+      setCopyMessage("Please copy your code manually: " + referralCode);
+    }
+  }
+
   async function savePaymentChoice() {
     setMessage("");
 
-    if (
-      method === "M-PESA" ||
-      method === "Airtel Money"
-    ) {
+    if (method === "M-PESA" || method === "Airtel Money") {
       const digits = paymentPhone.replace(/\D/g, "");
 
       const valid =
@@ -134,9 +180,7 @@ export default function Dashboard() {
         /^[17]\d{8}$/.test(digits);
 
       if (!valid) {
-        setMessage(
-          "Enter a valid Kenyan phone number, for example 0712345678."
-        );
+        setMessage("Enter a valid Kenyan phone number, for example 0712345678.");
         return;
       }
     }
@@ -162,9 +206,7 @@ export default function Dashboard() {
 
     if (updateError) {
       setSaving(false);
-      setMessage(
-        "Could not save activation amount: " + updateError.message
-      );
+      setMessage("Could not save activation amount: " + updateError.message);
       return;
     }
 
@@ -197,11 +239,7 @@ export default function Dashboard() {
   const light = "#f6efff";
 
   if (loading) {
-    return (
-      <main style={{ padding: 30 }}>
-        Loading your account...
-      </main>
-    );
+    return <main style={{ padding: 30 }}>Loading your account...</main>;
   }
 
   if (status !== "active") {
@@ -221,10 +259,7 @@ export default function Dashboard() {
           borderRadius: 18,
           boxShadow: "0 4px 20px #31006b15"
         }}>
-          <h2 style={{ color: purple }}>
-            BWK · DollarFetch
-          </h2>
-
+          <h2 style={{ color: purple }}>BWK · DollarFetch</h2>
           <h2>Activate Your Account</h2>
           <p>Welcome, {name}!</p>
 
@@ -266,18 +301,13 @@ export default function Dashboard() {
                   border: method === item.id
                     ? "3px solid #6500bd"
                     : "1px solid #ded6e8",
-                  background: method === item.id
-                    ? "#f7efff"
-                    : "#fff",
+                  background: method === item.id ? "#f7efff" : "#fff",
                   display: "flex",
                   alignItems: "center",
                   gap: 16,
                   textAlign: "left",
                   cursor: "pointer",
-                  color: dark,
-                  boxShadow: method === item.id
-                    ? "0 0 0 2px #6500bd18"
-                    : "0 2px 8px #31006b0a"
+                  color: dark
                 }}
               >
                 <span style={{
@@ -303,13 +333,7 @@ export default function Dashboard() {
                 </span>
 
                 <span style={{ flex: 1 }}>
-                  <strong style={{
-                    display: "block",
-                    fontSize: 16
-                  }}>
-                    {item.id}
-                  </strong>
-
+                  <strong>{item.id}</strong>
                   {method === item.id && (
                     <small style={{
                       display: "block",
@@ -321,17 +345,6 @@ export default function Dashboard() {
                     </small>
                   )}
                 </span>
-
-                <span style={{
-                  width: 23,
-                  height: 23,
-                  borderRadius: "50%",
-                  border: method === item.id
-                    ? "7px solid #6500bd"
-                    : "2px solid #b8adca",
-                  boxSizing: "border-box",
-                  flexShrink: 0
-                }} />
               </button>
             ))}
           </div>
@@ -345,29 +358,18 @@ export default function Dashboard() {
               border: "1px solid #edcf91"
             }}>
               <h3>SIM Toolkit Payment</h3>
-
-              <p>
-                Activation fee: <strong>KES 300</strong>
-              </p>
-
+              <p>Activation fee: <strong>KES 300</strong></p>
               <p>Send Money to this number:</p>
-
-              <h2 style={{ color: dark }}>
-                0732659971
-              </h2>
-
+              <h2 style={{ color: dark }}>0732659971</h2>
               <p>
-                Tap the button below to open the M-PESA menu.
-                Choose Send Money, enter the recipient number
-                shown above and KES 300, then confirm using
+                Open the M-PESA menu. Choose Send Money, enter the
+                recipient number and KES 300, then confirm using
                 your own M-PESA PIN.
               </p>
-
               <a
                 href="tel:*334%23"
                 style={{
                   display: "block",
-                  width: "100%",
                   boxSizing: "border-box",
                   padding: 15,
                   margin: "14px 0",
@@ -381,31 +383,24 @@ export default function Dashboard() {
               >
                 Open M-PESA SIM Toolkit
               </a>
-
               <small>
                 Your phone may open the dialer or M-PESA USSD menu.
-                For security, this website cannot automatically type
-                the recipient number or amount into the SIM Toolkit.
-                Enter 0732659971 and KES 300 yourself, then confirm
-                with your PIN. Your account remains pending until
-                payment is verified.
+                Enter the recipient and amount yourself. The website
+                cannot automatically fill secure SIM Toolkit fields.
+                Your account remains pending until payment is verified.
               </small>
             </div>
           )}
 
-          {(method === "M-PESA" ||
-            method === "Airtel Money") && (
+          {(method === "M-PESA" || method === "Airtel Money") && (
             <div style={{ marginTop: 20 }}>
               <label style={{ fontWeight: "bold" }}>
                 {method} Phone Number
               </label>
-
               <input
                 type="tel"
                 value={paymentPhone}
-                onChange={e =>
-                  setPaymentPhone(e.target.value)
-                }
+                onChange={e => setPaymentPhone(e.target.value)}
                 placeholder="+254712345678"
                 style={{
                   width: "100%",
@@ -446,28 +441,16 @@ export default function Dashboard() {
             fontSize: 13,
             lineHeight: 1.5
           }}>
-            Payment processing is not connected yet.
-            Saving your choice does not make a payment.
-            Your account remains pending until payment is
-            securely verified.
+            Payment processing is not connected yet. Saving your choice
+            does not make a payment. Your account remains pending until
+            payment is securely verified.
           </p>
 
-          <p style={{
-            color: "#805600",
-            fontWeight: "bold"
-          }}>
+          <p style={{ color: "#805600", fontWeight: "bold" }}>
             Account Status: Not Activated
           </p>
 
-          {message && (
-            <p style={{
-              fontSize: 14,
-              lineHeight: 1.5,
-              overflowWrap: "anywhere"
-            }}>
-              {message}
-            </p>
-          )}
+          {message && <p>{message}</p>}
 
           <button
             onClick={logout}
@@ -492,6 +475,7 @@ export default function Dashboard() {
     "Deposit",
     "Withdraw",
     "Transactions",
+    "Referrals",
     "Profile"
   ];
 
@@ -533,7 +517,7 @@ export default function Dashboard() {
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(135px,1fr))",
+          gridTemplateColumns: "repeat(auto-fit,minmax(125px,1fr))",
           gap: 10,
           marginTop: 20
         }}>
@@ -589,8 +573,7 @@ export default function Dashboard() {
               <h2>Withdraw Funds</h2>
               <p>Available balance: $0.00</p>
               <p>
-                All withdrawal requests require administrator
-                authorization.
+                All withdrawal requests require administrator authorization.
               </p>
               <p>Withdrawals are not yet enabled.</p>
             </>
@@ -603,65 +586,110 @@ export default function Dashboard() {
             </>
           )}
 
-          {tab === "Profile" && (
+          {tab === "Referrals" && (
             <>
-              <h2>My Profile</h2>
-              <p><b>Name:</b> {name}</p>
-              <p><b>Email:</b> {email}</p>
-              <p><b>Phone:</b> {phone}</p>
-              <p><b>Currency:</b> USD ($)</p>
-            </>
-          )}
-        </div>
+              <h2>Invite Friends & Earn</h2>
+              <p>
+                Invite people to join BWK DollarFetch. Earn
+                <strong> $0.50 USD </strong>
+                for each referred member whose account is successfully
+                activated after payment verification.
+              </p>
 
-        <button
-          onClick={logout}
-          style={{
-            background: dark,
-            color: "white",
-            border: 0,
-            borderRadius: 10,
-            padding: 15,
-            width: "100%",
-            marginTop: 20
-          }}
-        >
-          Log Out
-        </button>
+              <div style={{
+                background: "#f6efff",
+                padding: 18,
+                borderRadius: 12,
+                margin: "18px 0"
+              }}>
+                <p><b>Your Personal Referral Code</b></p>
+                <h2 style={{
+                  color: purple,
+                  letterSpacing: 2,
+                  overflowWrap: "anywhere"
+                }}>
+                  {referralCode || "Not available yet"}
+                </h2>
 
-        <footer style={{
-          textAlign: "center",
-          padding: 25,
-          color: "#63319a"
-        }}>
-          Powered by <b>BWK Manny</b> © 2026
-        </footer>
-      </section>
+                <button
+                  onClick={copyReferralCode}
+                  style={{
+                    width: "100%",
+                    padding: 13,
+                    background: purple,
+                    color: "white",
+                    border: 0,
+                    borderRadius: 8,
+                    fontWeight: "bold"
+                  }}
+                >
+                  Copy Referral Code
+                </button>
 
-      <a
-        href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          position: "fixed",
-          bottom: 22,
-          right: 20,
-          width: 60,
-          height: 60,
-          borderRadius: "50%",
-          background: "#25D366",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 30,
-          textDecoration: "none",
-          zIndex: 1000
-        }}
-      >
-        ☎
-      </a>
-    </main>
-  );
-}
+                {copyMessage && <p>{copyMessage}</p>}
+              </div>
+
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit,minmax(125px,1fr))",
+                gap: 12
+              }}>
+                <div style={{
+                  background: "#f6efff",
+                  padding: 16,
+                  borderRadius: 12
+                }}>
+                  <small>Total Referrals</small>
+                  <h2>{referralCount}</h2>
+                </div>
+
+                <div style={{
+                  background: "#fff8e8",
+                  padding: 16,
+                  borderRadius: 12
+                }}>
+                  <small>Pending</small>
+                  <h2>{pendingReferrals}</h2>
+                </div>
+
+                <div style={{
+                  background: "#edf9ef",
+                  padding: 16,
+                  borderRadius: 12
+                }}>
+                  <small>Earned Rewards</small>
+                  <h2>${earnedRewards.toFixed(2)}</h2>
+                </div>
+
+                <div style={{
+                  background: "#eef5ff",
+                  padding: 16,
+                  borderRadius: 12
+                }}>
+                  <small>Paid Rewards</small>
+                  <h2>${paidRewards.toFixed(2)}</h2>
+                </div>
+              </div>
+
+              <div style={{
+                marginTop: 20,
+                padding: 16,
+                border: "1px solid #ded6e8",
+                borderRadius: 12
+              }}>
+                <h3>How It Works</h3>
+                <p>1. Copy your personal referral code.</p>
+                <p>2. Share it with someone you invite.</p>
+                <p>3. They enter your code when registering.</p>
+                <p>4. Their account must be activated after payment verification.</p>
+                <p>5. You earn $0.50 USD for that successful referral.</p>
+              </div>
+
+              <p style={{
+                color: "#805600",
+                fontSize: 13,
+                marginTop: 16
+              }}>
+                Rewards are recorded after administrator approval
+                of the referred member's activation. Payouts are
   
