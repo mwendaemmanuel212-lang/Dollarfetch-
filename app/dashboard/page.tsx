@@ -705,7 +705,7 @@ export default function DashboardPage() {
 
             {activeTab === "Dashboard" && (
               <>
-                <
+                
                 <div className="df-overview">
                   <section className="df-balance">
                     <div>
