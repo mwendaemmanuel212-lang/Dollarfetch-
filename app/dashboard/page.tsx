@@ -236,4 +236,90 @@ export default function DashboardPage() {
             <h2>Unlock your account</h2><p className="muted">Activation fee: <b>$2 USD</b>. Choose a payment method below. Your account remains Pending until payment is verified by an administrator.</p>
             <div className="rate-card"><b>USD to KES converter</b><div style={{fontSize:20,fontWeight:900,margin:"5px 0"}}>$2.00 USD = {kesRate ? `KES ${(2 * kesRate).toLocaleString("en-KE", {maximumFractionDigits:2})}` : "Rate unavailable"}</div><div>1 USD = {kesRate ? `KES ${kesRate.toFixed(2)}` : "鈥�"}</div><small>{rateMessage}</small></div>
             <div className="method-grid">{paymentMethods.map(p => <button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={() => {setMethod(p.id);setMessage("");}}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`} onError={e=>{e.currentTarget.style.display="none"; e.currentTarget.parentElement?.classList.add("logo-failed");}}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
-            {method==="M-PESA" ? <div className="field"><label>M-PESA phone number (include country code)</label><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/></div> : method==="SIM Toolkit" ? <><div className="payment-steps"><b>SIM Toolkit / M-PESA payment procedure</b><ol><li>Tap Open M-PESA menu below (or dial the code manually).</li><li>Select <b>Send Money</b>.</li><li>Enter the recipient number shown below.</li><li>Enter the KES equivalent of the $2 activation fee shown above.</li><li>Confirm the recipient details on your phone before sending.</li><li>After payment, enter the M-PESA transaction code below and submit it for verification.</li></ol><div className="copy-number"><span>0732659971</span><button className="copy-btn" type="button" onClick={() => {navigator.clipboard?.writeText("0732659971").then(()=>setMessage("M-PESA number copied." )).catch(()=>setMessage("Please copy the number manually: 0732659971"));}}>Copy number</button></div><button className="primary" type="button" onClick={() => {window.location.href="tel:*334%23";}}>Open *334#</button></div><div className="field"><label>M-PESA transaction code</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter the M-PESA confirmation code"/></div></> : <div className="field"><label>{method} payment reference / transaction details</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/
+                        {method==="M-PESA" ? (
+              <div className="field">
+                <label>M-PESA phone number (include country code)</label>
+                <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/>
+              </div>
+            ) : method==="SIM Toolkit" ? (
+              <>
+                <div className="payment-steps">
+                  <b>SIM Toolkit / M-PESA payment procedure</b>
+                  <ol>
+                    <li>Open the M-PESA menu using *334#.</li>
+                    <li>Select Send Money.</li>
+                    <li>Enter recipient number 0732659971.</li>
+                    <li>Enter the KES equivalent of the $2 activation fee.</li>
+                    <li>Confirm the recipient details before sending.</li>
+                    <li>Enter your M-PESA transaction code below.</li>
+                  </ol>
+                  <div className="copy-number">
+                    <span>0732659971</span>
+                    <button className="copy-btn" type="button" onClick={() => navigator.clipboard?.writeText("0732659971").then(()=>setMessage("Number copied")).catch(()=>setMessage("Copy 0732659971 manually"))}>Copy number</button>
+                  </div>
+                  <button className="primary" type="button" onClick={() => window.location.href="tel:*334%23"}>Open *334#</button>
+                </div>
+                <div className="field">
+                  <label>M-PESA transaction code</label>
+                  <input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter confirmation code"/>
+                </div>
+              </>
+            ) : (
+              <div className="field">
+                <label>{method} payment reference / transaction details</label>
+                <input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/>
+              </div>
+            )}
+
+            <div className="notice">Payment must be verified by an administrator before account activation. Confirm the recipient and amount before sending.</div>
+            {message && <div className="message">{message}</div>}
+            <button className="primary" disabled={busy} onClick={submitActivation}>{busy?"Submitting...":"Submit payment details"}</button>
+          </section>
+        </>}
+
+        {screen === "Deposit" && <>
+          <div className="pagehead"><h1>Deposit</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
+          <section className="section">
+            <h2>Choose payment method</h2>
+            <p className="muted">Select a payment option. Live payment processing will be connected later.</p>
+            <div className="method-grid">{paymentMethods.map(p=><button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={()=>setMethod(p.id)}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
+            <div className="notice">Selected method: <b>{method}</b>. Deposits are not yet connected to a live payment gateway.</div>
+          </section>
+        </>}
+
+        {screen === "Withdraw" && <>
+          <div className="pagehead"><h1>Withdraw</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
+          <section className="section"><h2>Withdrawal requests</h2><p className="muted">Withdrawals require administrator authorization before payment is released.</p><div className="notice">Your available balance is currently $0.00. Withdrawal requests will be enabled after the wallet and admin approval process are connected.</div></section>
+        </>}
+
+        {screen === "Earnings" && <>
+          <div className="pagehead"><h1>Earnings</h1></div>
+          <section className="section"><h2>Your earnings</h2><p className="muted">Your earnings summary will appear here when earning activity is connected.</p><div className="rowline"><span>Total earnings</span><b>$0.00</b></div><div className="rowline"><span>Available balance</span><b>$0.00</b></div></section>
+        </>}
+
+        {screen === "Rewards" && <>
+          <div className="pagehead"><h1>Referral Rewards</h1></div>
+          <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p><div className="rowline"><span>Reward per eligible referral</span><b>$0.50</b></div><div className="rowline"><span>Your referral code</span><b>{user?.user_metadata?.referral_code || "Not assigned"}</b></div></section>
+        </>}
+
+        {screen === "Settings" && <>
+          <div className="pagehead"><h1>Settings</h1></div>
+          <section className="section">
+            <h2>Member profile</h2>
+            <div className="rowline"><span>Name</span><b>{memberName}</b></div>
+            <div className="rowline"><span>Email</span><b>{user?.email || "—"}</b></div>
+            <div className="rowline"><span>Account status</span><b>Pending</b></div>
+            <button className="primary" style={{marginTop:18}} onClick={logout}><Icon name="logout" size={18}/> Log out</button>
+          </section>
+        </>}
+      </div>
+
+      <nav className="bottom">
+        <button className={screen==="Home"?"active":""} onClick={()=>openScreen("Home")}><Icon name="wallet" size={22}/>Home</button>
+        <button className={screen==="Earnings"?"active":""} onClick={()=>openScreen("Earnings")}><Icon name="chart" size={22}/>Earnings</button>
+        <button className={screen==="Rewards"?"active":""} onClick={()=>openScreen("Rewards")}><Icon name="gift" size={22}/>Rewards</button>
+        <button className={screen==="Settings"?"active":""} onClick={()=>openScreen("Settings")}><Icon name="settings" size={22}/>Settings</button>
+      </nav>
+    </main>
+  );
+}
