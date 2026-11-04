@@ -238,6 +238,8 @@ export default function Dashboard() {
           }}>
             <small>ONE-TIME ACTIVATION FEE</small>
             <h1 style={{ fontSize: 38, margin: 8 }}>
+  {method === "SIM Toolkit" ? "KES 300" : "$2.00 USD"}
+</h1>
               $2.00 USD
             </h1>
           </div>
