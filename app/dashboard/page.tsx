@@ -331,3 +331,68 @@ export default function DashboardPage() {
           </section>
         )}
             
+
+        {activeTab === "Transactions" && (
+          <section style={styles.card}>
+            <h3>Transactions</h3>
+            <p>No transactions to display yet.</p>
+          </section>
+        )}
+
+        {activeTab === "Referrals" && (
+          <section style={styles.card}>
+            <h3>Refer Members</h3>
+            <p>Earn $0.50 for each referred member whose activation is verified.</p>
+
+            <label>Your referral code</label>
+            <input
+              style={styles.input}
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="Referral code"
+            />
+
+            <button style={styles.button} onClick={copyReferral}>
+              Copy Referral Link
+            </button>
+
+            <p>Referral rewards are subject to verification.</p>
+          </section>
+        )}
+
+        {activeTab === "Profile" && (
+          <section style={styles.card}>
+            <h3>Member Profile</h3>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Account ID:</strong> {user.id}</p>
+            <button style={styles.button} onClick={logout}>
+              Log Out
+            </button>
+
+            {user.email === "mwendaemmanuel212@gmail.com" && (
+              <p style={{ marginTop: "18px" }}>
+                <a
+                  href="/admin"
+                  style={{ color: "#1769e0", fontWeight: 700 }}
+                >
+                  Open Admin Panel
+                </a>
+              </p>
+            )}
+          </section>
+        )}
+
+        <footer
+          style={{
+            textAlign: "center",
+            color: "#77849a",
+            padding: "25px 5px",
+            fontSize: "13px",
+          }}
+        >
+          BWK DollarFetch © 2026
+        </footer>
+      </div>
+    </main>
+  );
+}
