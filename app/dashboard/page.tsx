@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -104,6 +103,7 @@ export default function Dashboard() {
       const referrals = referralData || [];
 
       setReferralCount(referrals.length);
+
       setPendingReferrals(
         referrals.filter(r => r.status === "pending").length
       );
@@ -338,6 +338,7 @@ export default function Dashboard() {
                 recipient number and KES 300, then confirm using
                 your own M-PESA PIN.
               </p>
+
               <a
                 href="tel:*334%23"
                 style={{
@@ -355,6 +356,7 @@ export default function Dashboard() {
               >
                 Open M-PESA SIM Toolkit
               </a>
+
               <small>
                 Your phone may open the dialer or M-PESA USSD menu.
                 Enter the recipient and amount yourself. The website
@@ -575,6 +577,7 @@ export default function Dashboard() {
                 margin: "18px 0"
               }}>
                 <p><b>Your Personal Referral Code</b></p>
+
                 <h2 style={{
                   color: purple,
                   letterSpacing: 2,
@@ -669,4 +672,4 @@ export default function Dashboard() {
             </>
           )}
 
-          {tab === "Profil
+          {tab === "Pro
