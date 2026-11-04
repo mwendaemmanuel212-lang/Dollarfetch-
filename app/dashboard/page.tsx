@@ -265,5 +265,211 @@ export default function DashboardPage() {
           </button>
           <div className="secure"><Icon name="shield" size={38}/><div><b>Your account is secure</b><small>Protected member access</small></div></div>
           <div className="socials">
-            <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
-            <a className="socia
+                        <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
+            <a className="social-link telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer"><Icon name="telegram" size={21}/> Telegram Channel</a>
+          </div>
+        </>\n        {screen === "Activation" && <>
+          <div className="pagehead">
+            <h1>Activate Account</h1>
+            <button className="back" onClick={() => openScreen("Home")}>Back</button>
+          </div>
+          <section className="section">
+            <div className="activation-banner">
+              <div className="activation-rocket">🚀</div>
+              <div>
+                <h2>Activate your account</h2>
+                <p>Pay the $2 activation fee to unlock membership.</p>
+              </div>
+            </div>
+            <h2>Choose payment method</h2>
+            <p className="muted">Select how you want to pay your $2 activation fee.</p>
+            <div className="method-grid">
+              {paymentMethods.map(p => (
+                <button type="button" key={p.id}
+                  className={`method ${method===p.id?"selected":""}`}
+                  onClick={() => setMethod(p.id)}>
+                  <div className="logo">{p.logo ? <img src={p.logo} alt={`${p.id} logo`}/> : <span>SIM</span>}</div>
+                  <div><b>{p.id}</b><small>{p.note}</small></div>
+                </button>
+              ))}
+            </div>            {method==="M-PESA" ? (
+              <div className="field">
+                <label>M-PESA phone number (include country code)</label>
+                <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/>
+              </div>
+            ) : method==="SIM Toolkit" ? (
+              <>
+                <div className="payment-steps">
+                  <b>SIM Toolkit / M-PESA payment procedure</b>
+                  <ol>
+                    <li>Open the M-PESA menu using *334#.</li>
+                    <li>Select Send Money.</li>
+                    <li>Enter recipient number 0732659971.</li>
+                    <li>Enter the KES equivalent of the $2 activation fee.</li>
+                    <li>Confirm the recipient details before sending.</li>
+                    <li>Enter your M-PESA transaction code below.</li>
+                  </ol>
+                  <div className="copy-number">
+                    <span>0732659971</span>
+                    <button className="copy-btn" type="button" onClick={() => copyValue("0732659971","Number")}>Copy number</button>
+                  </div>
+                  <button className="primary" type="button" onClick={() => {window.location.href="tel:*334%23";}}>Open *334#</button>
+                </div>
+                <div className="field">
+                  <label>M-PESA transaction code</label>
+                  <input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter confirmation code"/>
+                </div>
+              </>
+            ) : (
+              <div className="field">
+                <label>{method} payment reference / transaction details</label>
+                <input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/>
+              </div>
+            )}
+            <div className="notice">
+              Payment must be verified by an administrator before account activation. Confirm the recipient and amount before sending.
+            </div>
+            {(message || copied) && <div className="message">{message || copied}</div>}
+            <button className="primary" disabled={busy} onClick={submitActivation}>
+              {busy ? "Submitting..." : "Submit payment details"}
+            </button>
+          </section>
+        </>}        {screen === "Deposit" && <>
+          <div className="pagehead">
+            <h1>Deposit</h1>
+            <button className="back" onClick={() => openScreen("Home")}>Back</button>
+          </div>
+          <section className="section">
+            <h2>Choose payment method</h2>
+            <p className="muted">Select a payment option. Live payment processing will be connected later.</p>
+            <div className="method-grid">
+              {paymentMethods.map(p => (
+                <button type="button" key={p.id}
+                  className={`method ${method===p.id?"selected":""}`}
+                  onClick={() => setMethod(p.id)}>
+                  <div className="logo">
+                    {p.logo ? <img src={p.logo} alt={`${p.id} logo`}/> : <span>SIM</span>}
+                  </div>
+                  <div><b>{p.id}</b><small>{p.note}</small></div>
+                </button>
+              ))}
+            </div>
+            <div className="notice">
+              Selected method: <b>{method}</b>. Deposits are not yet connected to a live payment gateway.
+            </div>
+          </section>
+        </>}        {screen === "Withdraw" && <>
+          <div className="pagehead">
+            <h1>Withdraw</h1>
+            <button className="back" onClick={() => openScreen("Home")}>Back</button>
+          </div>
+          <section className="section">
+            <h2>Withdrawal requests</h2>
+            <p className="muted">
+              Withdrawals require administrator authorization before payment is released.
+            </p>
+            <div className="notice">
+              Your available balance is currently $0.00. Withdrawal requests will be enabled after the wallet and admin approval process are connected.
+            </div>
+          </section>
+        </>}        {screen === "Earnings" && <>
+          <div className="pagehead">
+            <h1>Earnings</h1>
+          </div>
+          <section className="section">
+            <h2>Your earnings</h2>
+            <p className="muted">Your earnings summary will appear here when earning activity is connected.</p>
+            <div className="rowline"><span>Total earnings</span><b>$0.00</b></div>
+            <div className="rowline"><span>Available balance</span><b>$0.00</b></div>
+          </section>
+        </>}        {screen === "Rewards" && <>
+          <div className="pagehead">
+            <h1>Referral Rewards</h1>
+          </div>
+          <section className="section">
+            <h2>Invite friends and earn</h2>
+            <p className="muted">
+              Earn $0.50 for each eligible referral, subject to the referral rules.
+            </p>
+
+            <div className="rowline">
+              <span>Reward per eligible referral</span>
+              <b>$0.50</b>
+            </div>
+            <div className="rowline">
+              <span>Your referral code</span>
+              <b>{referralCode || "Preparing..."}</b>
+            </div>
+
+            <div className="referral-tools">
+              <b>Your personal invitation code</b>
+              <div className="referral-value">{referralCode || "Preparing..."}</div>
+              <button className="copy-action" type="button"
+                onClick={() => copyValue(referralCode,"Referral code")}>
+                <Icon name="copy" size={15}/> Copy code
+              </button>
+
+              <div style={{height:13}}/>
+
+              <b>Your personal referral link</b>
+              <div className="referral-value">{referralLink || "Preparing..."}</div>
+              <button className="copy-action" type="button"
+                onClick={() => copyValue(referralLink,"Referral link")}>
+                <Icon name="copy" size={15}/> Copy link
+              </button>
+
+              {copied && <div className="message">{copied}</div>}
+            </div>
+
+            <div className="notice">
+              Referral rewards are subject to eligibility checks. Referral tracking and payouts must be enabled in the database.
+            </div>
+          </section>
+        </>}        {screen === "Settings" && <>
+          <div className="pagehead">
+            <h1>Settings</h1>
+          </div>
+          <section className="section">
+            <h2>Member profile</h2>
+
+            <div className="rowline">
+              <span>Name</span>
+              <b>{memberName}</b>
+            </div>
+
+            <div className="rowline">
+              <span>Email</span>
+              <b>{user?.email || "—"}</b>
+            </div>
+
+            <div className="rowline">
+              <span>Account status</span>
+              <b>Pending</b>
+            </div>
+
+            <button className="primary" style={{marginTop:18}} onClick={logout}>
+              <Icon name="logout" size={18}/> Log out
+            </button>
+          </section>
+        </>}        </div>
+
+        <nav className="bottom">
+          <button className={screen==="Home"?"active":""} onClick={()=>openScreen("Home")}>
+            <Icon name="wallet" size={22}/>Home
+          </button>
+
+          <button className={screen==="Earnings"?"active":""} onClick={()=>openScreen("Earnings")}>
+            <Icon name="chart" size={22}/>Earnings
+          </button>
+
+          <button className={screen==="Rewards"?"active":""} onClick={()=>openScreen("Rewards")}>
+            <Icon name="gift" size={22}/>Rewards
+          </button>
+
+          <button className={screen==="Settings"?"active":""} onClick={()=>openScreen("Settings")}>
+            <Icon name="settings" size={22}/>Settings
+          </button>
+        </nav>
+      </main>
+    );
+}
