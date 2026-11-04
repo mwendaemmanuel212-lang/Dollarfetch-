@@ -254,4 +254,27 @@ export default function DashboardPage() {
         </>}
 
         {screen === "Settings" && <>
-          <div className="pagehead"><h1>Settings</
+  <div className="pagehead"><h1>Settings</h1></div>
+  <section className="section">
+    <h2>Member profile</h2>
+    <div className="rowline"><span>Name</span><b>{memberName}</b></div>
+    <div className="rowline"><span>Email</span><b>{user?.email || "—"}</b></div>
+    <div className="rowline"><span>Account status</span><b>Pending</b></div>
+    <button className="primary" style={{marginTop:18}} onClick={logout}>
+      <span style={{display:"inline-flex",alignItems:"center",gap:8}}>
+        <Icon name="logout" size={18}/> Log out
+      </span>
+    </button>
+  </section>
+</>}
+</div>
+
+<nav className="bottom">
+  <button className={screen==="Home"?"active":""} onClick={()=>openScreen("Home")}><Icon name="wallet" size={22}/>Home</button>
+  <button className={screen==="Earnings"?"active":""} onClick={()=>openScreen("Earnings")}><Icon name="chart" size={22}/>Earnings</button>
+  <button className={screen==="Rewards"?"active":""} onClick={()=>openScreen("Rewards")}><Icon name="gift" size={22}/>Rewards</button>
+  <button className={screen==="Settings"?"active":""} onClick={()=>openScreen("Settings")}><Icon name="settings" size={22}/>Settings</button>
+</nav>
+</main>
+);
+}
