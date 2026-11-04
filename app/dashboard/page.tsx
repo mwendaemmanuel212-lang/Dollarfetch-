@@ -1,676 +1,531 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const methods = [
-  { id: "M-PESA", logo: "https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg", alt: "M-PESA logo" },
-  { id: "Postbank", logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128", alt: "Postbank logo" },
-  { id: "Equity Bank", logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128", alt: "Equity Bank logo" },
-  { id: "Binance", logo: "https://cdn.simpleicons.org/binance/F0B90B", alt: "Binance logo" },
-  { id: "Airtel Money", logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128", alt: "Airtel Money logo" },
-  { id: "SIM Toolkit", logo: "https://cdn-icons-png.flaticon.com/512/0/191.png", alt: "SIM Toolkit icon" }
+type Tab =
+  | "Dashboard"
+  | "Deposit"
+  | "Withdraw"
+  | "Transactions"
+  | "Referrals"
+  | "Profile";
+
+const paymentMethods = [
+  "M-PESA",
+  "Postbank",
+  "Equity Bank",
+  "Binance",
+  "Airtel Money",
+  "SIM Toolkit",
 ];
 
-export default function Dashboard() {
-  const [name, setName] = useState("Member");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("Not provided");
-  const [tab, setTab] = useState("Dashboard");
-
-  const [status, setStatus] = useState("pending");
-  const [method, setMethod] = useState("M-PESA");
-  const [paymentPhone, setPaymentPhone] = useState("");
-
-  const [referralCode, setReferralCode] = useState("");
-  const [referralCount, setReferralCount] = useState(0);
-  const [pendingReferrals, setPendingReferrals] = useState(0);
-  const [earnedRewards, setEarnedRewards] = useState(0);
-  const [paidRewards, setPaidRewards] = useState(0);
-  const [copyMessage, setCopyMessage] = useState("");
-
+export default function DashboardPage() {
+  const [user, setUser] = useState<any>(null);
+  const [tab, setTab] = useState<Tab>("Dashboard");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
+  const [activationStatus, setActivationStatus] = useState("not_requested");
+  const [paymentMethod, setPaymentMethod] = useState("M-PESA");
+  const [phone, setPhone] = useState("+254");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    async function loadAccount() {
-      const { data: auth, error: authError } =
-        await supabase.auth.getUser();
+    let mounted = true;
 
-      if (authError || !auth.user) {
-        window.location.href = "/app/login";
+    async function loadDashboard() {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (!mounted) return;
+
+      if (error || !data.user) {
+        window.location.href = "/login";
         return;
       }
 
-      const user = auth.user;
-      const metadata = user.user_metadata || {};
+      setUser(data.user);
 
-      setName(metadata.full_name || "Member");
-      setEmail(user.email || "");
-      setPhone(metadata.phone || "Not provided");
-      setPaymentPhone(
-        metadata.activation_payment_phone || metadata.phone || ""
-      );
-      setMethod(metadata.activation_payment_method || "M-PESA");
-
-      const { data, error } = await supabase
+      const { data: request } = await supabase
         .from("activation_requests")
         .select("status")
-        .eq("user_id", user.id)
+        .eq("user_id", data.user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
-      if (error) {
-        setMessage("Activation setup is not ready. Please contact support.");
-        setLoading(false);
-        return;
+      if (!mounted) return;
+
+      if (request?.status) {
+        setActivationStatus(request.status.toLowerCase());
       }
-
-      if (!data) {
-        const { error: insertError } = await supabase
-          .from("activation_requests")
-          .insert({
-            user_id: user.id,
-            amount: 2,
-            currency: "USD",
-            status: "pending"
-          });
-
-        if (insertError) {
-          setMessage("Could not create your activation record. Please try again.");
-          setLoading(false);
-          return;
-        }
-
-        setStatus("pending");
-      } else {
-        setStatus(data.status);
-      }
-
-      const { data: codeData } = await supabase
-        .from("member_referral_codes")
-        .select("referral_code")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      setReferralCode(codeData?.referral_code || "");
-
-      const { data: referralData } = await supabase
-        .from("member_referrals")
-        .select("status, reward_amount")
-        .eq("referrer_user_id", user.id);
-
-      const referrals = referralData || [];
-
-      setReferralCount(referrals.length);
-
-      setPendingReferrals(
-        referrals.filter(r => r.status === "pending").length
-      );
-
-      setEarnedRewards(
-        referrals
-          .filter(r => r.status === "earned")
-          .reduce((total, r) => total + Number(r.reward_amount), 0)
-      );
-
-      setPaidRewards(
-        referrals
-          .filter(r => r.status === "paid")
-          .reduce((total, r) => total + Number(r.reward_amount), 0)
-      );
 
       setLoading(false);
     }
 
-    loadAccount();
+    loadDashboard();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  async function copyReferralCode() {
-    if (!referralCode) {
-      setCopyMessage("Your referral code is not available yet.");
+  async function requestActivation() {
+    if (!user) return;
+
+    if (paymentMethod === "M-PESA" && !/^\+\d{8,15}$/.test(phone)) {
+      setMessage("Enter your phone number with country code, for example +254712345678.");
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(referralCode);
-      setCopyMessage("Referral code copied successfully!");
-    } catch {
-      setCopyMessage("Please copy your code manually: " + referralCode);
-    }
-  }
-
-  async function savePaymentChoice() {
+    setSending(true);
     setMessage("");
 
-    if (method === "M-PESA" || method === "Airtel Money") {
-      const digits = paymentPhone.replace(/\D/g, "");
-
-      const valid =
-        /^254[17]\d{8}$/.test(digits) ||
-        /^0[17]\d{8}$/.test(digits) ||
-        /^[17]\d{8}$/.test(digits);
-
-      if (!valid) {
-        setMessage("Enter a valid Kenyan phone number, for example 0712345678.");
-        return;
-      }
-    }
-
-    setSaving(true);
-
-    const { data: auth } = await supabase.auth.getUser();
-
-    if (!auth.user) {
-      setSaving(false);
-      setMessage("Please log in again.");
-      return;
-    }
-
-    const amount = method === "SIM Toolkit" ? 300 : 2;
-    const currency = method === "SIM Toolkit" ? "KES" : "USD";
-
-    const { error: updateError } = await supabase
-      .from("activation_requests")
-      .update({ amount, currency })
-      .eq("user_id", auth.user.id)
-      .eq("status", "pending");
-
-    if (updateError) {
-      setSaving(false);
-      setMessage("Could not save activation amount: " + updateError.message);
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({
+    const { error: metadataError } = await supabase.auth.updateUser({
       data: {
-        activation_payment_method: method,
-        activation_payment_phone: paymentPhone
-      }
+        activation_payment_method: paymentMethod,
+        activation_phone: paymentMethod === "M-PESA" ? phone : null,
+      },
     });
 
-    setSaving(false);
-
-    if (error) {
-      setMessage(error.message);
+    if (metadataError) {
+      setMessage(metadataError.message);
+      setSending(false);
       return;
     }
 
-    setMessage(
-      "Your payment choice and amount have been saved. Payment is not connected yet. Do not send money until payment is verified."
-    );
+    const { error } = await supabase
+      .from("activation_requests")
+      .insert({
+        user_id: user.id,
+        amount: 2,
+        currency: "USD",
+        status: "pending",
+      });
+
+    if (error) {
+      setMessage("Could not submit your activation request: " + error.message);
+    } else {
+      setActivationStatus("pending");
+      setMessage(
+        "Your activation request has been submitted. Your account will only be activated after payment is verified."
+      );
+    }
+
+    setSending(false);
   }
 
   async function logout() {
     await supabase.auth.signOut();
-    window.location.href = "/app/login";
+    window.location.href = "/login";
   }
 
-  const purple = "#6500bd";
-  const dark = "#31006b";
-  const light = "#f6efff";
+  async function copyReferralLink() {
+    if (!user) return;
+
+    const referralCode = user.id.slice(0, 8).toUpperCase();
+    const link =
+      `${window.location.origin}/register?ref=${referralCode}`;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setMessage("Unable to copy the referral link on this device.");
+    }
+  }
+
+  const referralCode = user?.id
+    ? user.id.slice(0, 8).toUpperCase()
+    : "";
 
   if (loading) {
-    return <main style={{ padding: 30 }}>Loading your account...</main>;
-  }
-
-  if (status !== "active") {
     return (
-      <main style={{
-        minHeight: "100vh",
-        background: light,
-        color: dark,
-        fontFamily: "Arial, sans-serif",
-        padding: 20
-      }}>
-        <section style={{
-          maxWidth: 480,
-          margin: "30px auto",
-          background: "white",
-          padding: 24,
-          borderRadius: 18,
-          boxShadow: "0 4px 20px #31006b15"
-        }}>
-          <h2 style={{ color: purple }}>BWK · DollarFetch</h2>
-          <h2>Activate Your Account</h2>
-          <p>Welcome, {name}!</p>
-
-          <div style={{
-            background: "#f4f0fa",
-            padding: 20,
-            borderRadius: 12,
-            textAlign: "center",
-            margin: "20px 0"
-          }}>
-            <small>ONE-TIME ACTIVATION FEE</small>
-            <h1 style={{ fontSize: 38, margin: 8 }}>
-              {method === "SIM Toolkit" ? "KES 300" : "$2.00 USD"}
-            </h1>
-          </div>
-
-          <h3>Choose Your Payment Method</h3>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: 12
-          }}>
-            {methods.map(item => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setMethod(item.id);
-                  setMessage("");
-                }}
-                aria-label={`Select ${item.id}`}
-                aria-pressed={method === item.id}
-                style={{
-                  width: "100%",
-                  minHeight: 86,
-                  padding: "14px 18px",
-                  borderRadius: 14,
-                  border: method === item.id
-                    ? "3px solid #6500bd"
-                    : "1px solid #ded6e8",
-                  background: method === item.id ? "#f7efff" : "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                  textAlign: "left",
-                  cursor: "pointer",
-                  color: dark
-                }}
-              >
-                <span style={{
-                  width: 112,
-                  height: 54,
-                  flexShrink: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#fff",
-                  borderRadius: 9,
-                  padding: 5
-                }}>
-                  <img
-                    src={item.logo}
-                    alt={item.alt}
-                    style={{
-                      maxWidth: "100%",
-                      maxHeight: 48,
-                      objectFit: "contain"
-                    }}
-                  />
-                </span>
-
-                <span style={{ flex: 1 }}>
-                  <strong>{item.id}</strong>
-                  {method === item.id && (
-                    <small style={{
-                      display: "block",
-                      color: purple,
-                      fontWeight: "bold",
-                      marginTop: 5
-                    }}>
-                      ✓ Selected
-                    </small>
-                  )}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {method === "SIM Toolkit" && (
-            <div style={{
-              marginTop: 20,
-              padding: 18,
-              background: "#fff8e8",
-              borderRadius: 12,
-              border: "1px solid #edcf91"
-            }}>
-              <h3>SIM Toolkit Payment</h3>
-              <p>Activation fee: <strong>KES 300</strong></p>
-              <p>Send Money to this number:</p>
-              <h2 style={{ color: dark }}>0732659971</h2>
-              <p>
-                Open the M-PESA menu. Choose Send Money, enter the
-                recipient number and KES 300, then confirm using
-                your own M-PESA PIN.
-              </p>
-
-              <a
-                href="tel:*334%23"
-                style={{
-                  display: "block",
-                  boxSizing: "border-box",
-                  padding: 15,
-                  margin: "14px 0",
-                  background: "#168b45",
-                  color: "white",
-                  borderRadius: 9,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  fontWeight: "bold"
-                }}
-              >
-                Open M-PESA SIM Toolkit
-              </a>
-
-              <small>
-                Your phone may open the dialer or M-PESA USSD menu.
-                Enter the recipient and amount yourself. The website
-                cannot automatically fill secure SIM Toolkit fields.
-                Your account remains pending until payment is verified.
-              </small>
-            </div>
-          )}
-
-          {(method === "M-PESA" || method === "Airtel Money") && (
-            <div style={{ marginTop: 20 }}>
-              <label style={{ fontWeight: "bold" }}>
-                {method} Phone Number
-              </label>
-              <input
-                type="tel"
-                value={paymentPhone}
-                onChange={e => setPaymentPhone(e.target.value)}
-                placeholder="+254712345678"
-                style={{
-                  width: "100%",
-                  boxSizing: "border-box",
-                  padding: 14,
-                  marginTop: 8,
-                  border: "1px solid #ccc",
-                  borderRadius: 8,
-                  fontSize: 16
-                }}
-              />
-            </div>
-          )}
-
-          <button
-            onClick={savePaymentChoice}
-            disabled={saving}
-            style={{
-              width: "100%",
-              padding: 16,
-              marginTop: 20,
-              background: "#168b45",
-              color: "white",
-              border: 0,
-              borderRadius: 8,
-              fontSize: 16,
-              fontWeight: "bold"
-            }}
-          >
-            {saving ? "Saving..." : "Save Payment Choice"}
-          </button>
-
-          <p style={{
-            background: "#fff8e8",
-            color: "#805600",
-            padding: 12,
-            borderRadius: 8,
-            fontSize: 13,
-            lineHeight: 1.5
-          }}>
-            Payment processing is not connected yet. Saving your choice
-            does not make a payment. Your account remains pending until
-            payment is securely verified.
-          </p>
-
-          <p style={{ color: "#805600", fontWeight: "bold" }}>
-            Account Status: Not Activated
-          </p>
-
-          {message && <p>{message}</p>}
-
-          <button
-            onClick={logout}
-            style={{
-              width: "100%",
-              padding: 13,
-              background: dark,
-              color: "white",
-              border: 0,
-              borderRadius: 8
-            }}
-          >
-            Log Out
-          </button>
-        </section>
+      <main className="min-h-screen flex items-center justify-center bg-slate-100">
+        <p className="text-blue-900 font-semibold">
+          Loading BWK DollarFetch...
+        </p>
       </main>
     );
   }
 
-  const menu = [
+  const menu: Tab[] = [
     "Dashboard",
     "Deposit",
     "Withdraw",
     "Transactions",
     "Referrals",
-    "Profile"
+    "Profile",
   ];
 
   return (
-    <main style={{
-      minHeight: "100vh",
-      background: light,
-      color: dark,
-      fontFamily: "Arial, sans-serif",
-      paddingBottom: 85
-    }}>
-      <header style={{
-        background: "linear-gradient(120deg,#31006b,#8b00df)",
-        color: "white",
-        padding: 20
-      }}>
-        <h2>BWK · DollarFetch</h2>
-        <p>Simple. Secure. Reliable.</p>
+    <main className="min-h-screen bg-slate-100 text-slate-800">
+      <header className="bg-[#073b83] text-white px-4 py-4 shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-white text-[#073b83] flex items-center justify-center font-black text-xl">
+              BWK
+            </div>
+
+            <div>
+              <h1 className="font-bold text-xl">DollarFetch</h1>
+              <p className="text-xs text-blue-100">
+                BWK Member Dashboard
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={logout}
+            className="bg-white/15 hover:bg-white/25 px-4 py-2 rounded-lg text-sm"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
-      <section style={{
-        maxWidth: 1100,
-        margin: "auto",
-        padding: 18
-      }}>
-        <h2>Welcome back, {name}!</h2>
-
-        <div style={{
-          background: "linear-gradient(110deg,#390078,#8500db)",
-          color: "white",
-          padding: 25,
-          borderRadius: 18,
-          marginTop: 20
-        }}>
-          <p>AVAILABLE BALANCE</p>
-          <h1 style={{ fontSize: 42 }}>$0.00</h1>
-          <small>Demo balance only.</small>
+      <div className="max-w-6xl mx-auto p-4">
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-[#073b83]">
+            Welcome to DollarFetch
+          </h2>
+          <p className="text-sm text-slate-500 break-all">
+            {user?.email}
+          </p>
         </div>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(125px,1fr))",
-          gap: 10,
-          marginTop: 20
-        }}>
-          {menu.map(item => (
+        <nav className="flex gap-2 overflow-x-auto pb-3 mb-5">
+          {menu.map((item) => (
             <button
               key={item}
-              onClick={() => setTab(item)}
-              style={{
-                padding: 16,
-                borderRadius: 12,
-                border: "1px solid #d9b8ff",
-                background: tab === item ? purple : "white",
-                color: tab === item ? "white" : dark,
-                fontWeight: "bold"
+              onClick={() => {
+                setTab(item);
+                setMessage("");
               }}
+              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-semibold ${
+                tab === item
+                  ? "bg-[#073b83] text-white"
+                  : "bg-white text-[#073b83] border border-blue-100"
+              }`}
             >
               {item}
             </button>
           ))}
-        </div>
+        </nav>
 
-        <div style={{
-          background: "white",
-          padding: 22,
-          borderRadius: 16,
-          marginTop: 22
-        }}>
-          {tab === "Dashboard" && (
-            <>
-              <h2>Account Overview</h2>
-              <p><b>Name:</b> {name}</p>
-              <p><b>Email:</b> {email}</p>
-              <p><b>Phone:</b> {phone}</p>
-              <p><b>Balance:</b> $0.00</p>
-              <p><b>Account Status:</b> Active</p>
-              <hr />
-              <h3>Recent Activity</h3>
-              <p>No transactions yet.</p>
-            </>
-          )}
+        {message && (
+          <div className="mb-5 p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-sm">
+            {message}
+          </div>
+        )}
 
-          {tab === "Deposit" && (
-            <>
-              <h2>Deposit Funds</h2>
-              <h1>$0.00</h1>
-              <p>Payment integrations coming soon.</p>
-              <p>Deposits are not yet enabled.</p>
-            </>
-          )}
+        {activationStatus !== "active" &&
+          activationStatus !== "approved" && (
+            <section className="bg-white rounded-2xl shadow-sm p-5 mb-6 border border-blue-100">
+              <h2 className="text-xl font-bold text-[#073b83] mb-2">
+                Account Activation
+              </h2>
 
-          {tab === "Withdraw" && (
-            <>
-              <h2>Withdraw Funds</h2>
-              <p>Available balance: $0.00</p>
-              <p>
-                All withdrawal requests require administrator authorization.
-              </p>
-              <p>Withdrawals are not yet enabled.</p>
-            </>
-          )}
-
-          {tab === "Transactions" && (
-            <>
-              <h2>Transaction History</h2>
-              <p>No transactions yet.</p>
-            </>
-          )}
-
-          {tab === "Referrals" && (
-            <>
-              <h2>Invite Friends & Earn</h2>
-              <p>
-                Invite people to join BWK DollarFetch. Earn
-                <strong> $0.50 USD </strong>
-                for each referred member whose account is successfully
-                activated after payment verification.
+              <p className="text-sm text-slate-600 mb-4">
+                Choose your preferred payment method to request account
+                activation.
               </p>
 
-              <div style={{
-                background: "#f6efff",
-                padding: 18,
-                borderRadius: 12,
-                margin: "18px 0"
-              }}>
-                <p><b>Your Personal Referral Code</b></p>
+              <div className="bg-blue-50 rounded-xl p-4 mb-4">
+                <p className="text-sm text-slate-600">
+                  Account activation fee
+                </p>
+                <p className="text-3xl font-black text-[#073b83]">
+                  $2 USD
+                </p>
+              </div>
 
-                <h2 style={{
-                  color: purple,
-                  letterSpacing: 2,
-                  overflowWrap: "anywhere"
-                }}>
-                  {referralCode || "Not available yet"}
+              <label className="block font-semibold text-sm mb-2">
+                Select payment method
+              </label>
+
+              <select
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+                className="w-full border border-slate-300 rounded-xl p-3 mb-4 bg-white"
+              >
+                {paymentMethods.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </select>
+
+              {paymentMethod === "M-PESA" && (
+                <div className="mb-4">
+                  <label className="block font-semibold text-sm mb-2">
+                    M-PESA phone number
+                  </label>
+
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+254712345678"
+                    className="w-full border border-slate-300 rounded-xl p-3"
+                  />
+
+                  <p className="text-xs text-slate-500 mt-2">
+                    Include your country calling code, for example +254.
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={requestActivation}
+                disabled={sending || activationStatus === "pending"}
+                className="w-full bg-[#073b83] hover:bg-blue-900 disabled:opacity-50 text-white font-bold py-3 rounded-xl"
+              >
+                {sending
+                  ? "Submitting..."
+                  : activationStatus === "pending"
+                  ? "Activation Pending"
+                  : "Submit Activation Request"}
+              </button>
+
+              <p className="text-xs text-slate-500 mt-3">
+                Payment processing and automatic verification are not
+                connected yet. Do not send money until an official payment
+                method has been configured and verified.
+              </p>
+
+              {activationStatus === "pending" && (
+                <p className="mt-3 text-amber-700 font-semibold text-sm">
+                  Your activation request is awaiting verification.
+                </p>
+              )}
+            </section>
+          )}
+
+        {activationStatus === "active" ||
+        activationStatus === "approved" ? (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-5 text-green-800">
+            Your account is active.
+          </div>
+        ) : null}
+
+        {tab === "Dashboard" && (
+          <section>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="bg-[#073b83] text-white rounded-2xl p-5 shadow">
+                <p className="text-blue-100 text-sm">
+                  Available Balance
+                </p>
+                <h2 className="text-3xl font-black mt-2">
+                  $0.00
                 </h2>
-
-                <button
-                  onClick={copyReferralCode}
-                  style={{
-                    width: "100%",
-                    padding: 13,
-                    background: purple,
-                    color: "white",
-                    border: 0,
-                    borderRadius: 8,
-                    fontWeight: "bold"
-                  }}
-                >
-                  Copy Referral Code
-                </button>
-
-                {copyMessage && <p>{copyMessage}</p>}
+                <p className="text-xs text-blue-100 mt-2">
+                  USD wallet balance
+                </p>
               </div>
 
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit,minmax(125px,1fr))",
-                gap: 12
-              }}>
-                <div style={{
-                  background: "#f6efff",
-                  padding: 16,
-                  borderRadius: 12
-                }}>
-                  <small>Total Referrals</small>
-                  <h2>{referralCount}</h2>
-                </div>
-
-                <div style={{
-                  background: "#fff8e8",
-                  padding: 16,
-                  borderRadius: 12
-                }}>
-                  <small>Pending</small>
-                  <h2>{pendingReferrals}</h2>
-                </div>
-
-                <div style={{
-                  background: "#edf9ef",
-                  padding: 16,
-                  borderRadius: 12
-                }}>
-                  <small>Earned Rewards</small>
-                  <h2>${earnedRewards.toFixed(2)}</h2>
-                </div>
-
-                <div style={{
-                  background: "#eef5ff",
-                  padding: 16,
-                  borderRadius: 12
-                }}>
-                  <small>Paid Rewards</small>
-                  <h2>${paidRewards.toFixed(2)}</h2>
-                </div>
+              <div className="bg-white rounded-2xl p-5 shadow-sm">
+                <p className="text-slate-500 text-sm">
+                  Account Status
+                </p>
+                <h2 className="text-xl font-bold text-[#073b83] mt-2">
+                  {activationStatus === "active" ||
+                  activationStatus === "approved"
+                    ? "Active"
+                    : activationStatus === "pending"
+                    ? "Pending"
+                    : "Not Activated"}
+                </h2>
+                <p className="text-xs text-slate-500 mt-2">
+                  Activation verification status
+                </p>
               </div>
+            </div>
 
-              <div style={{
-                marginTop: 20,
-                padding: 16,
-                border: "1px solid #ded6e8",
-                borderRadius: 12
-              }}>
-                <h3>How It Works</h3>
-                <p>1. Copy your personal referral code.</p>
-                <p>2. Share it with someone you invite.</p>
-                <p>3. They enter your code when registering.</p>
-                <p>4. Their account must be activated after payment verification.</p>
-                <p>5. You earn $0.50 USD for that successful referral.</p>
+            <div className="bg-white rounded-2xl p-5 shadow-sm mb-6">
+              <h3 className="font-bold text-lg text-[#073b83] mb-3">
+                Quick Actions
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {(["Deposit", "Withdraw", "Transactions", "Referrals"] as Tab[]).map(
+                  (item) => (
+                    <button
+                      key={item}
+                      onClick={() => setTab(item)}
+                      className="bg-blue-50 hover:bg-blue-100 text-[#073b83] font-semibold p-4 rounded-xl text-sm"
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
               </div>
+            </div>
 
-              <p style={{
-                color: "#805600",
-                fontSize: 13,
-                marginTop: 16
-              }}>
-                Rewards are recorded after administrator approval
-                of the referred member's activation. Payouts are
-                handled manually and are not automatic.
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-lg text-[#073b83] mb-2">
+                Member Information
+              </h3>
+              <p className="text-sm text-slate-600 break-all">
+                Email: {user?.email}
               </p>
-            </>
-          )}
+              <p className="text-sm text-slate-600 mt-2">
+                Member ID: {user?.id}
+              </p>
+            </div>
+          </section>
+        )}
 
-          {tab === "Pr
+        {tab === "Deposit" && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold text-[#073b83] mb-3">
+              Deposit
+            </h2>
+
+            <p className="text-slate-600 text-sm mb-4">
+              Select a payment method for your deposit.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {paymentMethods.map((method) => (
+                <div
+                  key={method}
+                  className="border border-blue-100 rounded-xl p-4 font-semibold text-[#073b83]"
+                >
+                  {method}
+                </div>
+              ))}
+            </div>
+
+            <p className="text-sm text-amber-700 mt-5">
+              Deposit processing is not connected yet. No deposit will
+              be credited until payment verification is implemented.
+            </p>
+          </section>
+        )}
+
+        {tab === "Withdraw" && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold text-[#073b83] mb-3">
+              Withdraw Funds
+            </h2>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="font-bold text-amber-800">
+                Admin authorization required
+              </p>
+              <p className="text-sm text-amber-700 mt-2">
+                Withdrawal requests must be reviewed and authorized by
+                the administrator before funds can be released.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {tab === "Transactions" && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold text-[#073b83] mb-3">
+              Transactions
+            </h2>
+
+            <div className="text-center py-10">
+              <p className="text-slate-500">
+                No transactions to display yet.
+              </p>
+            </div>
+          </section>
+        )}
+
+        {tab === "Referrals" && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold text-[#073b83] mb-3">
+              Referral Program
+            </h2>
+
+            <div className="bg-blue-50 rounded-xl p-4 mb-4">
+              <p className="text-sm text-slate-600">
+                Referral reward
+              </p>
+              <p className="text-3xl font-black text-[#073b83]">
+                $0.50
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                For each referred member whose activation is verified.
+              </p>
+            </div>
+
+            <p className="font-semibold text-sm mb-2">
+              Your referral code
+            </p>
+
+            <div className="flex gap-2 items-center">
+              <div className="flex-1 bg-slate-100 rounded-xl p-3 font-bold text-[#073b83]">
+                {referralCode}
+              </div>
+
+              <button
+                onClick={copyReferralLink}
+                className="bg-[#073b83] text-white px-4 py-3 rounded-xl text-sm font-semibold"
+              >
+                {copied ? "Copied" : "Copy Link"}
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 mt-3">
+              Referral rewards are subject to verified registrations
+              and activation. Referral tracking must be connected to
+              the referral database before rewards can be credited.
+            </p>
+          </section>
+        )}
+
+        {tab === "Profile" && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm">
+            <h2 className="text-xl font-bold text-[#073b83] mb-4">
+              Member Profile
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs text-slate-500">Email Address</p>
+                <p className="font-semibold break-all">
+                  {user?.email}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">Member ID</p>
+                <p className="font-semibold break-all text-sm">
+                  {user?.id}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs text-slate-500">Account Status</p>
+                <p className="font-semibold">
+                  {activationStatus === "active" ||
+                  activationStatus === "approved"
+                    ? "Active"
+                    : activationStatus === "pending"
+                    ? "Pending verification"
+                    : "Not activated"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={logout}
+              className="mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-3 rounded-xl"
+            >
+              Logout
+            </button>
+          </section>
+        )}
+
+        <footer className="text-center text-xs text-slate-400 py-8">
+          BWK DollarFetch © 2026. All rights reserved.
+        </footer>
+      </div>
+    </main>
+  );
+}
