@@ -38,7 +38,18 @@ export default function Home() {
           textDecoration:"none"
         }}>Register</a>
 
-        <a href="/app/login" style={{
+        <button
+  onClick={() => window.location.href = "/app/login"}
+  style={{
+    background: "#073b83",
+    color: "white",
+    padding: "12px 18px",
+    borderRadius: "8px",
+    border: "none"
+  }}
+>
+  Login
+</button>
           background:"#073b83", color:"white",
           padding:"12px 18px", borderRadius:"8px",
           textDecoration:"none"
