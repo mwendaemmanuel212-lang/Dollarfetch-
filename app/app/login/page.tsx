@@ -15,50 +15,39 @@ export default function Login() {
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setMessage(error.message);
       return;
     }
 
-    window.location.href = "/dashboard";
+    if (data.user) {
+      window.location.assign("/dashboard");
+    }
   }
 
   return (
-    <main style={{maxWidth: 400, margin: "50px auto", padding: 20, fontFamily: "Arial"}}>
-      <h1 style={{color: "#0753b8"}}>BWK</h1>
+    <main style={{maxWidth:400,margin:"50px auto",padding:20,fontFamily:"Arial"}}>
+      <h1 style={{color:"#0753b8"}}>BWK</h1>
       <h2>DollarFetch Login</h2>
-
       <form onSubmit={login}>
         <label>Email address</label>
-        <input
-          required
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          style={{display:"block", width:"100%", padding:12, margin:"10px 0 20px", boxSizing:"border-box"}}
-        />
-
+        <input required type="email" value={email}
+          onChange={e=>setEmail(e.target.value)}
+          style={{display:"block",width:"100%",padding:12,margin:"10px 0 20px",boxSizing:"border-box"}} />
         <label>Password</label>
-        <input
-          required
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          style={{display:"block", width:"100%", padding:12, margin:"10px 0 20px", boxSizing:"border-box"}}
-        />
-
-        <button disabled={loading} style={{width:"100%", padding:14}}>
+        <input required type="password" value={password}
+          onChange={e=>setPassword(e.target.value)}
+          style={{display:"block",width:"100%",padding:12,margin:"10px 0 20px",boxSizing:"border-box"}} />
+        <button disabled={loading} style={{width:"100%",padding:14}}>
           {loading ? "Logging in..." : "Log in"}
         </button>
       </form>
-
       <p>{message}</p>
       <a href="/register">Create an account</a>
     </main>
