@@ -808,4 +808,9 @@ export default function DashboardPage() {
                         onClick={() => go(item.name)}
                       >
                         <div className="actionicon">{item.icon}</div>
-                        <strong>{item.name}</st
+                        <strong>{item.name}</strong>
+<span>Open {item.name.toLowerCase()} section</span>
+</button>
+))}
+</div>
+</div>
