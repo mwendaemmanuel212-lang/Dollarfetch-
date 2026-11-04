@@ -812,9 +812,10 @@ export default function DashboardPage() {
 </button>
 ))}
 </div>
-</section></div>
+</div>
+</div>
+</section>
+</div>
 </main>
 );
             }
-);
-  }
