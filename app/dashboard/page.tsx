@@ -345,20 +345,50 @@ export default function Dashboard() {
               border: "1px solid #edcf91"
             }}>
               <h3>SIM Toolkit Payment</h3>
+
               <p>
                 Activation fee: <strong>KES 300</strong>
               </p>
+
               <p>Send Money to this number:</p>
+
               <h2 style={{ color: dark }}>
                 0732659971
               </h2>
+
               <p>
-                Open your M-PESA SIM Toolkit, choose Send Money,
-                enter the recipient number and KES 300, then
-                confirm using your own M-PESA PIN.
+                Tap the button below to open the M-PESA menu.
+                Choose Send Money, enter the recipient number
+                shown above and KES 300, then confirm using
+                your own M-PESA PIN.
               </p>
+
+              <a
+                href="tel:*334%23"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: 15,
+                  margin: "14px 0",
+                  background: "#168b45",
+                  color: "white",
+                  borderRadius: 9,
+                  textAlign: "center",
+                  textDecoration: "none",
+                  fontWeight: "bold"
+                }}
+              >
+                Open M-PESA SIM Toolkit
+              </a>
+
               <small>
-                Your account remains pending until payment is verified.
+                Your phone may open the dialer or M-PESA USSD menu.
+                For security, this website cannot automatically type
+                the recipient number or amount into the SIM Toolkit.
+                Enter 0732659971 and KES 300 yourself, then confirm
+                with your PIN. Your account remains pending until
+                payment is verified.
               </small>
             </div>
           )}
@@ -418,7 +448,8 @@ export default function Dashboard() {
           }}>
             Payment processing is not connected yet.
             Saving your choice does not make a payment.
-            Your account remains pending until payment is securely verified.
+            Your account remains pending until payment is
+            securely verified.
           </p>
 
           <p style={{
@@ -633,3 +664,4 @@ export default function Dashboard() {
     </main>
   );
 }
+  
