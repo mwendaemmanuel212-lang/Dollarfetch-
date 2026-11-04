@@ -268,7 +268,9 @@ export default function DashboardPage() {
                         <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
             <a className="social-link telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer"><Icon name="telegram" size={21}/> Telegram Channel</a>
           </div>
-        </>\n        {screen === "Activation" && <>
+                </>}
+
+        {screen === "Activation" && <>
           <div className="pagehead">
             <h1>Activate Account</h1>
             <button className="back" onClick={() => openScreen("Home")}>Back</button>
