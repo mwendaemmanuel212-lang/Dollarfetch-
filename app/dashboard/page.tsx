@@ -808,39 +808,10 @@ export default function DashboardPage() {
                         onClick={() => go(item.name)}
                       >
                         <div className="actionicon">{item.icon}</div>
-                        <strong>{item.name}</strong>
-<span>Open {item.name.toLowerCase()} section</span>
-</button>
-))}
+                        <div className="action"
+  key={item.name}
+  onClick={() => go(item.name)}
+>
+  <div className="actionicon">{item.icon}</div>
+  <strong>{item.name}</strong>
 </div>
-</div>
-                <div className="section">
-                  <div className="sectiontitle">Recent activity</div>
-                  <div className="activity">
-                    <div>
-                      <strong>Welcome to DollarFetch</strong>
-                      <p>Your account dashboard is ready.</p>
-                    </div>
-                    <span>Today</span>
-                  </div>
-                </div>
-
-                <div className="section">
-                  <div className="sectiontitle">Stay connected</div>
-                  <a
-                    href="https://t.me/dollafetch"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="telegram"
-                  >
-                    Join our Telegram channel
-                  </a>
-                </div>
-              </main>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-            }
