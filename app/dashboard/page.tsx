@@ -36,32 +36,6 @@ const methods = [
     alt: "SIM Toolkit icon"
   }
 ];
-  {
-    id: "M-PESA",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg",
-    alt: "M-PESA logo"
-  },
-  {
-    id: "Postbank",
-    logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128",
-    alt: "Postbank logo"
-  },
-  {
-    id: "Equity Bank",
-    logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128",
-    alt: "Equity Bank logo"
-  },
-  {
-    id: "Binance",
-    logo: "https://cdn.simpleicons.org/binance/F0B90B",
-    alt: "Binance logo"
-  },
-  {
-    id: "Airtel Money",
-    logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128",
-    alt: "Airtel Money logo"
-  }
-];
 
 export default function Dashboard() {
   const [name, setName] = useState("Member");
@@ -146,89 +120,9 @@ export default function Dashboard() {
   }, []);
 
   async function savePaymentChoice() {
-  setMessage("");
-
-  if (method === "M-PESA" || method === "Airtel Money") {
-    const digits = paymentPhone.replace(/\D/g, "");
-
-    const valid =
-      /^254[17]\d{8}$/.test(digits) ||
-      /^0[17]\d{8}$/.test(digits) ||
-      /^[17]\d{8}$/.test(digits);
-
-    if (!valid) {
-      setMessage("Enter a valid Kenyan phone number.");
-      return;
-    }
-  }
-
-  setSaving(true);
-
-  const { data: auth } = await supabase.auth.getUser();
-
-  if (!auth.user) {
-    setSaving(false);
-    setMessage("Please log in again.");
-    return;
-  }
-
-  const amount = method === "SIM Toolkit" ? 300 : 2;
-  const currency = method === "SIM Toolkit" ? "KES" : "USD";
-
-  const { error: updateError } = await supabase
-    .from("activation_requests")
-    .update({ amount, currency })
-    .eq("user_id", auth.user.id)
-    .eq("status", "pending");
-
-  if (updateError) {
-    setSaving(false);
-    setMessage("Could not save the activation amount: " + updateError.message);
-    return;
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      activation_payment_method: method,
-      activation_payment_phone: paymentPhone
-    }
-  });
-
-  setSaving(false);
-
-  if (error) {
-    setMessage(error.message);
-    return;
-  }
-
-  setMessage(
-    "Your payment choice and activation amount have been saved. Payment is not connected yet. Do not send money until official instructions appear."
-  );
-  }
     setMessage("");
 
-    if ({method === "SIM Toolkit" && (
-  <div style={{
-    marginTop: 20,
-    padding: 18,
-    background: "#fff8e8",
-    borderRadius: 12,
-    border: "1px solid #edcf91"
-  }}>
-    <h3>SIM Toolkit Payment</h3>
-    <p>Activation fee: <strong>KES 300</strong></p>
-    <p>Send money to:</p>
-    <h2 style={{ color: "#31006b" }}>0732659971</h2>
-    <p>
-      Open your M-PESA SIM Toolkit, choose Send Money,
-      enter the recipient number and KES 300, then confirm
-      using your own M-PESA PIN.
-    </p>
-    <small>
-      Your account will remain pending until payment is verified.
-    </small>
-  </div>
-)}
+    if (
       method === "M-PESA" ||
       method === "Airtel Money"
     ) {
@@ -249,6 +143,31 @@ export default function Dashboard() {
 
     setSaving(true);
 
+    const { data: auth } = await supabase.auth.getUser();
+
+    if (!auth.user) {
+      setSaving(false);
+      setMessage("Please log in again.");
+      return;
+    }
+
+    const amount = method === "SIM Toolkit" ? 300 : 2;
+    const currency = method === "SIM Toolkit" ? "KES" : "USD";
+
+    const { error: updateError } = await supabase
+      .from("activation_requests")
+      .update({ amount, currency })
+      .eq("user_id", auth.user.id)
+      .eq("status", "pending");
+
+    if (updateError) {
+      setSaving(false);
+      setMessage(
+        "Could not save activation amount: " + updateError.message
+      );
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({
       data: {
         activation_payment_method: method,
@@ -264,7 +183,7 @@ export default function Dashboard() {
     }
 
     setMessage(
-      "Your payment preference has been saved. Payment processing is not connected yet. Please do not send money until official payment instructions are provided."
+      "Your payment choice and amount have been saved. Payment is not connected yet. Do not send money until payment is verified."
     );
   }
 
@@ -318,9 +237,7 @@ export default function Dashboard() {
           }}>
             <small>ONE-TIME ACTIVATION FEE</small>
             <h1 style={{ fontSize: 38, margin: 8 }}>
-  {method === "SIM Toolkit" ? "KES 300" : "$2.00 USD"}
-</h1>
-              $2.00 USD
+              {method === "SIM Toolkit" ? "KES 300" : "$2.00 USD"}
             </h1>
           </div>
 
@@ -335,7 +252,10 @@ export default function Dashboard() {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setMethod(item.id)}
+                onClick={() => {
+                  setMethod(item.id);
+                  setMessage("");
+                }}
                 aria-label={`Select ${item.id}`}
                 aria-pressed={method === item.id}
                 style={{
@@ -416,6 +336,33 @@ export default function Dashboard() {
             ))}
           </div>
 
+          {method === "SIM Toolkit" && (
+            <div style={{
+              marginTop: 20,
+              padding: 18,
+              background: "#fff8e8",
+              borderRadius: 12,
+              border: "1px solid #edcf91"
+            }}>
+              <h3>SIM Toolkit Payment</h3>
+              <p>
+                Activation fee: <strong>KES 300</strong>
+              </p>
+              <p>Send Money to this number:</p>
+              <h2 style={{ color: dark }}>
+                0732659971
+              </h2>
+              <p>
+                Open your M-PESA SIM Toolkit, choose Send Money,
+                enter the recipient number and KES 300, then
+                confirm using your own M-PESA PIN.
+              </p>
+              <small>
+                Your account remains pending until payment is verified.
+              </small>
+            </div>
+          )}
+
           {(method === "M-PESA" ||
             method === "Airtel Money") && (
             <div style={{ marginTop: 20 }}>
@@ -470,9 +417,8 @@ export default function Dashboard() {
             lineHeight: 1.5
           }}>
             Payment processing is not connected yet.
-            This saves your preferred payment method only.
-            No money will be deducted. Your account remains
-            pending until payment is securely verified.
+            Saving your choice does not make a payment.
+            Your account remains pending until payment is securely verified.
           </p>
 
           <p style={{
