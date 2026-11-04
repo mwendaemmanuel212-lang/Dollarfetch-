@@ -47,6 +47,8 @@ export default function DashboardPage() {
   const [reference, setReference] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [kesRate, setKesRate] = useState<number | null>(null);
+  const [rateMessage, setRateMessage] = useState("Loading exchange rate...");
 
   useEffect(() => {
     let mounted = true;
@@ -61,6 +63,16 @@ export default function DashboardPage() {
       setLoading(false);
     }
     loadUser();
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then(response => response.json())
+      .then(data => {
+        const rate = Number(data?.rates?.KES);
+        if (data?.result === "success" && Number.isFinite(rate) && rate > 0) {
+          setKesRate(rate);
+          setRateMessage("Live reference rate. Your bank or payment provider may use a different rate.");
+        } else { setRateMessage("Exchange rate is temporarily unavailable. Please try again later."); }
+      })
+      .catch(() => setRateMessage("Exchange rate is temporarily unavailable. Please try again later."));
     return () => { mounted = false; };
   }, [router]);
 
@@ -147,7 +159,7 @@ export default function DashboardPage() {
         .action{border:1px solid #e4d5ff;background:#fff;border-radius:17px;min-height:112px;padding:13px 5px;color:#4e16b7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:12px;box-shadow:0 7px 18px #4811a20d}
         .action span{text-align:center;color:#2c1653}
         .referral{margin-top:17px;border-radius:22px;background:linear-gradient(110deg,#fff,#e8d7ff);border:1px solid #e0ccff;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px #43128a12}
-        .gift{font-size:52px}
+        .gift{width:58px;height:58px;display:grid;place-items:center;color:#4b12b2}
         .referral small{font-size:12px;color:#705a8c;font-weight:700}
         .referral strong{display:block;font-size:32px;color:#4b12b2;margin:3px 0}
         .referral p{margin:0;font-size:11px;color:#705a8c}
@@ -168,7 +180,7 @@ export default function DashboardPage() {
         .method b{font-size:12px;display:block}.method small{font-size:9px;color:#8a7b9a;display:block;margin-top:4px}
         .field{margin:14px 0}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}
         .field input{width:100%;padding:13px;border:1px solid #e2d8ed;border-radius:10px;font-size:14px;color:#25133e;background:#fff}
-        .notice{background:#f5edff;color:#59318e;border:1px solid #e6d7ff;border-radius:11px;padding:12px;font-size:12px;line-height:1.5;margin:13px 0}
+        .payment-steps{background:#fbf8ff;border:1px solid #e7dcf8;border-radius:13px;padding:14px;margin:13px 0;color:#38205e;font-size:12px;line-height:1.7}.copy-number{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px dashed #8b5bd2;border-radius:11px;padding:12px;margin:10px 0;font-size:20px;font-weight:900;letter-spacing:1px}.copy-btn{border:0;border-radius:9px;background:#5b18c7;color:#fff;padding:10px 12px;font-weight:800}.rate-card{background:#f8f3ff;border:1px solid #e6d8fb;border-radius:12px;padding:12px;margin:12px 0;font-size:12px;line-height:1.6}.notice{background:#f5edff;color:#59318e;border:1px solid #e6d7ff;border-radius:11px;padding:12px;font-size:12px;line-height:1.5;margin:13px 0}
         .message{background:#f4efff;color:#4c2382;padding:12px;border-radius:10px;font-size:12px;line-height:1.5;margin:12px 0}
         .bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid #e9def8;display:grid;grid-template-columns:repeat(4,1fr);padding:10px max(8px,env(safe-area-inset-right)) calc(9px + env(safe-area-inset-bottom));max-width:760px;margin:auto;border-radius:20px 20px 0 0}
         .bottom button{border:0;background:transparent;color:#817198;display:grid;justify-items:center;gap:4px;font-size:10px;font-weight:700;padding:4px}
@@ -196,7 +208,7 @@ export default function DashboardPage() {
             <div className="hero-tag">YOUR MEMBER DASHBOARD</div>
             <h1>Hello, {memberName}!</h1>
             <p>Let鈥檚 grow your earnings today.</p>
-            <div className="hero-art">馃挵</div>
+            <div className="hero-art">$</div>
           </section>
           <section className="balance">
             <div className="balance-icon"><Icon name="wallet" size={32} /></div>
@@ -209,7 +221,7 @@ export default function DashboardPage() {
             <button className="action" onClick={() => openScreen("Rewards")}><Icon name="gift" size={29}/><span>Referral</span></button>
           </section>
           <button className="referral" style={{width:"100%",textAlign:"left"}} onClick={() => openScreen("Rewards")}>
-            <div className="gift">馃巵</div><div><small>REFERRAL REWARD</small><strong>$0.50</strong><p>Invite friends and earn more!</p></div>
+            <div className="gift"><Icon name="gift" size={48}/></div><div><small>REFERRAL REWARD</small><strong>$0.50</strong><p>Invite friends and earn more!</p></div>
           </button>
           <div className="secure"><Icon name="shield" size={38}/><div><b>Your account is secure</b><small>Protected member access</small></div></div>
           <div className="socials">
@@ -222,59 +234,6 @@ export default function DashboardPage() {
           <div className="pagehead"><h1>Activate Account</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
           <section className="section">
             <h2>Unlock your account</h2><p className="muted">Activation fee: <b>$2 USD</b>. Choose a payment method below. Your account remains Pending until payment is verified by an administrator.</p>
+            <div className="rate-card"><b>USD to KES converter</b><div style={{fontSize:20,fontWeight:900,margin:"5px 0"}}>$2.00 USD = {kesRate ? `KES ${(2 * kesRate).toLocaleString("en-KE", {maximumFractionDigits:2})}` : "Rate unavailable"}</div><div>1 USD = {kesRate ? `KES ${kesRate.toFixed(2)}` : "鈥�"}</div><small>{rateMessage}</small></div>
             <div className="method-grid">{paymentMethods.map(p => <button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={() => {setMethod(p.id);setMessage("");}}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`} onError={e=>{e.currentTarget.style.display="none"; e.currentTarget.parentElement?.classList.add("logo-failed");}}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
-            {method==="M-PESA" ? <div className="field"><label>M-PESA phone number (include country code)</label><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/></div> : <div className="field"><label>{method} payment reference / transaction details</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/></div>}
-            <div className="notice">Submitting details does not automatically activate your account. An administrator must verify the payment first. M-PESA STK Push will be connected in a later step.</div>
-            {message && <div className="message">{message}</div>}
-            <button className="primary" disabled={busy} onClick={submitActivation}>{busy?"Submitting...":"Submit payment details"}</button>
-          </section>
-        </>}
-
-        {screen === "Deposit" && <>
-          <div className="pagehead"><h1>Deposit</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
-          <section className="section"><h2>Choose payment method</h2><p className="muted">Select the payment option you want to use. Payment processing will be connected after the dashboard is approved.</p>
-            <div className="method-grid">{paymentMethods.map(p=><button key={p.id} className={`method ${method===p.id?"selected":""}`} onClick={()=>setMethod(p.id)}><div className="logo">{p.logo?<img src={p.logo} alt={`${p.id} logo`}/>:<span>SIM</span>}</div><div><b>{p.id}</b><small>{p.note}</small></div></button>)}</div>
-            <div className="notice">Selected method: <b>{method}</b>. Deposits are not yet connected to a live payment gateway.</div>
-          </section>
-        </>}
-
-        {screen === "Withdraw" && <>
-          <div className="pagehead"><h1>Withdraw</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
-          <section className="section"><h2>Withdrawal requests</h2><p className="muted">Withdrawals require administrator authorization before any payment is released.</p><div className="notice">Your available balance is currently $0.00. Withdrawal requests will be enabled after the wallet and admin approval process are connected.</div></section>
-        </>}
-
-        {screen === "Earnings" && <>
-          <div className="pagehead"><h1>Earnings</h1></div>
-          <section className="section"><h2>Your earnings</h2><p className="muted">Your earnings summary will appear here when earning activity is connected.</p><div className="rowline"><span>Total earnings</span><b>$0.00</b></div><div className="rowline"><span>Available balance</span><b>$0.00</b></div></section>
-        </>}
-
-        {screen === "Rewards" && <>
-          <div className="pagehead"><h1>Referral Rewards</h1></div>
-          <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p><div className="rowline"><span>Reward per eligible referral</span><b>$0.50</b></div><div className="rowline"><span>Your referral code</span><b>{user?.user_metadata?.referral_code || "Not assigned"}</b></div></section>
-        </>}
-
-        {screen === "Settings" && <>
-  <div className="pagehead"><h1>Settings</h1></div>
-  <section className="section">
-    <h2>Member profile</h2>
-    <div className="rowline"><span>Name</span><b>{memberName}</b></div>
-    <div className="rowline"><span>Email</span><b>{user?.email || "—"}</b></div>
-    <div className="rowline"><span>Account status</span><b>Pending</b></div>
-    <button className="primary" style={{marginTop:18}} onClick={logout}>
-      <span style={{display:"inline-flex",alignItems:"center",gap:8}}>
-        <Icon name="logout" size={18}/> Log out
-      </span>
-    </button>
-  </section>
-</>}
-</div>
-
-<nav className="bottom">
-  <button className={screen==="Home"?"active":""} onClick={()=>openScreen("Home")}><Icon name="wallet" size={22}/>Home</button>
-  <button className={screen==="Earnings"?"active":""} onClick={()=>openScreen("Earnings")}><Icon name="chart" size={22}/>Earnings</button>
-  <button className={screen==="Rewards"?"active":""} onClick={()=>openScreen("Rewards")}><Icon name="gift" size={22}/>Rewards</button>
-  <button className={screen==="Settings"?"active":""} onClick={()=>openScreen("Settings")}><Icon name="settings" size={22}/>Settings</button>
-</nav>
-</main>
-);
-}
+            {method==="M-PESA" ? <div className="field"><label>M-PESA phone number (include country code)</label><input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel"/></div> : method==="SIM Toolkit" ? <><div className="payment-steps"><b>SIM Toolkit / M-PESA payment procedure</b><ol><li>Tap Open M-PESA menu below (or dial the code manually).</li><li>Select <b>Send Money</b>.</li><li>Enter the recipient number shown below.</li><li>Enter the KES equivalent of the $2 activation fee shown above.</li><li>Confirm the recipient details on your phone before sending.</li><li>After payment, enter the M-PESA transaction code below and submit it for verification.</li></ol><div className="copy-number"><span>0732659971</span><button className="copy-btn" type="button" onClick={() => {navigator.clipboard?.writeText("0732659971").then(()=>setMessage("M-PESA number copied." )).catch(()=>setMessage("Please copy the number manually: 0732659971"));}}>Copy number</button></div><button className="primary" type="button" onClick={() => {window.location.href="tel:*334%23";}}>Open *334#</button></div><div className="field"><label>M-PESA transaction code</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter the M-PESA confirmation code"/></div></> : <div className="field"><label>{method} payment reference / transaction details</label><input value={reference} onChange={e=>setReference(e.target.value)} placeholder="Enter transaction reference"/
