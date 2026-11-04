@@ -816,4 +816,7 @@ export default function DashboardPage() {
   <strong>{item.name}</strong>
 </div>))}
 </div>
-</section>
+</section></div>
+</main>
+);
+  }
