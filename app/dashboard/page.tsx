@@ -706,3 +706,81 @@ export default function DashboardPage() {
             {activeTab === "Dashboard" && (
               <>
                 <
+                <div className="df-overview">
+                  <section className="df-balance">
+                    <div>
+                      <span>Wallet balance</span>
+                      <h2>$0.00</h2>
+                      <small>Demo balance · USD</small>
+                    </div>
+                    <div className="df-balance-icon">💜</div>
+                  </section>
+                  <section className="df-status">
+                    <strong>Account status: Pending activation</strong>
+                    <p>Your account becomes active only after your $2 activation payment is verified by the administrator.</p>
+                    <button className="df-primary" onClick={() => navigate("Activation")}>Activate account</button>
+                  </section>
+                  <section className="df-panels">
+                    <div className="df-card"><h3>Deposit</h3><p>Deposit processing is not connected yet.</p><button onClick={() => navigate("Deposit")}>Open deposits</button></div>
+                    <div className="df-card"><h3>Withdraw</h3><p>Withdrawals require administrator authorization.</p><button onClick={() => navigate("Withdraw")}>Open withdrawals</button></div>
+                    <div className="df-card"><h3>Referrals</h3><p>Earn $0.50 for each verified referral.</p><button onClick={() => navigate("Referrals")}>Invite friends</button></div>
+                  </section>
+                </div>
+              </>
+            )}
+
+            {activeTab === "Activation" && (
+              <section className="df-card">
+                <h2>Account activation — $2 USD</h2>
+                <div className="df-notice">Payment processing and STK Push are not connected yet. Do not send money through this page. Your account stays pending until payment is verified.</div>
+                <div className="df-payment-grid">
+                  {methods.map((method) => (
+                    <button type="button" key={method.name} className={`df-payment ${paymentMethod === method.name ? "selected" : ""}`} onClick={() => setPaymentMethod(method.name)}>
+                      <span className="df-payment-logo" style={{ background: method.color }}>{method.mark}</span>
+                      <span><b>{method.name}</b><small>{method.detail}</small></span>
+                    </button>
+                  ))}
+                </div>
+                {(paymentMethod === "M-PESA" || paymentMethod === "Airtel Money") && (
+                  <>
+                    <label className="df-label" htmlFor="activation-phone">Phone number (include country code)</label>
+                    <input id="activation-phone" className="df-input" value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+254712345678" />
+                  </>
+                )}
+                <button className="df-primary" disabled={sending} onClick={submitActivation}>{sending ? "Submitting..." : "Submit activation request"}</button>
+              </section>
+            )}
+
+            {activeTab === "Deposit" && (
+              <section className="df-card"><h2>Deposit</h2><p>Deposit processing is not connected yet. This demo will not collect payments or credit your wallet.</p></section>
+            )}
+
+            {activeTab === "Withdraw" && (
+              <section className="df-card"><h2>Withdraw</h2><p>Withdrawals are not enabled yet. All withdrawal requests will require administrator authorization.</p></section>
+            )}
+
+            {activeTab === "Transactions" && (
+              <section className="df-card"><h2>Transactions</h2><div className="df-empty"><div className="df-empty-icon">▤</div><p>No transactions to display yet.</p></div></section>
+            )}
+
+            {activeTab === "Referrals" && (
+              <section className="df-card">
+                <h2>Refer &amp; Earn</h2>
+                <p>Earn $0.50 for each referred member after activation is verified.</p>
+                <div className="df-referral-link">{referralCode ? `${typeof window !== "undefined" ? window.location.origin : ""}/app/register?ref=${referralCode}` : "Your referral code has not been assigned yet."}</div>
+                <button className="df-primary" onClick={copyReferral}>Copy referral link</button>
+              </section>
+            )}
+
+            {activeTab === "Profile" && (
+              <section className="df-card"><h2>Member profile</h2><p><strong>Email:</strong> {user.email}</p><p><strong>Account:</strong> Pending activation</p></section>
+            )}
+
+            <footer className="df-footer"><span>BWK DollarFetch</span><span>Secure member dashboard</span></footer>
+          </main>
+        </section>
+      </div>
+    </>
+  );
+            }
+            
