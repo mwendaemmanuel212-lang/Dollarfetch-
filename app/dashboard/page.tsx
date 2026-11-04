@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import { supabase } from "@/lib/supabase";
 
 type Tab =
@@ -282,14 +282,14 @@ export default function DashboardPage() {
     "Profile",
   ];
 
-  const paymentGridStyle: React.CSSProperties = {
+  const paymentGridStyle: CSSProperties = {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
     gap: 12,
     marginTop: 15,
   };
 
-  const paymentCardStyle: React.CSSProperties = {
+  const paymentCardStyle: CSSProperties = {
     display: "flex",
     alignItems: "center",
     gap: 12,
@@ -681,12 +681,13 @@ export default function DashboardPage() {
                   <h2>$0.50</h2>
                   <p>Per verified activated referral</p>
                 </article>
+
                 <article>
                   <small>VERIFIED REWARDS</small>
                   <h2>${earnedRewards.toFixed(2)}</h2>
                   <p>Earned or paid</p>
                 </article>
+
                 <article>
                   <small>PENDING REWARDS</small>
                   <h2>${pendingRewards.toFixed(2)}</h2>
-                  <p>Awaiting ac
