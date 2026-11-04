@@ -14,13 +14,57 @@ type Tab =
   | "Referrals"
   | "Profile";
 
-const methods = [
-  { name: "M-PESA", mark: "M", color: "#159447", detail: "Safaricom mobile money" },
-  { name: "Postbank", mark: "P", color: "#e32636", detail: "Postbank payment" },
-  { name: "Equity Bank", mark: "E", color: "#d71920", detail: "Equity Bank payment" },
-  { name: "Binance", mark: "B", color: "#f0b90b", detail: "Binance payment" },
-  { name: "Airtel Money", mark: "A", color: "#ed1c24", detail: "Airtel mobile money" },
-  { name: "SIM Toolkit", mark: "SIM", color: "#6531c9", detail: "Manual SIM Toolkit payment" },
+type PaymentMethod = {
+  id: string;
+  name: string;
+  subtitle: string;
+  className: string;
+  mark: string;
+};
+
+const methods: PaymentMethod[] = [
+  {
+    id: "M-PESA",
+    name: "M-PESA",
+    subtitle: "Safaricom mobile money",
+    className: "mpesa",
+    mark: "M",
+  },
+  {
+    id: "Postbank",
+    name: "Postbank",
+    subtitle: "Postbank payment",
+    className: "postbank",
+    mark: "P",
+  },
+  {
+    id: "Equity Bank",
+    name: "Equity Bank",
+    subtitle: "Equity payment",
+    className: "equity",
+    mark: "E",
+  },
+  {
+    id: "Binance",
+    name: "Binance",
+    subtitle: "Cryptocurrency payment",
+    className: "binance",
+    mark: "◆",
+  },
+  {
+    id: "Airtel Money",
+    name: "Airtel Money",
+    subtitle: "Airtel mobile money",
+    className: "airtel",
+    mark: "A",
+  },
+  {
+    id: "SIM Toolkit",
+    name: "SIM Toolkit",
+    subtitle: "Manual mobile payment",
+    className: "simtoolkit",
+    mark: "SIM",
+  },
 ];
 
 export default function DashboardPage() {
@@ -30,15 +74,19 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("Dashboard");
-  const [paymentMethod, setPaymentMethod] = useState("M-PESA");
-  const [phone, setPhone] = useState("+254");
+  const [selectedMethod, setSelectedMethod] = useState("M-PESA");
+  const [phone, setPhone] = useState("");
+  const [reference, setReference] = useState("");
   const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
-  const [referralCode, setReferralCode] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadUser() {
       const { data, error } = await supabase.auth.getUser();
+
+      if (!mounted) return;
 
       if (error || !data.user) {
         router.replace("/app/login");
@@ -46,725 +94,445 @@ export default function DashboardPage() {
       }
 
       setUser(data.user);
-      setReferralCode(data.user.user_metadata?.referral_code || "");
       setLoading(false);
     }
 
     loadUser();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
-  const logout = async () => {
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "Member";
+
+  const email = user?.email || "";
+  const referralCode = user?.user_metadata?.referral_code || "";
+
+  async function logout() {
     await supabase.auth.signOut();
     router.replace("/app/login");
-  };
+  }
 
-  const navigate = (tab: Tab) => {
+  async function submitActivation() {
+    setMessage("");
+
+    if (!selectedMethod) {
+      setMessage("Please select a payment method.");
+      return;
+    }
+
+    if (selectedMethod === "M-PESA" && !/^\+254\d{9}$/.test(phone)) {
+      setMessage("Enter your M-PESA number with country code, e.g. +254712345678.");
+      return;
+    }
+
+    if (selectedMethod !== "M-PESA" && !reference.trim()) {
+      setMessage("Enter your payment reference or transaction details.");
+      return;
+    }
+
+    if (!user?.id) {
+      setMessage("Please log in again.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("activation_requests")
+        .insert({
+          user_id: user.id,
+          amount: 2,
+          currency: "USD",
+          method: selectedMethod,
+          phone: selectedMethod === "M-PESA" ? phone : reference,
+          status: "pending",
+        });
+
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage(
+          "Your activation request has been submitted. Your account will remain pending until an administrator verifies the payment."
+        );
+        setPhone("");
+        setReference("");
+      }
+    } catch {
+      setMessage("Something went wrong. Please try again.");
+    }
+
+    setSubmitting(false);
+  }
+
+  function chooseTab(tab: Tab) {
     setActiveTab(tab);
     setMenuOpen(false);
     setMessage("");
-  };
-
-  const submitActivation = async () => {
-    if (!user || sending) return;
-
-    if (
-      (paymentMethod === "M-PESA" || paymentMethod === "Airtel Money") &&
-      !/^\+254\d{9}$/.test(phone)
-    ) {
-      setMessage("Enter a valid Kenyan phone number, for example +254712345678.");
-      return;
-    }
-
-    setSending(true);
-    setMessage("");
-
-    const { error: profileError } = await supabase.auth.updateUser({
-      data: {
-        activation_payment_method: paymentMethod,
-        activation_phone:
-          paymentMethod === "M-PESA" || paymentMethod === "Airtel Money"
-            ? phone
-            : "",
-      },
-    });
-
-    if (profileError) {
-      setMessage("Could not save your details. Please try again.");
-      setSending(false);
-      return;
-    }
-
-    const { error } = await supabase.from("activation_requests").insert({
-      user_id: user.id,
-      amount: 2,
-      currency: "USD",
-      status: "pending",
-    });
-
-    if (error) {
-      setMessage(
-        "Your activation request could not be submitted. Please try again."
-      );
-    } else {
-      setMessage(
-        "Your $2 activation request has been submitted for administrator review. Your account remains pending until payment is verified."
-      );
-    }
-
-    setSending(false);
-  };
-
-  const copyReferral = async () => {
-    if (!referralCode) {
-      setMessage("Your referral code has not been assigned yet.");
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(
-        `${window.location.origin}/app/register?ref=${referralCode}`
-      );
-      setMessage("Referral link copied successfully.");
-    } catch {
-      setMessage("Could not copy the referral link on this device.");
-    }
-  };
-
-  const navItems: { name: Tab; icon: string }[] = [
-    { name: "Dashboard", icon: "⌂" },
-    { name: "Activation", icon: "ϟ" },
-    { name: "Deposit", icon: "↓" },
-    { name: "Withdraw", icon: "↑" },
-    { name: "Transactions", icon: "▤" },
-    { name: "Referrals", icon: "♧" },
-    { name: "Profile", icon: "●" },
-  ];
+  }
 
   if (loading) {
     return (
       <div className="df-loading">
-        <div className="df-spinner" />
-        Loading DollarFetch...
-        <style jsx global>{`
-          .df-loading {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            color: #5120a4;
-            font-family: Arial, sans-serif;
-          }
-          .df-spinner {
-            width: 22px;
-            height: 22px;
-            border: 3px solid #e8d9ff;
-            border-top-color: #7618e8;
-            border-radius: 50%;
-            animation: dfspin 0.8s linear infinite;
-          }
-          @keyframes dfspin {
-            to {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
+        <div className="df-loader" />
+        <p>Loading DollarFetch...</p>
       </div>
     );
   }
 
-  if (!user) return null;
+  const navigation: { name: Tab; icon: string }[] = [
+    { name: "Dashboard", icon: "⌂" },
+    { name: "Activation", icon: "✦" },
+    { name: "Deposit", icon: "＋" },
+    { name: "Withdraw", icon: "↗" },
+    { name: "Transactions", icon: "↔" },
+    { name: "Referrals", icon: "♧" },
+    { name: "Profile", icon: "◎" },
+  ];
 
   return (
-    <>
-      <style jsx global>{`
-        * {
-          box-sizing: border-box;
-        }
-        body {
-          margin: 0;
-          background: #f7f2ff;
-          color: #211044;
-          font-family: Arial, Helvetica, sans-serif;
-        }
-        button,
-        input {
-          font: inherit;
-        }
-        button {
-          cursor: pointer;
-        }
+    <main className="df-app">
+      <style>{`
+        * { box-sizing: border-box; }
         .df-app {
           min-height: 100vh;
-          display: flex;
-          background: #f7f2ff;
+          background: #f5f3fb;
+          color: #211b35;
+          font-family: Arial, Helvetica, sans-serif;
         }
-        .df-sidebar {
-          width: 276px;
-          flex-shrink: 0;
+        .df-loading {
           min-height: 100vh;
-          padding: 22px 17px;
-          background: linear-gradient(180deg, #21005a, #350080 65%, #21005a);
-          color: white;
           display: flex;
           flex-direction: column;
-          transition: transform 0.25s ease;
-          z-index: 20;
-        }
-        .df-brand {
-          padding: 12px 12px 34px;
-          border-bottom: 1px solid #ffffff24;
-          margin-bottom: 24px;
-        }
-        .df-brand-mark {
-          width: 57px;
-          height: 57px;
-          border-radius: 17px;
-          display: grid;
-          place-items: center;
-          background: linear-gradient(135deg, #d68aff, #7616e9);
-          font-size: 27px;
-          font-weight: 900;
-          margin-bottom: 12px;
-        }
-        .df-brand h2 {
-          color: white;
-          font-size: 24px;
-          margin: 0 0 5px;
-          font-weight: 900;
-        }
-        .df-brand p {
-          color: #ddc5ff;
-          font-size: 12px;
-          margin: 0;
-        }
-        .df-menu-label {
-          color: #c8a9f4;
-          font-size: 10px;
-          letter-spacing: 2px;
-          font-weight: 800;
-          padding: 0 12px 12px;
-        }
-        .df-nav {
-          display: grid;
-          gap: 8px;
-        }
-        .df-nav button {
-          width: 100%;
-          border: 0;
-          border-radius: 12px;
-          padding: 13px 14px;
-          color: #eadcff;
-          background: transparent;
-          display: flex;
           align-items: center;
+          justify-content: center;
           gap: 14px;
-          text-align: left;
-          font-size: 14px;
-          font-weight: 600;
+          color: #6541a5;
+          background: #f5f3fb;
         }
-        .df-nav button:hover,
-        .df-nav button.active {
-          color: white;
-          background: linear-gradient(100deg, #8c16f4, #5b08c9);
-          box-shadow: 0 6px 18px #16003366;
-        }
-        .df-nav-icon {
-          width: 25px;
-          text-align: center;
-          font-size: 23px;
-          font-weight: 800;
-        }
-        .df-side-promo {
-          margin-top: auto;
-          padding: 20px 15px;
-          border: 1px solid #a34cff70;
-          border-radius: 16px;
-          background: #ffffff0c;
-          text-align: center;
-        }
-        .df-gift {
-          font-size: 40px;
-        }
-        .df-side-promo h3 {
-          color: #ffdf36;
-          margin: 8px 0;
-        }
-        .df-side-promo p {
-          color: #e2d0ff;
-          font-size: 12px;
-          line-height: 1.6;
-        }
-        .df-side-promo button {
-          border: 0;
-          border-radius: 9px;
-          padding: 10px 15px;
-          color: white;
-          font-weight: 800;
-          background: #8615ed;
-        }
-        .df-telegram {
-          display: block;
-          margin-top: 12px;
-          padding: 11px 10px;
-          border-radius: 9px;
-          background: #229ed9;
-          color: white;
-          text-decoration: none;
-          font-size: 12px;
-          font-weight: 800;
-        }
-        .df-telegram:hover {
-          background: #168ac1;
-        }
-        .df-main {
-          flex: 1;
-          min-width: 0;
-        }
-        .df-topbar {
-          height: 76px;
-          padding: 0 25px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-          background: white;
-          border-bottom: 1px solid #eadfff;
-        }
-        .df-menu-button {
-          border: 0;
-          background: transparent;
-          color: #3b0877;
-          font-size: 28px;
-          padding: 5px;
-        }
-        .df-member {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-width: 0;
-          font-size: 12px;
-          font-weight: 700;
-        }
-        .df-avatar {
+        .df-loader {
           width: 38px;
           height: 38px;
+          border: 4px solid #e4d9f5;
+          border-top-color: #7845c4;
+          border-radius: 50%;
+          animation: dfspin .8s linear infinite;
+        }
+        @keyframes dfspin { to { transform: rotate(360deg); } }
+        .df-layout { display: flex; min-height: 100vh; }
+        .df-sidebar {
+          width: 255px;
           flex-shrink: 0;
-          border-radius: 50%;
-          background: #eadcff;
-          color: #6511c7;
-          display: grid;
-          place-items: center;
-          font-size: 18px;
-        }
-        .df-member-email {
-          overflow-wrap: anywhere;
-        }
-        .df-logout {
-          border: 0;
-          border-radius: 10px;
-          padding: 11px 15px;
-          background: #7615e5;
+          background: linear-gradient(180deg,#261345,#392064);
           color: white;
-          font-weight: 800;
-        }
-        .df-content {
-          max-width: 1500px;
-          padding: 22px;
-          margin: auto;
-        }
-        .df-welcome {
-          min-height: 155px;
-          border-radius: 17px;
-          padding: 27px 32px;
-          margin-bottom: 20px;
-          color: white;
-          background:
-            radial-gradient(
-              circle at 85% 25%,
-              #a746ff 0,
-              #7920df 26%,
-              transparent 50%
-            ),
-            linear-gradient(115deg, #390078, #720fd0 65%, #4c0a9c);
-          box-shadow: 0 8px 22px #5713a52a;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          overflow: hidden;
-        }
-        .df-welcome h1 {
-          font-size: 30px;
-          margin: 0 0 10px;
-        }
-        .df-welcome p {
-          margin: 0;
-          color: #ead9ff;
-          font-size: 17px;
-        }
-        .df-welcome-art {
-          font-size: 76px;
-          padding-right: 25px;
-        }
-        .df-overview {
-          display: grid;
-          grid-template-columns: 1.15fr 1fr;
-          gap: 17px;
-          margin-bottom: 20px;
-        }
-        .df-balance {
-          border-radius: 17px;
-          padding: 25px;
-          color: white;
-          background: linear-gradient(120deg, #270064, #3b078d);
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
-          gap: 15px;
-          box-shadow: 0 7px 20px #3b087722;
-        }
-        .df-balance h2 {
-          font-size: 39px;
-          margin: 8px 0;
-        }
-        .df-balance small {
-          color: #d7c0ff;
-        }
-        .df-balance-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: #8c20f0;
-          display: grid;
-          place-items: center;
-          font-size: 28px;
-        }
-        .df-status {
-          border-radius: 17px;
-          padding: 20px;
-          background: white;
-          border: 1px solid #e5d5ff;
-        }
-        .df-status strong {
-          display: block;
-          color: #7410d6;
-          font-size: 14px;
-        }
-        .df-status p {
-          font-size: 13px;
-          line-height: 1.6;
-          color: #695584;
-        }
-        .df-quick,
-        .df-card {
-          border-radius: 17px;
-          padding: 20px;
-          background: white;
-          border: 1px solid #e5d5ff;
-          box-shadow: 0 5px 16px #4810800d;
-          margin-bottom: 18px;
-        }
-        .df-quick h3 {
-          margin: 0 0 17px;
-          font-size: 19px;
-        }
-        .df-quick-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
-        }
-        .df-action {
-          min-height: 105px;
-          border: 0;
-          border-radius: 13px;
-          color: white;
-          font-weight: 800;
-          padding: 12px 6px;
+          padding: 24px 17px;
           display: flex;
           flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
+          min-height: 100vh;
         }
-        .df-action span {
-          font-size: 27px;
+        .df-brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 30px; }
+        .df-brand-icon {
+          width: 43px; height: 43px; border-radius: 13px;
+          display: grid; place-items: center;
+          color: white; font-weight: 900; font-size: 21px;
+          background: linear-gradient(135deg,#a77af2,#7544c1);
+          box-shadow: 0 5px 16px #140a2a66;
         }
-        .df-action.activate {
-          background: linear-gradient(135deg, #a51aff, #6500d6);
+        .df-brand-name { font-weight: 800; font-size: 18px; letter-spacing: .3px; }
+        .df-brand-sub { color: #c7b5e5; font-size: 11px; margin-top: 3px; }
+        .df-nav-label { color: #a995ca; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; padding: 0 12px 12px; }
+        .df-nav { display: grid; gap: 7px; }
+        .df-nav button {
+          border: 0; width: 100%; border-radius: 10px;
+          padding: 12px 13px; display: flex; align-items: center;
+          gap: 13px; text-align: left; cursor: pointer;
+          background: transparent; color: #d9cceb; font-size: 14px;
         }
-        .df-action.deposit {
-          background: linear-gradient(135deg, #2782ff, #0645e8);
+        .df-nav button:hover, .df-nav button.active {
+          background: #ffffff1c; color: white;
         }
-        .df-action.withdraw {
-          background: linear-gradient(135deg, #13bd79, #008b58);
+        .df-nav-icon { width: 22px; font-size: 19px; text-align: center; }
+        .df-side-bottom { margin-top: auto; }
+        .df-telegram {
+          display: block; text-decoration: none; color: white;
+          background: #ffffff16; border: 1px solid #ffffff22;
+          padding: 14px; border-radius: 12px; margin-top: 24px;
         }
-        .df-panels {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+        .df-telegram strong { display: block; font-size: 13px; margin-bottom: 5px; }
+        .df-telegram span { color: #cbbbe3; font-size: 11px; }
+        .df-sidebar-user {
+          display: flex; gap: 10px; align-items: center;
+          border-top: 1px solid #ffffff20; margin-top: 18px; padding: 17px 5px 0;
+        }
+        .df-avatar {
+          width: 35px; height: 35px; border-radius: 50%;
+          display: grid; place-items: center; color: #4b2b78;
+          background: #e5d5ff; font-weight: 800;
+        }
+        .df-user-name { font-size: 12px; font-weight: 700; }
+        .df-user-email { color: #c2b1dc; font-size: 10px; margin-top: 4px; max-width: 145px; overflow-wrap: anywhere; }
+        .df-main { min-width: 0; flex: 1; }
+        .df-topbar {
+          height: 76px; padding: 0 30px; background: white;
+          border-bottom: 1px solid #eee9f5;
+          display: flex; align-items: center; justify-content: space-between;
+          position: sticky; top: 0; z-index: 5;
+        }
+        .df-top-left { display: flex; align-items: center; gap: 14px; }
+        .df-menu-button {
+          display: none; border: 0; background: #f0e9fa;
+          color: #5a348d; border-radius: 9px; font-size: 23px;
+          width: 40px; height: 40px; cursor: pointer;
+        }
+        .df-page-title { font-size: 18px; font-weight: 800; }
+        .df-top-right { display: flex; align-items: center; gap: 12px; }
+        .df-status {
+          background: #fff4dc; color: #a66a00; border-radius: 20px;
+          padding: 7px 11px; font-size: 11px; font-weight: 800;
+        }
+        .df-content { padding: 28px 30px 40px; max-width: 1400px; margin: auto; }
+        .df-welcome { margin-bottom: 22px; }
+        .df-welcome h1 { font-size: 25px; margin: 0 0 7px; letter-spacing: -.5px; }
+        .df-welcome p { color: #817990; font-size: 13px; margin: 0; }
+        .df-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+        .df-card {
+          background: white; border: 1px solid #eee9f5; border-radius: 15px;
+          padding: 20px; box-shadow: 0 5px 18px #30204b08;
+        }
+        .df-stat-label { color: #817990; font-size: 12px; font-weight: 600; }
+        .df-stat-value { font-size: 27px; font-weight: 800; margin: 13px 0 7px; }
+        .df-stat-note { color: #948ba2; font-size: 11px; }
+        .df-stat-icon {
+          width: 36px; height: 36px; border-radius: 10px;
+          display: grid; place-items: center; font-size: 18px;
+          background: #f0e8fc; color: #7848b9; margin-bottom: 15px;
+        }
+        .df-section-title { font-size: 16px; font-weight: 800; margin: 0 0 15px; }
+        .df-section-sub { color: #857d92; font-size: 12px; margin: -7px 0 18px; line-height: 1.6; }
+        .df-panel { margin-top: 20px; }
+        .df-action-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 13px; }
+        .df-action {
+          border: 1px solid #eee8f6; background: white; border-radius: 13px;
+          padding: 17px; text-align: left; cursor: pointer; color: #302344;
+        }
+        .df-action:hover { border-color: #a986d8; transform: translateY(-1px); }
+        .df-action-icon {
+          width: 38px; height: 38px; display: grid; place-items: center;
+          border-radius: 11px; background: #f0e8fc; color: #7543b5;
+          font-size: 19px; margin-bottom: 12px;
+        }
+        .df-action strong { display: block; font-size: 13px; margin-bottom: 5px; }
+        .df-action span { color: #898095; font-size: 11px; }
+        .df-banner {
+          margin-top: 20px; padding: 20px; border-radius: 15px;
+          background: linear-gradient(110deg,#43216e,#7545b4);
+          color: white; display: flex; align-items: center; justify-content: space-between;
           gap: 15px;
-          margin-bottom: 20px;
         }
-        .df-panel {
-          background: white;
-          border: 1px solid #e5d5ff;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 5px 16px #4810800d;
-          min-width: 0;
+        .df-banner h3 { margin: 0 0 7px; font-size: 16px; }
+        .df-banner p { margin: 0; color: #e1d3f4; font-size: 12px; line-height: 1.5; }
+        .df-button {
+          border: 0; border-radius: 9px; padding: 11px 16px;
+          font-weight: 800; cursor: pointer; font-size: 12px;
+          background: #7848bf; color: white;
         }
-        .df-panel-head {
-          padding: 16px;
-          color: white;
-          font-size: 16px;
-          font-weight: 800;
-          background: linear-gradient(100deg, #7410d6, #43008b);
+        .df-button:hover { filter: brightness(1.07); }
+        .df-button.light { background: white; color: #59328e; white-space: nowrap; }
+        .df-button:disabled { opacity: .55; cursor: not-allowed; }
+        .df-method-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+        .df-method {
+          display: flex; align-items: center; gap: 13px; padding: 14px;
+          border: 1px solid #ece6f4; border-radius: 12px; background: white;
+          cursor: pointer; text-align: left; width: 100%; color: #302344;
         }
-        .df-panel-body {
-          padding: 18px;
+        .df-method.selected { border: 2px solid #8050bf; background: #faf7ff; padding: 13px; }
+        .df-logo {
+          width: 48px; height: 43px; border-radius: 10px; flex-shrink: 0;
+          display: grid; place-items: center; font-weight: 900; font-size: 19px;
+          letter-spacing: -.5px; color: white;
         }
-        .df-panel-body h2 {
-          font-size: 29px;
-          text-align: center;
-          margin: 0 0 6px;
+        .df-logo.mpesa { background: #39a844; }
+        .df-logo.postbank { background: #174b8d; }
+        .df-logo.equity { background: #d72b32; }
+        .df-logo.binance { background: #f3ba2f; color: #222; }
+        .df-logo.airtel { background: #e32636; }
+        .df-logo.simtoolkit { background: #4e596d; font-size: 12px; }
+        .df-method-name { font-size: 13px; font-weight: 800; }
+        .df-method-sub { font-size: 10px; color: #898095; margin-top: 5px; }
+        .df-field { margin: 16px 0; }
+        .df-field label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+        .df-field input, .df-field select {
+          width: 100%; border: 1px solid #e5deee; border-radius: 9px;
+          padding: 13px; font-size: 13px; outline: none; background: white;
+          color: #302344;
         }
-        .df-panel-body p {
-          font-size: 13px;
-          line-height: 1.6;
-          color: #695584;
-          text-align: center;
-        }
-        .df-payment-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 9px;
-          margin: 15px 0;
-        }
-        .df-payment {
-          min-width: 0;
-          border: 1px solid #e7daf7;
-          border-radius: 11px;
-          padding: 10px 7px;
-          background: white;
-          color: #291448;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          text-align: left;
-        }
-        .df-payment.selected {
-          border: 2px solid #8116e8;
-          background: #f7efff;
-        }
-        .df-payment-logo {
-          width: 34px;
-          height: 34px;
-          flex-shrink: 0;
-          border-radius: 9px;
-          display: grid;
-          place-items: center;
-          color: white;
-          font-size: 12px;
-          font-weight: 900;
-        }
-        .df-payment b {
-          font-size: 11px;
-          display: block;
-        }
-        .df-payment small {
-          font-size: 9px;
-          color: #89769e;
-          display: block;
-          margin-top: 3px;
-        }
-        .df-label {
-          display: block;
-          font-size: 12px;
-          font-weight: 800;
-          margin: 13px 0 6px;
-        }
-        .df-input {
-          width: 100%;
-          border: 1px solid #dfd1f1;
-          border-radius: 10px;
-          padding: 12px;
-          color: #291448;
-          background: white;
-          outline-color: #8116e8;
-        }
-        .df-primary {
-          width: 100%;
-          border: 0;
-          border-radius: 11px;
-          padding: 13px;
-          background: linear-gradient(100deg, #9714ed, #5900c7);
-          color: white;
-          font-weight: 900;
-          margin-top: 12px;
-        }
-        .df-primary:disabled {
-          opacity: 0.6;
-          cursor: wait;
-        }
+        .df-field input:focus { border-color: #8050bf; }
         .df-notice {
-          padding: 14px 17px;
-          border: 1px solid #d6b8ff;
-          border-radius: 12px;
-          background: #efe3ff;
-          color: #401276;
-          font-size: 12px;
-          line-height: 1.6;
-          margin-bottom: 18px;
+          background: #f8f3ff; border: 1px solid #e8dcf8; color: #654590;
+          padding: 13px; border-radius: 10px; font-size: 12px; line-height: 1.6;
+          margin: 14px 0;
         }
         .df-message {
-          background: #f0e6ff;
-          color: #4b1680;
-          border: 1px solid #d9baff;
-          border-radius: 10px;
-          padding: 13px;
-          margin-bottom: 16px;
-          font-size: 13px;
-          line-height: 1.5;
+          background: #f3edfc; border: 1px solid #dfd0f2;
+          color: #573586; padding: 12px; border-radius: 9px;
+          font-size: 12px; line-height: 1.5; margin: 14px 0;
         }
-        .df-empty {
-          min-height: 200px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          color: #5c20a2;
-          padding: 20px;
-        }
-        .df-empty-icon {
-          font-size: 55px;
-        }
-        .df-referral-link {
-          background: #f1e7ff;
-          border-radius: 10px;
-          padding: 12px;
-          overflow-wrap: anywhere;
-          font-size: 11px;
-          margin: 12px 0;
-        }
-        .df-footer {
-          padding: 15px 5px;
-          display: flex;
-          justify-content: space-between;
-          gap: 10px;
-          color: #8876a0;
-          font-size: 11px;
-        }
-        .df-overlay {
-          display: none;
-        }
-        @media (max-width: 1050px) {
-          .df-panels {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-          .df-overview {
-            grid-template-columns: 1fr;
-          }
-        }
-        @media (max-width: 700px) {
+        .df-empty { text-align: center; padding: 35px 15px; color: #817990; }
+        .df-empty-icon { font-size: 30px; margin-bottom: 12px; }
+        .df-empty strong { display: block; color: #433653; font-size: 14px; margin-bottom: 7px; }
+        .df-empty p { font-size: 12px; line-height: 1.6; margin: 0; }
+        .df-profile-row { padding: 14px 0; border-bottom: 1px solid #f0ecf5; }
+        .df-profile-label { color: #898095; font-size: 11px; margin-bottom: 5px; }
+        .df-profile-value { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+        .df-footer { text-align: center; color: #9b93a7; font-size: 10px; padding: 25px 10px 5px; }
+        .df-footer a { color: #7545b4; text-decoration: none; font-weight: 700; }
+        @media(max-width:850px) {
           .df-sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            width: 275px;
-            transform: translateX(-105%);
-            overflow-y: auto;
-            box-shadow: 8px 0 25px #16002b44;
+            position: fixed; z-index: 20; left: 0; top: 0; bottom: 0;
+            transform: translateX(-105%); transition: transform .22s ease;
+            box-shadow: 10px 0 30px #170b2c25;
           }
-          .df-sidebar.open {
-            transform: translateX(0);
-          }
-          .df-overlay.show {
-            display: block;
-            position: fixed;
-            inset: 0;
-            z-index: 15;
-            background: #13002588;
-          }
-          .df-topbar {
-            height: 66px;
-            padding: 0 13px;
-          }
-          .df-member {
-            max-width: 48%;
-            overflow: hidden;
-          }
-          .df-member-email {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-          .df-logout {
-            padding: 9px 10px;
-            font-size: 11px;
-          }
-          .df-content {
-            padding: 13px;
-          }
-          .df-welcome {
-            min-height: 130px;
-            padding: 20px;
-          }
-          .df-welcome h1 {
-            font-size: 22px;
-          }
-          .df-welcome p {
-            font-size: 13px;
-          }
-          .df-welcome-art {
-            font-size: 45px;
-            padding: 0;
-          }
-          .df-balance {
-            padding: 18px 12px;
-          }
-          .df-balance h2 {
-            font-size: 29px;
-          }
-          .df-balance-icon {
-            width: 45px;
-            height: 45px;
-          }
-          .df-quick-grid {
-            gap: 7px;
-          }
-          .df-action {
-            min-height: 90px;
-            font-size: 11px;
-          }
-          .df-panels {
-            grid-template-columns: 1fr;
-          }
-          .df-payment-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-          .df-footer {
-            flex-direction: column;
-          }
+          .df-sidebar.open { transform: translateX(0); }
+          .df-menu-button { display: block; }
+          .df-topbar { padding: 0 16px; height: 66px; }
+          .df-content { padding: 22px 16px 32px; }
+          .df-grid { grid-template-columns: 1fr; }
+          .df-action-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+          .df-method-grid { grid-template-columns: 1fr; }
+          .df-banner { align-items: flex-start; flex-direction: column; }
+          .df-top-right .df-status { display: none; }
         }
-        @media (max-width: 370px) {
-          .df-payment-grid {
-            grid-template-columns: 1fr;
-          }
-          .df-balance-icon {
-            display: none;
-          }
+        @media(min-width:851px) {
+          .df-sidebar { position: sticky; top: 0; height: 100vh; }
+        }
+        @media(max-width:390px) {
+          .df-action-grid { grid-template-columns: 1fr 1fr; }
+          .df-action { padding: 13px; }
+          .df-welcome h1 { font-size: 21px; }
         }
       `}</style>
 
-      <div className="df-app">
-        <div
-          className={`df-overlay ${menuOpen ? "show" : ""}`}
-          onClick={() => setMenuOpen(false)}
-        />
-
+      <div className="df-layout">
         <aside className={`df-sidebar ${menuOpen ? "open" : ""}`}>
           <div className="df-brand">
-            <div className="df-brand-mark">D</div>
-            <h2>DollarFetch</h2>
-           
+            <div className="df-brand-icon">D</div>
+            <div>
+              <div className="df-brand-name">DollarFetch</div>
+              <div className="df-brand-sub">Powered by BWK</div>
+            </div>
+          </div>
+
+          <div className="df-nav-label">MAIN MENU</div>
+
+          <nav className="df-nav">
+            {navigation.map((item) => (
+              <button
+                key={item.name}
+                className={activeTab === item.name ? "active" : ""}
+                onClick={() => chooseTab(item.name)}
+              >
+                <span className="df-nav-icon">{item.icon}</span>
+                {item.name}
+              </button>
+            ))}
+          </nav>
+
+          <div className="df-side-bottom">
+            <a
+              className="df-telegram"
+              href="https://t.me/dollafetch"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <strong>✈ Join Our Telegram Channel</strong>
+              <span>Get DollarFetch updates and announcements</span>
+            </a>
+
+            <div className="df-sidebar-user">
+              <div className="df-avatar">
+                {String(displayName).charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div className="df-user-name">{displayName}</div>
+                <div className="df-user-email">{email}</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section className="df-main">
+          <header className="df-topbar">
+            <div className="df-top-left">
+              <button
+                className="df-menu-button"
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Toggle menu"
+              >
+                ☰
+              </button>
+              <div className="df-page-title">{activeTab}</div>
+            </div>
+
+            <div className="df-top-right">
+              <span className="df-status">● Account pending activation</span>
+              <button className="df-button" onClick={logout}>
+                Log out
+              </button>
+            </div>
+          </header>
+
+          <div className="df-content">
+            {activeTab === "Dashboard" && (
+              <>
+                <div className="df-welcome">
+                  <h1>Welcome, {displayName} 👋</h1>
+                  <p>Here is your DollarFetch member dashboard.</p>
+                </div>
+
+                <div className="df-grid">
+                  <div className="df-card">
+                    <div className="df-stat-icon">$</div>
+                    <div className="df-stat-label">Wallet Balance</div>
+                    <div className="df-stat-value">$0.00</div>
+                    <div className="df-stat-note">Demo balance — no funds credited</div>
+                  </div>
+
+                  <div className="df-card">
+                    <div className="df-stat-icon">✦</div>
+                    <div className="df-stat-label">Account Status</div>
+                    <div className="df-stat-value" style={{ fontSize: 21 }}>
+                      Pending
+                    </div>
+                    <div className="df-stat-note">Activation awaits payment verification</div>
+                  </div>
+
+                  <div className="df-card">
+                    <div className="df-stat-icon">♧</div>
+                    <div className="df-stat-label">Referral Reward</div>
+                    <div className="df-stat-value">$0.50</div>
+                    <div className="df-stat-note">Per eligible referral, subject to program rules</div>
+                  </div>
+                </div>
+
+                <div className="df-panel">
+                  <div className="df-section-title">Quick actions</div>
+                  <div className="df-action-grid">
+                    <button className="df-action" onClick={() => chooseTab("Activation")}>
+                      <div className="df-action-icon">✦</div>
+                      <strong>Activate Account</strong>
+                      <span>Submit your $2 activation request</span>
+                    </button>
+                    <button className="df-action" onClick={() => chooseTab("Deposit")}>
+                      <div className="df-action-icon">＋</div>
+                      <strong>Deposit</strong>
+                      <span>View deposit information</span>
+                    </button>
+                    <button className="df-action" onClick={() => chooseTab("Withdraw")}>
+                      <div className="df-action-icon">↗</div>
+                    
