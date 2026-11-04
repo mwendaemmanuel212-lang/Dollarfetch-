@@ -265,7 +265,5 @@ export default function DashboardPage() {
           </button>
           <div className="secure"><Icon name="shield" size={38}/><div><b>Your account is secure</b><small>Protected member access</small></div></div>
           <div className="socials">
-            <div className="socials">
-  <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
-  <a className="social-link telegram" href="https://t.me/dollafetch" target="_blank" rel="noreferrer"><Icon name="telegram" size={21}/> Telegram Channel</a>
-</div>
+            <a className="social-link whatsapp" href="https://whatsapp.com/channel/0029VbEm5GNHAdNQQ8QEXb2f" target="_blank" rel="noreferrer"><Icon name="whatsapp" size={21}/> WhatsApp Channel</a>
+            <a className="socia
