@@ -6,12 +6,42 @@ import { supabase } from "@/lib/supabase";
 type Tab = "Dashboard" | "Activation" | "Deposit" | "Withdraw" | "Transactions" | "Referrals" | "Profile";
 
 const payments = [
-  { id: "M-PESA", mark: "M", color: "#36a843", note: "Safaricom mobile money" },
-  { id: "Postbank", mark: "P", color: "#164b86", note: "Postbank payment" },
-  { id: "Equity Bank", mark: "E", color: "#d52d35", note: "Equity payment" },
-  { id: "Binance", mark: "◆", color: "#f3ba2f", note: "Cryptocurrency payment" },
-  { id: "Airtel Money", mark: "A", color: "#e32636", note: "Airtel mobile money" },
-  { id: "SIM Toolkit", mark: "SIM", color: "#596477", note: "Manual mobile payment" },
+  {
+    id: "M-PESA",
+    logo: "https://commons.wikimedia.org/wiki/Special:FilePath/M-PESA_LOGO-01.svg",
+    mark: "M",
+    note: "Safaricom mobile money",
+  },
+  {
+    id: "Postbank",
+    logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=128",
+    mark: "P",
+    note: "Postbank payment",
+  },
+  {
+    id: "Equity Bank",
+    logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=128",
+    mark: "E",
+    note: "Equity payment",
+  },
+  {
+    id: "Binance",
+    logo: "https://cdn.simpleicons.org/binance/F0B90B",
+    mark: "B",
+    note: "Cryptocurrency payment",
+  },
+  {
+    id: "Airtel Money",
+    logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=128",
+    mark: "A",
+    note: "Airtel mobile money",
+  },
+  {
+    id: "SIM Toolkit",
+    logo: "",
+    mark: "SIM",
+    note: "Manual mobile payment",
+  },
 ];
 
 const tabs: { name: Tab; icon: string }[] = [
