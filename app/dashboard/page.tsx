@@ -1,4 +1,3 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -8,7 +7,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) location.href = "/login";
+      if (!data.user) location.href = "/app/login";
       else setName(data.user.user_metadata?.full_name || "Member");
     });
   }, []);
@@ -22,7 +21,7 @@ export default function Dashboard() {
       <p>
         <button onClick={async () => {
           await supabase.auth.signOut();
-          location.href = "/login";
+          location.href = "/app/login";
         }}>Log out</button>
       </p>
     </main>
