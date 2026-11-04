@@ -803,20 +803,18 @@ export default function DashboardPage() {
                   <div className="actions">
                     {tabs.slice(1).map((item) => (
                       <button
-                        className="action"
-                        key={item.name}
-                        onClick={() => go(item.name)}
-                      >
-                        <div className="actionicon">{item.icon}</div>
-                        <div className="action"
+  className="action"
   key={item.name}
   onClick={() => go(item.name)}
 >
   <div className="actionicon">{item.icon}</div>
   <strong>{item.name}</strong>
-</div>))}
+</button>
+))}
 </div>
 </section></div>
 </main>
+);
+            }
 );
   }
