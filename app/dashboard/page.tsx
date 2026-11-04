@@ -814,4 +814,6 @@ export default function DashboardPage() {
 >
   <div className="actionicon">{item.icon}</div>
   <strong>{item.name}</strong>
+</div>))}
 </div>
+</section>
