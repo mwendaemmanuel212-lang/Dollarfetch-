@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,36 +27,12 @@ const paymentBrand: Record<
   string,
   { short: string; color: string; detail: string }
 > = {
-  "M-PESA": {
-    short: "M",
-    color: "#35a853",
-    detail: "Mobile money",
-  },
-  Postbank: {
-    short: "PB",
-    color: "#1464a5",
-    detail: "Bank transfer",
-  },
-  "Equity Bank": {
-    short: "E",
-    color: "#e32636",
-    detail: "Bank transfer",
-  },
-  Binance: {
-    short: "B",
-    color: "#f0b90b",
-    detail: "Crypto payment",
-  },
-  "Airtel Money": {
-    short: "A",
-    color: "#e40000",
-    detail: "Mobile money",
-  },
-  "SIM Toolkit": {
-    short: "SIM",
-    color: "#55318b",
-    detail: "Manual M-PESA",
-  },
+  "M-PESA": { short: "M", color: "#35a853", detail: "Mobile money" },
+  Postbank: { short: "PB", color: "#1464a5", detail: "Bank transfer" },
+  "Equity Bank": { short: "E", color: "#e32636", detail: "Bank transfer" },
+  Binance: { short: "B", color: "#f0b90b", detail: "Crypto payment" },
+  "Airtel Money": { short: "A", color: "#e40000", detail: "Mobile money" },
+  "SIM Toolkit": { short: "SIM", color: "#55318b", detail: "Manual M-PESA" },
 };
 
 const adminEmail = "mwendaemmanuel212@gmail.com";
@@ -79,7 +56,6 @@ function PaymentBadge({ name }: { name: string }) {
         justifyContent: "center",
         fontSize: name === "SIM Toolkit" ? 11 : 19,
         fontWeight: 800,
-        letterSpacing: "-0.5px",
       }}
     >
       {brand.short}
@@ -241,46 +217,19 @@ export default function DashboardPage() {
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => setCopied(false), 2000);
     } catch {
       setMessage("Unable to copy. Please try again.");
     }
   }
 
   const earnedRewards = referrals
-    .filter(
-      (r) => r.status === "earned" || r.status === "paid"
-    )
-    .reduce(
-      (sum, r) => sum + Number(r.reward_amount || 0),
-      0
-    );
+    .filter((r) => r.status === "earned" || r.status === "paid")
+    .reduce((sum, r) => sum + Number(r.reward_amount || 0), 0);
 
   const pendingRewards = referrals
     .filter((r) => r.status === "pending")
-    .reduce(
-      (sum, r) => sum + Number(r.reward_amount || 0),
-      0
-    );
-
-  if (loading) {
-    return (
-      <main className="empty">
-        <h2>BWK DollarFetch</h2>
-        <p>Loading your member dashboard...</p>
-      </main>
-    );
-  }
-
-  const menu: Tab[] = [
-    "Dashboard",
-    "Activation",
-    "Deposit",
-    "Withdraw",
-    "Transactions",
-    "Referrals",
-    "Profile",
-  ];
+    .reduce((sum, r) => sum + Number(r.reward_amount || 0), 0);
 
   const paymentGridStyle: CSSProperties = {
     display: "grid",
@@ -302,6 +251,25 @@ export default function DashboardPage() {
     cursor: "pointer",
     color: "#25213b",
   };
+
+  if (loading) {
+    return (
+      <main className="empty">
+        <h2>BWK DollarFetch</h2>
+        <p>Loading your member dashboard...</p>
+      </main>
+    );
+  }
+
+  const menu: Tab[] = [
+    "Dashboard",
+    "Activation",
+    "Deposit",
+    "Withdraw",
+    "Transactions",
+    "Referrals",
+    "Profile",
+  ];
 
   return (
     <div className="shell">
@@ -380,9 +348,7 @@ export default function DashboardPage() {
             </label>
           </div>
 
-          {message && (
-            <div className="notice">{message}</div>
-          )}
+          {message && <div className="notice">{message}</div>}
 
           {tab === "Dashboard" && (
             <>
@@ -691,3 +657,10 @@ export default function DashboardPage() {
                 <article>
                   <small>PENDING REWARDS</small>
                   <h2>${pendingRewards.toFixed(2)}</h2>
+                  <p>Awaiting verification</p>
+                </article>
+              </div>
+
+              <section className="panel">
+                <h3>Invite New Members</h3>
+      
