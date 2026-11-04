@@ -814,3 +814,33 @@ export default function DashboardPage() {
 ))}
 </div>
 </div>
+                <div className="section">
+                  <div className="sectiontitle">Recent activity</div>
+                  <div className="activity">
+                    <div>
+                      <strong>Welcome to DollarFetch</strong>
+                      <p>Your account dashboard is ready.</p>
+                    </div>
+                    <span>Today</span>
+                  </div>
+                </div>
+
+                <div className="section">
+                  <div className="sectiontitle">Stay connected</div>
+                  <a
+                    href="https://t.me/dollafetch"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="telegram"
+                  >
+                    Join our Telegram channel
+                  </a>
+                </div>
+              </main>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+            }
