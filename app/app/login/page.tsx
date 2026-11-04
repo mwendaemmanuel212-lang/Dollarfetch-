@@ -520,4 +520,18 @@ export default function Login() {
         footer p { margin-top: 18px; color: #8e7b9e; font-size: 11px; }
         @media (max-width: 480px) {
           .login-page { padding: 22px 14px 30px; }
-          .brand-symbol { width: 4
+          
+.brand-symbol { width: 46px; height: 46px; font-size: 32px; }
+.brand-name strong { font-size: 19px; }
+.benefits { padding: 15px 2px; }
+.benefits div { font-size: 10px; }
+.benefits svg { width: 25px; height: 25px; }
+.login-card { padding: 24px 17px; }
+.trust-row span { font-size: 9px; }
+.trust-row svg { width: 19px; height: 19px; }
+}
+`}</style>
+</main>
+);
+}
+
