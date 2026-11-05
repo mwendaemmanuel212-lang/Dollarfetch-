@@ -278,7 +278,28 @@ export default function DashboardPage() {
             <button className="action" onClick={() => openScreen("Deposit")}><Icon name="card" size={29} /><span>Deposit</span></button>
             <button className="action" onClick={() => openScreen("Withdraw")}><Icon name="wallet" size={29} /><span>Withdraw</span></button>
             <button className="action" onClick={() => openScreen("Rewards")}><Icon name="gift" size={29} /><span>Referral</span></button>
-          </section>
+          </section>{activationStatus === "active" && (
+  <a
+    href="/app/lucky-spin"
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 14,
+      padding: 18,
+      borderRadius: 18,
+      background: "linear-gradient(110deg,#102b68,#2563eb)",
+      color: "#fff",
+      textDecoration: "none",
+      fontWeight: 800
+    }}
+  >
+    <span>🎡 Lucky Spin<br />
+      <small>Spin daily for wallet rewards</small>
+    </span>
+    <span>PLAY →</span>
+  </a>
+)}
           <div className="activation-prompt">
             <div>
               <b>{activationStatus === "active" ? "Account Activated 鉁�" : activationStatus === "pending" ? "Activation Pending" : activationStatus === "unknown" ? "Checking account status" : activationStatus === "rejected" ? "Activation not approved" : "You’re one step away!"}</b>
