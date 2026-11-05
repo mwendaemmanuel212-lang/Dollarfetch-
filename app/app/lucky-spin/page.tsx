@@ -5,8 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 type SpinResult = {
-  prize_amount: number;
-  new_balance: number;
+  prize_amount: number | string;
+  new_balance: number | string;
   next_spin_at: string;
 };
 
@@ -14,6 +14,13 @@ type SpinHistory = {
   prize_amount: number;
   created_at: string;
 };
+
+const rewards = [
+  0, 0.5, 0, 1,
+  0, 0.5, 0, 2,
+  0, 0.5, 0, 1,
+  0, 5, 0, 10,
+];
 
 export default function LuckySpinPage() {
   const [loading, setLoading] = useState(true);
@@ -24,14 +31,7 @@ export default function LuckySpinPage() {
   const [nextSpin, setNextSpin] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [won, setWon] = useState<number | null>(null);
-const [rotation, setRotation] = useState(0);
-
-const rewards = [
-  0, 0.5, 0, 1,
-  0, 0.5, 0, 2,
-  0, 0.5, 0, 1,
-  0, 5, 0, 10,
-];
+  const [rotation, setRotation] = useState(0);
 
   const loadPage = useCallback(async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ const rewards = [
 
     const userId = auth.user.id;
 
-        const { data: activation, error: activationError } =
+    const { data: activation, error: activationError } =
       await supabase
         .from("activation_requests")
         .select("status")
@@ -60,53 +60,35 @@ const rewards = [
       return;
     }
 
-    const statuses = (activation || []).map(
-      (item) => String(item.status || "").toLowerCase()
+    const statuses = (activation || []).map((item) =>
+      String(item.status || "").trim().toLowerCase()
     );
 
-    if (!statuses.includes("active") && !statuses.includes("approved")) {
-      setActivated(false);
+    const isActive =
+      statuses.includes("active") || statuses.includes("approved");
+
+    setActivated(isActive);
+
+    if (!isActive) {
       setMessage("Your account must be activated before you can spin.");
       setLoading(false);
       return;
     }
-
-    setActivated(true);
-      await supabase
-        .from("activation_requests")
-        .select("status")
-        .eq("user_id", userId)
-        .in("status", ["approved", "active"])
-        .limit(1);
-
-    if (activationError) {
-      setMessage("Unable to verify activation. Please try again.");
-      setLoading(false);
-      return;
-    }
-
-    if (!activation || activation.length === 0) {
-      setActivated(false);
-      setMessage("Your account must be activated before you can spin.");
-      setLoading(false);
-      return;
-    }
-
-    setActivated(true);
 
     const { data: wallet, error: walletError } = await supabase
-  .from("member_wallets")
-  .select("balance")
-  .eq("user_id", userId)
-  .maybeSingle();
+      .from("member_wallets")
+      .select("balance")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-if (walletError) {
-  setMessage(`Wallet error: ${walletError.message}`);
-} else if (wallet) {
-  setBalance(Number(wallet.balance));
-} else {
-  setMessage("No wallet record found.");
-}
+    if (walletError) {
+      setMessage(`Wallet error: ${walletError.message}`);
+    } else if (wallet) {
+      setBalance(Number(wallet.balance));
+    } else {
+      setBalance(0);
+      setMessage("No wallet record found.");
+    }
 
     const { data: spins, error: historyError } = await supabase
       .from("lucky_spin_history")
@@ -116,12 +98,21 @@ if (walletError) {
       .limit(10);
 
     if (!historyError && spins) {
-      setHistory(spins as SpinHistory[]);
+      setHistory(
+        spins.map((spin) => ({
+          prize_amount: Number(spin.prize_amount),
+          created_at: spin.created_at,
+        }))
+      );
 
       if (spins.length > 0) {
-        const next = new Date(spins[0].created_at).getTime()
-          + 24 * 60 * 60 * 1000;
+        const next =
+          new Date(spins[0].created_at).getTime() +
+          24 * 60 * 60 * 1000;
+
         setNextSpin(new Date(next).toISOString());
+      } else {
+        setNextSpin(null);
       }
     }
 
@@ -134,6 +125,27 @@ if (walletError) {
 
   const canSpin =
     !nextSpin || Date.now() >= new Date(nextSpin).getTime();
+
+  async function loadHistoryOnly() {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+
+    const { data } = await supabase
+      .from("lucky_spin_history")
+      .select("prize_amount, created_at")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (data) {
+      setHistory(
+        data.map((spin) => ({
+          prize_amount: Number(spin.prize_amount),
+          created_at: spin.created_at,
+        }))
+      );
+    }
+  }
 
   async function playSpin() {
     if (spinning || !activated || !canSpin) return;
@@ -154,144 +166,261 @@ if (walletError) {
       Array.isArray(data) ? data[0] : data
     ) as SpinResult | undefined;
 
+    const prize = Number(result?.prize_amount);
+    const newBalance = Number(result?.new_balance);
+
     if (
       !result ||
-      typeof result.prize_amount !== "number" ||
-      typeof result.new_balance !== "number"
+      !Number.isFinite(prize) ||
+      !Number.isFinite(newBalance) ||
+      !result.next_spin_at
     ) {
-      setMessage("The spin result was invalid. Please refresh and check your wallet.");
+      setMessage("Invalid spin result. Please refresh and check your wallet.");
       setSpinning(false);
       return;
     }
 
     const matchingIndexes = rewards
-  .map((amount, index) => amount === result.prize_amount ? index : -1)
-  .filter((index) => index !== -1);
+      .map((amount, index) => amount === prize ? index : -1)
+      .filter((index) => index !== -1);
 
-const targetIndex =
-  matchingIndexes[Math.floor(Math.random() * matchingIndexes.length)];
+    if (matchingIndexes.length === 0) {
+      setMessage("The server returned an unexpected prize.");
+      setSpinning(false);
+      return;
+    }
 
-const sliceCenter = targetIndex * 22.5 + 11.25;
-const alignment = (360 - sliceCenter - (rotation % 360) + 360) % 360;
+    const targetIndex =
+      matchingIndexes[
+        Math.floor(Math.random() * matchingIndexes.length)
+      ];
 
-setRotation((previous) => previous + 1800 + alignment);
+    const sliceCenter = targetIndex * 22.5 + 11.25;
+
+    setRotation((previous) => {
+      const alignment =
+        (360 - sliceCenter - (previous % 360) + 360) % 360;
+
+      return previous + 1800 + alignment;
+    });
 
     setTimeout(async () => {
-      setWon(result.prize_amount);
-      setBalance(result.new_balance);
+      setWon(prize);
+      setBalance(newBalance);
       setNextSpin(result.next_spin_at);
+
       setMessage(
-        `Congratulations! You won $${result.prize_amount.toFixed(2)}. Your wallet has been credited.`
+        prize === 0
+          ? "No reward this time. Your next free spin is available in 24 hours."
+          : `You won $${prize.toFixed(2)}! Your wallet has been credited.`
       );
 
       await loadHistoryOnly();
-
       setSpinning(false);
-    }, 2500);
+    }, 2600);
   }
 
-  async function loadHistoryOnly() {
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) return;
+  const pageStyle: React.CSSProperties = {
+    minHeight: "100vh",
+    background: "linear-gradient(180deg, #071b45, #020617)",
+    color: "white",
+    padding: "24px 16px 40px",
+    fontFamily: "Arial, sans-serif",
+    boxSizing: "border-box",
+  };
 
-    const { data } = await supabase
-      .from("lucky_spin_history")
-      .select("prize_amount, created_at")
-      .eq("user_id", auth.user.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    if (data) setHistory(data as SpinHistory[]);
-  }
+  const cardStyle: React.CSSProperties = {
+    maxWidth: "430px",
+    margin: "28px auto",
+    padding: "22px 16px",
+    borderRadius: "24px",
+    background: "rgba(255,255,255,0.09)",
+    border: "1px solid rgba(255,255,255,0.2)",
+    textAlign: "center",
+    boxSizing: "border-box",
+  };
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-blue-950 text-white">
+      <main style={{
+        ...pageStyle,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}>
         Loading Lucky Spin...
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white px-4 py-8">
-      <div className="mx-auto max-w-lg text-center">
-        <a href="/dashboard" className="text-blue-200 text-sm">
+    <main style={pageStyle}>
+      <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+        <a
+          href="/dashboard"
+          style={{ color: "#bfdbfe", textDecoration: "none" }}
+        >
           ← Back to Dashboard
         </a>
 
-        <h1 className="mt-7 text-3xl font-extrabold text-yellow-400">
+        <h1 style={{
+          textAlign: "center",
+          fontSize: "34px",
+          fontWeight: 900,
+          color: "#facc15",
+          marginTop: "28px",
+        }}>
           🎡 Lucky Spin
         </h1>
 
-        <p className="mt-2 text-blue-100">
-          Your chance to win real USD wallet rewards.
+        <p style={{
+          textAlign: "center",
+          color: "#dbeafe",
+          fontSize: "15px",
+        }}>
+          One free spin every 24 hours.
         </p>
 
-        <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-6">
-          <div className="relative mx-auto h-72 w-72">
-  <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 text-4xl">
-    🔻
-  </div>
+        <section style={cardStyle}>
+          <div style={{
+            position: "relative",
+            width: "min(288px, calc(100vw - 72px))",
+            aspectRatio: "1 / 1",
+            margin: "28px auto 20px",
+          }}>
+            <div style={{
+              position: "absolute",
+              top: "-23px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 5,
+              fontSize: "34px",
+              lineHeight: 1,
+            }}>
+              🔻
+            </div>
 
-  <div
-    className="relative flex h-72 w-72 items-center justify-center rounded-full border-8 border-yellow-400 shadow-xl"
-    style={{
-      background: `conic-gradient(${rewards.map((amount, index) =>
-        `${index % 2 === 0 ? "#facc15" : "#2563eb"} ${index * 22.5}deg ${(index + 1) * 22.5}deg`
-      ).join(",")})`,
-      transform: `rotate(${rotation}deg)`,
-      transition: spinning ? "transform 2.5s ease-out" : "none",
-    }}
-  >
-    {rewards.map((amount, index) => (
-      <span
-        key={index}
-        className="absolute left-1/2 top-1/2 text-xs font-extrabold text-blue-950"
-        style={{
-          transform: `translate(-50%, -50%) rotate(${index * 22.5 + 11.25}deg) translateY(-112px) rotate(-${index * 22.5 + 11.25}deg)`,
-        }}
-      >
-        ${amount}
-      </span>
-    ))}
+            <div style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              boxSizing: "border-box",
+              borderRadius: "50%",
+              border: "8px solid #facc15",
+              background: `conic-gradient(${rewards.map((amount, index) =>
+                `${index % 2 === 0 ? "#facc15" : "#2563eb"} ${index * 22.5}deg ${(index + 1) * 22.5}deg`
+              ).join(",")})`,
+              transform: `rotate(${rotation}deg)`,
+              transition: spinning
+                ? "transform 2.5s cubic-bezier(0.12, 0.65, 0.15, 1)"
+                : "none",
+              boxShadow: "0 0 18px rgba(0,0,0,0.5)",
+              overflow: "hidden",
+            }}>
+              {rewards.map((amount, index) => {
+                const angle = index * 22.5 + 11.25;
 
-    <span className="z-10 rounded-full border-4 border-yellow-400 bg-blue-950 p-4 text-3xl">
-      🎁
-    </span>
-  </div>
-</div>
+                return (
+                  <span
+                    key={index}
+                    style={{
+                      position: "absolute",
+                      left: "50%",
+                      top: "50%",
+                      fontSize: "11px",
+                      fontWeight: 900,
+                      color: index % 2 === 0 ? "#172554" : "#ffffff",
+                      whiteSpace: "nowrap",
+                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${288 * 0.36}px) rotate(-${angle}deg)`,
+                    }}
+                  >
+                    ${amount.toFixed(2)}
+                  </span>
+                );
+              })}
 
-<p className="mt-5 font-semibold text-yellow-300">
-  Possible prizes
-</p>
-        
+              <div style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "58px",
+                height: "58px",
+                borderRadius: "50%",
+                border: "5px solid #facc15",
+                background: "#172554",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "27px",
+                boxSizing: "border-box",
+              }}>
+                🎁
+              </div>
+            </div>
+          </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-2">
-  {[
-    { amount: 0, count: 8 },
-    { amount: 0.5, count: 3 },
-    { amount: 1, count: 2 },
-    { amount: 2, count: 1 },
-    { amount: 5, count: 1 },
-    { amount: 10, count: 1 },
-  ].map((prize) => (
-    <div
-      key={prize.amount}
-      className="rounded-lg bg-blue-800 p-3 text-center font-bold"
-    >
-      ${prize.amount.toFixed(2)}
-      <span className="block text-xs text-blue-200">
-        {prize.count} of 16 slices
-      </span>
-    </div>
-  ))}
-</div>
-            
+          <h2 style={{
+            color: "#facc15",
+            fontSize: "19px",
+            fontWeight: 800,
+            margin: "22px 0 12px",
+          }}>
+            Possible prizes
+          </h2>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: "9px",
+          }}>
+            {[
+              { amount: 0, count: 8 },
+              { amount: 0.5, count: 3 },
+              { amount: 1, count: 2 },
+              { amount: 2, count: 1 },
+              { amount: 5, count: 1 },
+              { amount: 10, count: 1 },
+            ].map((prize) => (
+              <div
+                key={prize.amount}
+                style={{
+                  background: "#1e40af",
+                  borderRadius: "10px",
+                  padding: "12px 5px",
+                  fontWeight: 800,
+                }}
+              >
+                ${prize.amount.toFixed(2)}
+                <div style={{
+                  fontSize: "12px",
+                  color: "#bfdbfe",
+                  marginTop: "4px",
+                }}>
+                  {prize.count} of 16 slices
+                </div>
+              </div>
+            ))}
+          </div>
 
           <button
             onClick={playSpin}
             disabled={!activated || !canSpin || spinning}
-            className="mt-7 w-full rounded-xl bg-yellow-400 px-5 py-4 font-extrabold text-blue-950 disabled:cursor-not-allowed disabled:opacity-50"
+            style={{
+              width: "100%",
+              marginTop: "24px",
+              padding: "16px",
+              border: "none",
+              borderRadius: "12px",
+              background: "#facc15",
+              color: "#172554",
+              fontSize: "16px",
+              fontWeight: 900,
+              opacity: !activated || !canSpin || spinning ? 0.5 : 1,
+              cursor: !activated || !canSpin || spinning
+                ? "not-allowed"
+                : "pointer",
+            }}
           >
             {spinning
               ? "SPINNING..."
@@ -303,51 +432,88 @@ setRotation((previous) => previous + 1800 + alignment);
           </button>
 
           {won !== null && (
-            <p className="mt-5 text-2xl font-extrabold text-yellow-300">
-              You won ${won.toFixed(2)}!
+            <p style={{
+              marginTop: "20px",
+              fontSize: "23px",
+              fontWeight: 900,
+              color: "#facc15",
+            }}>
+              {won === 0 ? "No reward this time" : `You won $${won.toFixed(2)}!`}
             </p>
           )}
 
           {message && (
-            <p className="mt-5 break-words text-sm text-white">
+            <p style={{
+              marginTop: "16px",
+              color: "#ffffff",
+              fontSize: "14px",
+              overflowWrap: "anywhere",
+            }}>
               {message}
             </p>
           )}
-        </div>
+        </section>
 
-        <div className="mt-6 rounded-2xl bg-white/10 p-5">
-          <p className="text-blue-200">Your USD wallet balance</p>
-          <p className="mt-2 text-3xl font-bold">
+        <section style={{
+          ...cardStyle,
+          textAlign: "left",
+          marginTop: "18px",
+        }}>
+          <p style={{ color: "#bfdbfe", margin: 0 }}>
+            Your USD wallet balance
+          </p>
+          <p style={{
+            fontSize: "30px",
+            fontWeight: 900,
+            margin: "10px 0 0",
+          }}>
             {balance === null ? "Unavailable" : `$${balance.toFixed(2)}`}
           </p>
-        </div>
+        </section>
 
         {nextSpin && (
-          <p className="mt-5 text-sm text-blue-200">
+          <p style={{
+            textAlign: "center",
+            color: "#bfdbfe",
+            fontSize: "14px",
+          }}>
             Next spin available: {new Date(nextSpin).toLocaleString()}
           </p>
         )}
 
-        <div className="mt-7 text-left">
-          <h2 className="mb-3 text-xl font-bold">Recent spin history</h2>
+        <section style={{ marginTop: "28px" }}>
+          <h2 style={{ fontSize: "23px", fontWeight: 900 }}>
+            Recent spin history
+          </h2>
 
           {history.length === 0 ? (
-            <p className="text-sm text-blue-200">No spins yet.</p>
+            <p style={{ color: "#bfdbfe" }}>No spins yet.</p>
           ) : (
             history.map((spin, index) => (
               <div
                 key={`${spin.created_at}-${index}`}
-                className="mb-2 flex justify-between rounded-xl bg-white/10 p-3"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "10px",
+                  padding: "13px",
+                  marginBottom: "8px",
+                  borderRadius: "10px",
+                  background: "rgba(255,255,255,0.1)",
+                }}
               >
-                <span>${Number(spin.prize_amount).toFixed(2)}</span>
-                <span className="text-xs text-blue-200">
+                <strong>${spin.prize_amount.toFixed(2)}</strong>
+                <span style={{
+                  color: "#bfdbfe",
+                  fontSize: "12px",
+                }}>
                   {new Date(spin.created_at).toLocaleString()}
                 </span>
               </div>
             ))
           )}
-        </div>
+        </section>
       </div>
     </main>
   );
-    }
+            }
