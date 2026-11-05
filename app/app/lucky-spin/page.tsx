@@ -228,8 +228,38 @@ setRotation((previous) => previous + 1800 + alignment);
         </p>
 
         <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-6">
-          <div
-            className="mx-auto flex h-64 w-64 items-center justify-center rounded-full border-8 border-yellow-400 text-5xl shadow-xl"
+          <div className="relative mx-auto h-72 w-72">
+  <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 text-4xl">
+    🔻
+  </div>
+
+  <div
+    className="relative flex h-72 w-72 items-center justify-center rounded-full border-8 border-yellow-400 shadow-xl"
+    style={{
+      background: `conic-gradient(${rewards.map((amount, index) =>
+        `${index % 2 === 0 ? "#facc15" : "#2563eb"} ${index * 22.5}deg ${(index + 1) * 22.5}deg`
+      ).join(",")})`,
+      transform: `rotate(${rotation}deg)`,
+      transition: spinning ? "transform 2.5s ease-out" : "none",
+    }}
+  >
+    {rewards.map((amount, index) => (
+      <span
+        key={index}
+        className="absolute left-1/2 top-1/2 text-xs font-extrabold text-blue-950"
+        style={{
+          transform: `translate(-50%, -50%) rotate(${index * 22.5 + 11.25}deg) translateY(-112px) rotate(-${index * 22.5 + 11.25}deg)`,
+        }}
+      >
+        ${amount}
+      </span>
+    ))}
+
+    <span className="z-10 rounded-full border-4 border-yellow-400 bg-blue-950 p-4 text-3xl">
+      🎁
+    </span>
+  </div>
+</div> items-center justify-center rounded-full border-8 border-yellow-400 text-5xl shadow-xl"
             style={{
               background:
                 "conic-gradient(#facc15 0deg 72deg,#2563eb 72deg 144deg,#facc15 144deg 216deg,#2563eb 216deg 288deg,#facc15 288deg 360deg)",
