@@ -93,7 +93,13 @@ export default function LuckySpinPage() {
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (!walletError && wallet) {
+    if (walletError) {
+  setMessage(`Wallet error: ${walletError.message}`);
+} else if (wallet) {
+  setBalance(Number(wallet.balance));
+} else {
+  setMessage("No wallet record found.");
+    }
       setBalance(Number(wallet.balance));
     }
 
