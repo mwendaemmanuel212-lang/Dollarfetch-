@@ -259,7 +259,7 @@ setRotation((previous) => previous + 1800 + alignment);
       🎁
     </span>
   </div>
-</div> ={{
+</div> <p className="mt-5 font-semibold text-yellow-300">
               background:
                 "conic-gradient(#facc15 0deg 72deg,#2563eb 72deg 144deg,#facc15 144deg 216deg,#2563eb 216deg 288deg,#facc15 288deg 360deg)",
               transform: `rotate(${rotation}deg)`,
