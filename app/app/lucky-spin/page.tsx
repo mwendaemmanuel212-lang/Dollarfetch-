@@ -266,7 +266,26 @@ setRotation((previous) => previous + 1800 + alignment);
 </p>
         
 
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2">
+  {[
+    { amount: 0, count: 8 },
+    { amount: 0.5, count: 3 },
+    { amount: 1, count: 2 },
+    { amount: 2, count: 1 },
+    { amount: 5, count: 1 },
+    { amount: 10, count: 1 },
+  ].map((prize) => (
+    <div
+      key={prize.amount}
+      className="rounded-lg bg-blue-800 p-3 text-center font-bold"
+    >
+      ${prize.amount.toFixed(2)}
+      <span className="block text-xs text-blue-200">
+        {prize.count} of 16 slices
+      </span>
+    </div>
+  ))}
+</div>
             {[0.5, 1, 2, 5, 10].map((amount) => (
               <span
                 key={amount}
