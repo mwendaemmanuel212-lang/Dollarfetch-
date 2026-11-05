@@ -5,59 +5,44 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type Member = {
+  id?: string;
+  user_id?: string;
+  email?: string | null;
+  full_name?: string | null;
+  phone?: string | null;
+  status?: string | null;
+  activation_status?: string | null;
+  created_at?: string | null;
+};
+
 const sections: Record<string, { title: string; description: string }> = {
-  members: {
-    title: "Members",
-    description: "View and manage registered members."
-  },
-  deposits: {
-    title: "Deposits",
-    description: "Review member deposit records."
-  },
-  withdrawals: {
-    title: "Withdrawals",
-    description: "Review and authorize withdrawal requests."
-  },
-  activation: {
-    title: "Activation",
-    description: "Manage pending member activation requests."
-  },
-  transactions: {
-    title: "Transactions",
-    description: "View transaction records."
-  },
-  announcements: {
-    title: "Announcements",
-    description: "Prepare announcements for members."
-  },
-  support: {
-    title: "Support Centre",
-    description: "Manage member support requests."
-  },
-  reports: {
-    title: "Reports",
-    description: "View financial and membership reports."
-  },
-  history: {
-    title: "Admin History",
-    description: "Review administrator activity."
-  },
-  security: {
-    title: "Security",
-    description: "Administrator security controls."
-  }
+  members: { title: "Members", description: "Registered member accounts." },
+  deposits: { title: "Deposits", description: "Member deposit records." },
+  withdrawals: { title: "Withdrawals", description: "Withdrawal requests." },
+  activation: { title: "Activation", description: "Member activation requests." },
+  transactions: { title: "Transactions", description: "Transaction records." },
+  announcements: { title: "Announcements", description: "Member announcements." },
+  support: { title: "Support Centre", description: "Member support requests." },
+  reports: { title: "Reports", description: "Financial and membership reports." },
+  history: { title: "Admin History", description: "Administrator activity." },
+  security: { title: "Security", description: "Administrator security controls." }
 };
 
 export default function AdminSectionPage() {
   const params = useParams();
   const router = useRouter();
-  const [checking, setChecking] = useState(true);
 
   const section = String(params.section || "");
   const item = sections[section];
 
+  const [checking, setChecking] = useState(true);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    async function checkAccess() {
+    async function loadPage() {
       const { data } = await supabase.auth.getSession();
 
       if (!data.session) {
@@ -66,10 +51,28 @@ export default function AdminSectionPage() {
       }
 
       setChecking(false);
+
+      if (section === "members") {
+        setLoading(true);
+        setError("");
+
+        const { data: rows, error: dbError } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (dbError) {
+          setError(dbError.message);
+        } else {
+          setMembers((rows || []) as Member[]);
+        }
+
+        setLoading(false);
+      }
     }
 
-    checkAccess();
-  }, [router]);
+    loadPage();
+  }, [router, section]);
 
   if (checking) {
     return <main style={{ padding: 25 }}>Checking access...</main>;
@@ -101,27 +104,70 @@ export default function AdminSectionPage() {
         ← Back to Dashboard
       </button>
 
-      <h1 style={{ marginTop: 35, color: "#8ebeff" }}>
+      <h1 style={{ marginTop: 30, color: "#8ebeff" }}>
         BWK · {item.title}
       </h1>
 
-      <p style={{ color: "#b9c5d5", lineHeight: 1.7 }}>
-        {item.description}
-      </p>
+      <p style={{ color: "#b9c5d5" }}>{item.description}</p>
 
-      <div style={{
-        marginTop: 25,
-        padding: 20,
-        borderRadius: 16,
-        background: "#1d2d48",
-        border: "1px solid #30445f"
-      }}>
-        <h3>Management Module</h3>
-        <p style={{ color: "#b9c5d5", lineHeight: 1.7 }}>
-          This section is ready for its management features.
-          Database operations will be connected separately.
-        </p>
-      </div>
+      {section === "members" ? (
+        <div style={{
+          marginTop: 25,
+          padding: 18,
+          borderRadius: 16,
+          background: "#1d2d48",
+          border: "1px solid #30445f"
+        }}>
+          <h2>Registered Members ({members.length})</h2>
+
+          {loading && <p>Loading members...</p>}
+
+          {error && (
+            <p style={{ color: "#ff9999" }}>
+              Database error: {error}
+            </p>
+          )}
+
+          {!loading && !error && members.length === 0 && (
+            <p>No members found in the profiles table.</p>
+          )}
+
+          {members.map((member, index) => (
+            <div key={member.user_id || member.id || index} style={{
+              marginTop: 14,
+              padding: 15,
+              borderRadius: 12,
+              background: "#263b5b",
+              border: "1px solid #405779"
+            }}>
+              <h3 style={{ color: "#8ebeff" }}>
+                {member.full_name || "Name not provided"}
+              </h3>
+              <p>Email: {member.email || "Not provided"}</p>
+              <p>Phone: {member.phone || "Not provided"}</p>
+              <p>
+                Status: {member.activation_status || member.status || "Pending verification"}
+              </p>
+              <p>
+                Registered: {member.created_at
+                  ? new Date(member.created_at).toLocaleString()
+                  : "Date unavailable"}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{
+          marginTop: 25,
+          padding: 20,
+          borderRadius: 16,
+          background: "#1d2d48"
+        }}>
+          <h3>{item.title} Management</h3>
+          <p>{item.description}</p>
+          <p>Management features will be connected in the next steps.</p>
+        </div>
+      )}
     </main>
   );
 }
