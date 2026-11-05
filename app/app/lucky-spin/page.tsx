@@ -264,18 +264,7 @@ setRotation((previous) => previous + 1800 + alignment);
 <p className="mt-5 font-semibold text-yellow-300">
   Possible prizes
 </p>
-              background:
-                "conic-gradient(#facc15 0deg 72deg,#2563eb 72deg 144deg,#facc15 144deg 216deg,#2563eb 216deg 288deg,#facc15 288deg 360deg)",
-              transform: `rotate(${rotation}deg)`,
-              transition: spinning ? "transform 2.5s ease-out" : "none",
-            }}
-          >
-            <span className="rounded-full bg-blue-950 p-5">🎁</span>
-          </div>
-
-          <p className="mt-5 font-semibold text-yellow-300">
-            Possible prizes
-          </p>
+        
 
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             {[0.5, 1, 2, 5, 10].map((amount) => (
