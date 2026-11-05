@@ -156,6 +156,73 @@ export default function DashboardPage() {
   }
 
   async function submitActivation() {
+  setMessage("");
+
+  if (method === "M-PESA") {
+    if (!phone.trim()) {
+      setMessage("Enter your M-PESA phone number.");
+      return;
+    }
+  } else if (!reference.trim()) {
+    setMessage("Enter the payment transaction reference/details.");
+    return;
+  }
+
+  if (!user?.id) {
+    setMessage("Please log in again.");
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    if (method === "M-PESA") {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      if (!token) throw new Error("Please log in again.");
+
+      const response = await fetch("/api/daraja/stkpush", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ phone: phone.trim() }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Could not start M-PESA payment.");
+      }
+
+      setPhone("");
+      setMessage(
+        `STK prompt sent! Enter your M-PESA PIN on your phone to pay KES ${result.amount}. Your account will remain pending until payment is verified and an administrator approves it.`
+      );
+    } else {
+      const { error } = await supabase.from("activation_requests").insert({
+        user_id: user.id,
+        amount: 2,
+        currency: "USD",
+        method,
+        phone: reference.trim(),
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      setReference("");
+      setActivationStatus("pending");
+      setMessage("Payment details submitted for administrator verification.");
+    }
+  } catch (error) {
+    setMessage(error instanceof Error ? error.message : "Payment request failed.");
+  } finally {
+    setBusy(false);
+  }
+  }
     setMessage("");
     if (method === "M-PESA" && !/^\+254\d{9}$/.test(phone.trim())) {
       setMessage("Enter your M-PESA number with country code, e.g. +254712345678.");
