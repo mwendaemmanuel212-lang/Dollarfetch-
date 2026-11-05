@@ -421,7 +421,7 @@ export default function DashboardPage() {
               </div>}
               <div className="notice">Payment must be verified by an administrator before account activation. Confirm the recipient and amount before sending.</div>
               {(message || copied) && <div className="message">{message || copied}</div>}
-              <button className="primary" disabled={busy} onClick={submitActivation}>{busy ? "Submitting..." : "Submit payment details"}</button>
+              <button className="primary" disabled={busy} onClick={submitActivation}>{busy ? (method === "M-PESA" ? "Sending STK prompt..." : "Submitting...") : (method === "M-PESA" ? "Pay with M-PESA" : "Submit payment details")}</button>
             </>}
           </section>
         </>}
