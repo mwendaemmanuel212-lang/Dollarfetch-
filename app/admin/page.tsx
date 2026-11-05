@@ -277,7 +277,7 @@ export default function AdminPage() {
           letterSpacing: .5,
           textShadow: "0 2px 14px rgba(247,201,108,.2)"
         }}>
-          KUWAOSHA KUWAOSHA 😂
+          Niaje bossie
         </div>
         <div style={{
           color: "#aebed3",
@@ -379,7 +379,72 @@ export default function AdminPage() {
           gridTemplateColumns: "repeat(2,minmax(0,1fr))",
           gap: 10
         }}>
-          {sections.map(item => (
+          
+{sections.map(item => {
+  const paths: Record<string, string> = {
+    "Members": "members",
+    "Deposits": "deposits",
+    "Withdrawals": "withdrawals",
+    "Activation": "activation",
+    "Transactions": "transactions",
+    "Announcements": "announcements",
+    "Support Centre": "support",
+    "Reports": "reports",
+    "Admin History": "history",
+    "Security": "security"
+  };
+
+  return (
+    <a
+      key={item.title}
+      href={`/admin/${paths[item.title]}`}
+      style={{
+        ...panel,
+        padding: 13,
+        display: "block",
+        color: "inherit",
+        textDecoration: "none",
+        cursor: "pointer"
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{
+          background: "linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.025))",
+          borderRadius: 16,
+          padding: 7,
+          border: "1px solid rgba(255,255,255,.09)"
+        }}>
+          <PanelIcon name={item.icon} color={item.color} />
+        </div>
+
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 12 }}>
+            {item.title}
+          </div>
+          <div style={{
+            color: "#aab8cc",
+            fontSize: 10,
+            marginTop: 4,
+            lineHeight: 1.4
+          }}>
+            {item.note}
+          </div>
+        </div>
+      </div>
+
+      <div style={{
+        color: "#8ebeff",
+        fontSize: 9,
+        marginTop: 12,
+        letterSpacing: .8,
+        fontWeight: 800
+      }}>
+        OPEN MODULE →
+      </div>
+    </a>
+  );
+})}
+          
             <div key={item.title} style={{ ...panel, padding: 13 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{
