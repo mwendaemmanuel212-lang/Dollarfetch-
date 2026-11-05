@@ -1,170 +1,276 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-const prizes = [
-  { amount: 0.50, color: "#2563eb" },
-  { amount: 1.00, color: "#7c3aed" },
-  { amount: 2.00, color: "#0891b2" },
-  { amount: 5.00, color: "#d97706" },
-  { amount: 10.00, color: "#dc2626" },
-];
+type SpinResult = {
+  prize_amount: number;
+  new_balance: number;
+  next_spin_at: string;
+};
 
-export default function LuckySpin() {
-  const [activated, setActivated] = useState(false);
+type SpinHistory = {
+  prize_amount: number;
+  created_at: string;
+};
+
+export default function LuckySpinPage() {
   const [loading, setLoading] = useState(true);
   const [spinning, setSpinning] = useState(false);
+  const [activated, setActivated] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [history, setHistory] = useState<SpinHistory[]>([]);
+  const [nextSpin, setNextSpin] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [won, setWon] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
-  const [lastSpin, setLastSpin] = useState<number | null>(null);
 
-  useEffect(() => {
-    async function checkMember() {
-      const { data: { user } } = await supabase.auth.getUser();
+  const loadPage = useCallback(async () => {
+    setLoading(true);
+    setMessage("");
 
-      if (!user) {
-        setMessage("Please log in first.");
-        setLoading(false);
-        return;
-      }
+    const { data: auth, error: authError } =
+      await supabase.auth.getUser();
 
-      const { data } = await supabase
+    if (authError || !auth.user) {
+      setMessage("Please log in to access Lucky Spin.");
+      setLoading(false);
+      return;
+    }
+
+    const userId = auth.user.id;
+
+    const { data: activation, error: activationError } =
+      await supabase
         .from("activation_requests")
-        .select("id")
-        .eq("user_id", user.id)
+        .select("status")
+        .eq("user_id", userId)
         .ilike("status", "approved")
         .limit(1);
 
-      setActivated(!!data?.length);
-
-      const saved = localStorage.getItem(
-        "dollarfetch_last_spin_" + user.id
-      );
-
-      if (saved) setLastSpin(Number(saved));
+    if (activationError) {
+      setMessage("Unable to verify activation. Please try again.");
       setLoading(false);
+      return;
     }
 
-    checkMember();
+    if (!activation || activation.length === 0) {
+      setActivated(false);
+      setMessage("Your account must be activated before you can spin.");
+      setLoading(false);
+      return;
+    }
+
+    setActivated(true);
+
+    const { data: wallet, error: walletError } = await supabase
+      .from("member_wallets")
+      .select("balance")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!walletError && wallet) {
+      setBalance(Number(wallet.balance));
+    }
+
+    const { data: spins, error: historyError } = await supabase
+      .from("lucky_spin_history")
+      .select("prize_amount, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (!historyError && spins) {
+      setHistory(spins as SpinHistory[]);
+
+      if (spins.length > 0) {
+        const next = new Date(spins[0].created_at).getTime()
+          + 24 * 60 * 60 * 1000;
+        setNextSpin(new Date(next).toISOString());
+      }
+    }
+
+    setLoading(false);
   }, []);
 
-  const canSpin =
-    lastSpin === null ||
-    Date.now() - lastSpin >= 86400000;
+  useEffect(() => {
+    loadPage();
+  }, [loadPage]);
 
-  function spin() {
-    if (!activated || !canSpin || spinning) return;
+  const canSpin =
+    !nextSpin || Date.now() >= new Date(nextSpin).getTime();
+
+  async function playSpin() {
+    if (spinning || !activated || !canSpin) return;
 
     setSpinning(true);
     setMessage("");
+    setWon(null);
 
-    const selected = Math.floor(Math.random() * prizes.length);
-    const reward = prizes[selected].amount;
+    const { data, error } = await supabase.rpc("play_lucky_spin");
 
-    setRotation(rotation + 1800 + selected * 72);
-
-    setTimeout(() => {
-      setMessage(
-        "You won $" + reward.toFixed(2) +
-        "! Reward crediting will be enabled after secure wallet integration."
-      );
+    if (error) {
+      setMessage(error.message);
       setSpinning(false);
-    }, 4000);
+      return;
+    }
+
+    const result = (
+      Array.isArray(data) ? data[0] : data
+    ) as SpinResult | undefined;
+
+    if (
+      !result ||
+      typeof result.prize_amount !== "number" ||
+      typeof result.new_balance !== "number"
+    ) {
+      setMessage("The spin result was invalid. Please refresh and check your wallet.");
+      setSpinning(false);
+      return;
+    }
+
+    setRotation((previous) => previous + 1800 + Math.random() * 360);
+
+    setTimeout(async () => {
+      setWon(result.prize_amount);
+      setBalance(result.new_balance);
+      setNextSpin(result.next_spin_at);
+      setMessage(
+        `Congratulations! You won $${result.prize_amount.toFixed(2)}. Your wallet has been credited.`
+      );
+
+      await loadHistoryOnly();
+
+      setSpinning(false);
+    }, 2500);
+  }
+
+  async function loadHistoryOnly() {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+
+    const { data } = await supabase
+      .from("lucky_spin_history")
+      .select("prize_amount, created_at")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (data) setHistory(data as SpinHistory[]);
   }
 
   if (loading) {
-    return <main className="p-8 text-center">Loading...</main>;
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-blue-950 text-white">
+        Loading Lucky Spin...
+      </main>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-700 text-white p-5">
-      <div className="max-w-md mx-auto text-center pt-8">
-        <div className="text-5xl">🎡</div>
-        <h1 className="text-3xl font-extrabold mt-3">
-          DOLLARFETCH
+    <main className="min-h-screen bg-gradient-to-b from-blue-950 to-slate-950 text-white px-4 py-8">
+      <div className="mx-auto max-w-lg text-center">
+        <a href="/dashboard" className="text-blue-200 text-sm">
+          ← Back to Dashboard
+        </a>
+
+        <h1 className="mt-7 text-3xl font-extrabold text-yellow-400">
+          🎡 Lucky Spin
         </h1>
-        <h2 className="text-2xl font-bold mt-3">
-          Lucky Spin
-        </h2>
-        <p className="text-blue-200 mt-2">
-          One free spin every 24 hours!
+
+        <p className="mt-2 text-blue-100">
+          Your chance to win real USD wallet rewards.
         </p>
 
-        {!activated ? (
-          <div className="bg-white text-blue-950 rounded-2xl p-6 mt-8">
-            <div className="text-4xl">🔒</div>
-            <h3 className="font-bold text-xl mt-3">
-              Account Not Activated
-            </h3>
-            <p className="mt-2">
-              Activate your account to unlock Lucky Spin.
-            </p>
+        <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-6">
+          <div
+            className="mx-auto flex h-64 w-64 items-center justify-center rounded-full border-8 border-yellow-400 text-5xl shadow-xl"
+            style={{
+              background:
+                "conic-gradient(#facc15 0deg 72deg,#2563eb 72deg 144deg,#facc15 144deg 216deg,#2563eb 216deg 288deg,#facc15 288deg 360deg)",
+              transform: `rotate(${rotation}deg)`,
+              transition: spinning ? "transform 2.5s ease-out" : "none",
+            }}
+          >
+            <span className="rounded-full bg-blue-950 p-5">🎁</span>
           </div>
-        ) : (
-          <>
-            <div className="bg-white text-blue-950 rounded-2xl p-5 mt-8">
-              <div
-                className="relative w-64 h-64 mx-auto rounded-full border-8 border-yellow-400 overflow-hidden"
-                style={{
-                  transform: `rotate(${rotation}deg)`,
-                  transition: spinning
-                    ? "transform 4s cubic-bezier(.12,.8,.2,1)"
-                    : "none",
-                  background: `conic-gradient(${prizes.map(
-                    (p, i) =>
-                      `${p.color} ${i * 72}deg ${(i + 1) * 72}deg`
-                  ).join(",")})`
-                }}
+
+          <p className="mt-5 font-semibold text-yellow-300">
+            Possible prizes
+          </p>
+
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            {[0.5, 1, 2, 5, 10].map((amount) => (
+              <span
+                key={amount}
+                className="rounded-full bg-blue-800 px-3 py-2 text-sm font-bold"
               >
-                {prizes.map((p, i) => (
-                  <div
-                    key={p.amount}
-                    className="absolute inset-0 flex justify-center pt-5 text-white font-bold"
-                    style={{ transform: `rotate(${i * 72 + 36}deg)` }}
-                  >
-                    ${p.amount.toFixed(2)}
-                  </div>
-                ))}
-              </div>
+                ${amount.toFixed(2)}
+              </span>
+            ))}
+          </div>
 
-              <div className="text-3xl mt-3">👇</div>
+          <button
+            onClick={playSpin}
+            disabled={!activated || !canSpin || spinning}
+            className="mt-7 w-full rounded-xl bg-yellow-400 px-5 py-4 font-extrabold text-blue-950 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {spinning
+              ? "SPINNING..."
+              : !activated
+              ? "ACTIVATION REQUIRED"
+              : !canSpin
+              ? "WAIT 24 HOURS"
+              : "SPIN NOW"}
+          </button>
 
-              <button
-                onClick={spin}
-                disabled={!canSpin || spinning}
-                className="w-full rounded-xl bg-blue-700 text-white font-extrabold py-4 mt-2 disabled:bg-gray-400"
-              >
-                {spinning ? "SPINNING..." :
-                  canSpin ? "🎡 SPIN NOW" : "COME BACK TOMORROW"}
-              </button>
+          {won !== null && (
+            <p className="mt-5 text-2xl font-extrabold text-yellow-300">
+              You won ${won.toFixed(2)}!
+            </p>
+          )}
 
-              <p className="text-sm text-gray-500 mt-3">
-                One free spin every 24 hours.
-              </p>
-            </div>
+          {message && (
+            <p className="mt-5 break-words text-sm text-white">
+              {message}
+            </p>
+          )}
+        </div>
 
-            <div className="bg-white/10 rounded-xl p-4 mt-5">
-              <h3 className="font-bold mb-3">AVAILABLE PRIZES</h3>
-              {prizes.map(p => (
-                <div key={p.amount} className="p-2">
-                  ${p.amount.toFixed(2)}
-                </div>
-              ))}
-              <p className="text-xs text-blue-200">
-                $10 jackpot is rare.
-              </p>
-            </div>
+        <div className="mt-6 rounded-2xl bg-white/10 p-5">
+          <p className="text-blue-200">Your USD wallet balance</p>
+          <p className="mt-2 text-3xl font-bold">
+            {balance === null ? "Unavailable" : `$${balance.toFixed(2)}`}
+          </p>
+        </div>
 
-            {message && (
-              <div className="bg-white text-blue-950 rounded-xl p-4 mt-5">
-                {message}
-              </div>
-            )}
-          </>
+        {nextSpin && (
+          <p className="mt-5 text-sm text-blue-200">
+            Next spin available: {new Date(nextSpin).toLocaleString()}
+          </p>
         )}
+
+        <div className="mt-7 text-left">
+          <h2 className="mb-3 text-xl font-bold">Recent spin history</h2>
+
+          {history.length === 0 ? (
+            <p className="text-sm text-blue-200">No spins yet.</p>
+          ) : (
+            history.map((spin, index) => (
+              <div
+                key={`${spin.created_at}-${index}`}
+                className="mb-2 flex justify-between rounded-xl bg-white/10 p-3"
+              >
+                <span>${Number(spin.prize_amount).toFixed(2)}</span>
+                <span className="text-xs text-blue-200">
+                  {new Date(spin.created_at).toLocaleString()}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </main>
   );
-                    }
+      }
