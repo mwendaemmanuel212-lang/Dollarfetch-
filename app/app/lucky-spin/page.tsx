@@ -87,19 +87,7 @@ export default function LuckySpinPage() {
 
     setActivated(true);
 
-    const { data: wallet, error: walletError } = await supabase
-      .from("member_wallets")
-      .select("balance")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (walletError) {
-  setMessage(`Wallet error: ${walletError.message}`);
-} else if (wallet) {
-  setBalance(Number(wallet.balance));
-} else {
-  setMessage("No wallet record found.");
-    }
+    const { data: wallet, error: walletError } =
       setBalance(Number(wallet.balance));
     }
 
