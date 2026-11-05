@@ -283,7 +283,9 @@ export default function DashboardPage() {
                 <p>Pay the $2 activation fee to unlock membership.</p>
               </div>
             </div>
-            <h2>Choose payment method</h2>
+            <h2>Choose payment method</h2><p style={{ color: "#6b5b7d", fontSize: "13px", margin: "8px 0 14px" }}>
+  We recommend using M-PESA SIM Toolkit for a simple and convenient account activation experience. Follow the steps below to complete your payment.
+</p>
             <p className="muted">Select how you want to pay your $2 activation fee.</p>
             <div className="method-grid">
               {paymentMethods.map(p => (
