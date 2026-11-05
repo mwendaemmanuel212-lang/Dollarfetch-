@@ -259,8 +259,7 @@ setRotation((previous) => previous + 1800 + alignment);
       🎁
     </span>
   </div>
-</div> items-center justify-center rounded-full border-8 border-yellow-400 text-5xl shadow-xl"
-            style={{
+</div> ={{
               background:
                 "conic-gradient(#facc15 0deg 72deg,#2563eb 72deg 144deg,#facc15 144deg 216deg,#2563eb 216deg 288deg,#facc15 288deg 360deg)",
               transform: `rotate(${rotation}deg)`,
