@@ -445,15 +445,8 @@ export default function AdminPage() {
   );
 })}
           
-            <div key={item.title} style={{ ...panel, padding: 13 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  background: "linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.025))",
-                  borderRadius: 16,
-                  padding: 7,
-                  border: "1px solid rgba(255,255,255,.09)"
-                }}>
-                  <PanelIcon name={item.icon} color={item.color} />
+            
+              
                 </div>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 12 }}>
@@ -477,9 +470,8 @@ export default function AdminPage() {
                 fontWeight: 800
               }}>
                 MANAGEMENT MODULE
-              </div>
-            </div>
-                    })}
+              
+            
         </div>
       </section>
 
