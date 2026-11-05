@@ -24,7 +24,12 @@ export default function LuckySpinPage() {
   const [nextSpin, setNextSpin] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [won, setWon] = useState<number | null>(null);
-  const [rotation, setRotation] = useState(0);
+  const rewards = [
+  0, 0.5, 0, 1,
+  0, 0.5, 0, 2,
+  0, 0.5, 0, 1,
+  0, 5, 0, 10,
+];
 
   const loadPage = useCallback(async () => {
     setLoading(true);
