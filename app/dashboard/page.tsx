@@ -281,7 +281,7 @@ useEffect(() => {
           <section className="hero">
             <div className="hero-tag">YOUR MEMBER DASHBOARD</div>
             <h1>Hello, {memberName}!</h1>
-            <p>Let鈥檚 grow your earnings today.</p>
+            <p>Let grow your earnings today.</p>
             <div className="hero-art">$</div>
           </section>
           <section className="balance">
@@ -296,7 +296,7 @@ useEffect(() => {
           </section>
           <div className="activation-prompt">
             <Icon name="rocket" size={34}/>
-            <div><b>You鈥檙e one step away!</b><p>Activate your account to unlock your DollarFetch member benefits.</p></div>
+            <div><b>Bravo!You are one step away!</b><p>Activate your account to unlock your DollarFetch member benefits.</p></div>
             <button onClick={() => openScreen("Activation")}>Activate</button>
           </div>
           <button className="referral" style={{width:"100%",textAlign:"left"}} onClick={() => openScreen("Rewards")}>
@@ -311,7 +311,7 @@ useEffect(() => {
           <UsdKesConverter />
         {screen === "Activation" && <>
           <div className="pagehead">
-            <h1>Activate Account</h1>
+            {activationStatus === "active" ? "Account Active" : "Activate Account"}
             <button className="back" onClick={() => openScreen("Home")}>Back</button>
           </div>
           <section className="section">
