@@ -49,6 +49,7 @@ export default function DashboardPage() {
   const [kesRate, setKesRate] = useState<number | null>(null);
   const [rateMessage, setRateMessage] = useState("Loading exchange rate...");
   const [copied, setCopied] = useState("");
+const [activationStatus, setActivationStatus] = useState("checking");
 
   useEffect(() => {
     let mounted = true;
