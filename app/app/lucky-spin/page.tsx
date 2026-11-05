@@ -164,7 +164,17 @@ if (walletError) {
       return;
     }
 
-    setRotation((previous) => previous + 1800 + Math.random() * 360);
+    const matchingIndexes = rewards
+  .map((amount, index) => amount === result.prize_amount ? index : -1)
+  .filter((index) => index !== -1);
+
+const targetIndex =
+  matchingIndexes[Math.floor(Math.random() * matchingIndexes.length)];
+
+const sliceCenter = targetIndex * 22.5 + 11.25;
+const alignment = (360 - sliceCenter - (rotation % 360) + 360) % 360;
+
+setRotation((previous) => previous + 1800 + alignment);
 
     setTimeout(async () => {
       setWon(result.prize_amount);
