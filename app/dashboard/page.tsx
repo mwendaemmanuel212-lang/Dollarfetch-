@@ -98,7 +98,23 @@ export default function DashboardPage() {
     checkStatus();
     return () => { mounted = false; };
   }, [user?.id]);
+  useEffect(() => {
+    if (!user?.id) return;
 
+    async function loadWalletBalance() {
+      const { data, error } = await supabase
+        .from("member_wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!error) {
+        setWalletBalance(Number(data?.balance ?? 0));
+      }
+    }
+
+    loadWalletBalance();
+  }, [user?.id]);
   useEffect(() => {
     let mounted = true;
     fetch("https://open.er-api.com/v6/latest/USD")
