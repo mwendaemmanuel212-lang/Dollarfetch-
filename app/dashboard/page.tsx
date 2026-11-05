@@ -489,7 +489,17 @@ useEffect(() => {
 
             <div className="rowline">
               <span>Account status</span>
-              <b>Pending</b>
+              <b>
+  {activationStatus === "active"
+    ? "Activated"
+    : activationStatus === "pending"
+    ? "Pending"
+    : activationStatus === "rejected"
+    ? "Rejected"
+    : activationStatus === "unknown"
+    ? "Status unavailable"
+    : "Not activated"}
+</b>
             </div>
 
             <button className="primary" style={{marginTop:18}} onClick={logout}>
