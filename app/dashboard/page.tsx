@@ -87,7 +87,45 @@ const [activationStatus, setActivationStatus] = useState("checking");
       .catch(() => setRateMessage("Exchange rate is temporarily unavailable. Please try again later."));
     return () => { mounted = false; };
   }, [router]);
+useEffect(() => {
+  if (!user?.id) return;
 
+  let mounted = true;
+
+  const checkStatus = async () => {
+    const { data, error } = await supabase
+      .from("activation_requests")
+      .select("status")
+      .eq("user_id", user.id);
+
+    if (!mounted) return;
+
+    if (error) {
+      setActivationStatus("unknown");
+      return;
+    }
+
+    const statuses = (data || []).map((item: any) =>
+      String(item.status || "").toLowerCase()
+    );
+
+    if (statuses.includes("active") || statuses.includes("approved")) {
+      setActivationStatus("active");
+    } else if (statuses.includes("pending")) {
+      setActivationStatus("pending");
+    } else if (statuses.includes("rejected")) {
+      setActivationStatus("rejected");
+    } else {
+      setActivationStatus("not_submitted");
+    }
+  };
+
+  checkStatus();
+
+  return () => {
+    mounted = false;
+  };
+}, [user?.id]);
   const memberName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Member";
   const referralCode = user?.user_metadata?.referral_code || (user?.id ? `BWK-${user.id.replace(/-/g, "").slice(0, 12).toUpperCase()}` : "");
   const referralLink = typeof window !== "undefined" && referralCode
