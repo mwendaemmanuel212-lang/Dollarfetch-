@@ -301,7 +301,9 @@ export default function DashboardPage() {
               </div>
             ) : method==="SIM Toolkit" ? (
               <>
-                <div className="payment-steps">
+                <div className="payment-steps"><div className="notice">
+  We recommend using M-PESA SIM Toolkit for a simple and convenient account activation experience. Follow the steps below to complete your payment.
+</div>
                   <b>SIM Toolkit / M-PESA payment procedure</b>
                   <ol>
                     <li>Open the M-PESA menu using *334#.</li>
