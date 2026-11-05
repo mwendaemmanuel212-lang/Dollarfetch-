@@ -41,7 +41,30 @@ export default function LuckySpinPage() {
 
     const userId = auth.user.id;
 
-    const { data: activation, error: activationError } =
+        const { data: activation, error: activationError } =
+      await supabase
+        .from("activation_requests")
+        .select("status")
+        .eq("user_id", userId);
+
+    if (activationError) {
+      setMessage("Unable to verify activation. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    const statuses = (activation || []).map(
+      (item) => String(item.status || "").toLowerCase()
+    );
+
+    if (!statuses.includes("active") && !statuses.includes("approved")) {
+      setActivated(false);
+      setMessage("Your account must be activated before you can spin.");
+      setLoading(false);
+      return;
+    }
+
+    setActivated(true);
       await supabase
         .from("activation_requests")
         .select("status")
