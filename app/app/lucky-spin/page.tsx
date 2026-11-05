@@ -46,7 +46,7 @@ export default function LuckySpinPage() {
         .from("activation_requests")
         .select("status")
         .eq("user_id", userId)
-        .ilike("status", "approved")
+        .in("status", ["approved", "active"])
         .limit(1);
 
     if (activationError) {
