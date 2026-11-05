@@ -1,7 +1,22 @@
+
 "use client";
 
 import { useState } from "react";
+import type { FormEvent, CSSProperties } from "react";
 import { supabase } from "@/lib/supabase";
+
+const countries = [
+  { code: "+254", name: "Kenya", length: 9 },
+  { code: "+256", name: "Uganda", length: 9 },
+  { code: "+255", name: "Tanzania", length: 9 },
+  { code: "+250", name: "Rwanda", length: 9 },
+  { code: "+1", name: "USA/Canada", length: 10 },
+  { code: "+44", name: "United Kingdom", length: 10 },
+  { code: "+27", name: "South Africa", length: 9 },
+  { code: "+234", name: "Nigeria", length: 10 },
+  { code: "+91", name: "India", length: 10 },
+  { code: "+971", name: "UAE", length: 9 }
+];
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -9,50 +24,121 @@ export default function Register() {
   const [countryCode, setCountryCode] = useState("+254");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function register(e: React.FormEvent<HTMLFormElement>) {
+  const selectedCountry = countries.find(
+    country => country.code === countryCode
+  );
+
+  function normalizePhone(value: string) {
+    let digits = value.replace(/\D/g, "");
+    const dialCode = countryCode.replace(/\D/g, "");
+    const expectedLength = selectedCountry?.length ?? 9;
+
+    // Remove pasted international country code.
+    if (
+      digits.startsWith(dialCode) &&
+      digits.length === expectedLength + dialCode.length
+    ) {
+      digits = digits.slice(dialCode.length);
+    }
+
+    // Remove the national trunk zero where applicable.
+    if (digits.length === expectedLength + 1 && digits.startsWith("0")) {
+      digits = digits.slice(1);
+    }
+
+    return digits;
+  }
+
+  async function register(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
 
-    const fullPhone = countryCode + phone.replace(/\D/g, "");
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: name,
-          phone: fullPhone,
-          country_code: countryCode,
-          referral_code: referralCode.trim().toUpperCase()
-        }
-      }
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setMessage(error.message);
+    if (cleanName.length < 2) {
+      setMessage("Please enter your full name.");
       return;
     }
 
-    setMessage(
-      data.session
-        ? "Account created successfully! You can now log in."
-        : "Account created! Check your email to confirm registration."
-    );
+    if (
+      password.length < 8 ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
+      setMessage(
+        "Password must have at least 8 characters, an uppercase letter, a lowercase letter, a number and a special character."
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setMessage("Your passwords do not match.");
+      return;
+    }
+
+    const cleanPhone = normalizePhone(phone);
+
+    if (
+      !selectedCountry ||
+      cleanPhone.length !== selectedCountry.length
+    ) {
+      setMessage(
+        `Please enter a valid ${selectedCountry?.name ?? "country"} mobile number.`
+      );
+      return;
+    }
+
+    const fullPhone = countryCode + cleanPhone;
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: {
+            full_name: cleanName,
+            phone: fullPhone,
+            country_code: countryCode,
+            referral_code: referralCode.trim().toUpperCase()
+          }
+        }
+      });
+
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
+
+      setMessage(
+        data.session
+          ? "Account created successfully! You can now log in."
+          : "Account created! Check your email to confirm registration."
+      );
+    } catch {
+      setMessage("Registration failed. Please check your internet and try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     display: "block",
     width: "100%",
     padding: 12,
     margin: "8px 0 16px",
-    boxSizing: "border-box"
+    boxSizing: "border-box",
+    border: "1px solid #cbd5e1",
+    borderRadius: 6
   };
 
   return (
@@ -67,57 +153,105 @@ export default function Register() {
 
       <form onSubmit={register}>
         <label>Full name</label>
-        <input required style={style} value={name}
-          onChange={e => setName(e.target.value)} />
+        <input
+          required
+          style={style}
+          value={name}
+          onChange={e => setName(e.target.value)}
+          autoComplete="name"
+        />
 
         <label>Email</label>
-        <input required type="email" style={style} value={email}
-          onChange={e => setEmail(e.target.value)} />
+        <input
+          required
+          type="email"
+          style={style}
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          autoComplete="email"
+        />
 
         <label>Country code</label>
-        <select style={style} value={countryCode}
-          onChange={e => setCountryCode(e.target.value)}>
-          <option value="+254">Kenya (+254)</option>
-          <option value="+256">Uganda (+256)</option>
-          <option value="+255">Tanzania (+255)</option>
-          <option value="+250">Rwanda (+250)</option>
-          <option value="+1">USA/Canada (+1)</option>
-          <option value="+44">United Kingdom (+44)</option>
-          <option value="+27">South Africa (+27)</option>
-          <option value="+234">Nigeria (+234)</option>
-          <option value="+91">India (+91)</option>
-          <option value="+971">UAE (+971)</option>
+        <select
+          style={style}
+          value={countryCode}
+          onChange={e => setCountryCode(e.target.value)}
+        >
+          {countries.map(country => (
+            <option key={country.code} value={country.code}>
+              {country.name} ({country.code})
+            </option>
+          ))}
         </select>
 
-        <label>M-PESA phone number</label>
-        <input required type="tel" style={style}
-          placeholder="712345678" value={phone}
-          onChange={e => setPhone(e.target.value)} />
+        <label>Mobile / M-PESA phone number</label>
+        <input
+          required
+          type="tel"
+          style={style}
+          placeholder="712345678"
+          value={phone}
+          onChange={e => setPhone(e.target.value)}
+          autoComplete="tel-national"
+        />
+        <small style={{ color: "#64748b" }}>
+          Enter your number without the country code.
+        </small>
 
-        <label>Password (at least 8 characters)</label>
-        <input required minLength={8} type="password"
-          style={style} value={password}
-          onChange={e => setPassword(e.target.value)} />
+        <label style={{ display: "block", marginTop: 16 }}>
+          Password
+        </label>
+        <input
+          required
+          type="password"
+          minLength={8}
+          style={style}
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          autoComplete="new-password"
+        />
+        <small style={{ color: "#64748b" }}>
+          Minimum 8 characters, uppercase, lowercase, number and special character.
+        </small>
+
+        <label style={{ display: "block", marginTop: 16 }}>
+          Confirm password
+        </label>
+        <input
+          required
+          type="password"
+          style={style}
+          value={confirmPassword}
+          onChange={e => setConfirmPassword(e.target.value)}
+          autoComplete="new-password"
+        />
 
         <label>Referral code (optional)</label>
-        <input style={style}
+        <input
+          style={style}
           placeholder="Enter invitation code"
           value={referralCode}
-          onChange={e => setReferralCode(e.target.value)} />
+          onChange={e => setReferralCode(e.target.value)}
+        />
 
-        <button disabled={loading} style={{
-          width: "100%",
-          padding: 14,
-          background: "#073b83",
-          color: "white",
-          border: "none",
-          borderRadius: 6
-        }}>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: 14,
+            background: "#073b83",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            cursor: loading ? "not-allowed" : "pointer"
+          }}
+        >
           {loading ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      <p>{message}</p>
+      <p style={{ color: "#b91c1c" }}>{message}</p>
       <a href="/app/login">Already registered? Log in</a>
     </main>
   );
