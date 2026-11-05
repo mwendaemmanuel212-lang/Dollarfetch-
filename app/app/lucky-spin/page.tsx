@@ -286,15 +286,7 @@ setRotation((previous) => previous + 1800 + alignment);
     </div>
   ))}
 </div>
-            {[0.5, 1, 2, 5, 10].map((amount) => (
-              <span
-                key={amount}
-                className="rounded-full bg-blue-800 px-3 py-2 text-sm font-bold"
-              >
-                ${amount.toFixed(2)}
-              </span>
-            ))}
-          </div>
+            
 
           <button
             onClick={playSpin}
