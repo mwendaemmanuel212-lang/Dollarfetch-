@@ -39,7 +39,7 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("Home");
   const [method, setMethod] = useState("M-PESA");
