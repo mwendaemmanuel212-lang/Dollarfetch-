@@ -294,7 +294,18 @@ useEffect(() => {
             <button className="action" onClick={() => openScreen("Withdraw")}><Icon name="wallet" size={29}/><span>Withdraw</span></button>
             <button className="action" onClick={() => openScreen("Rewards")}><Icon name="gift" size={29}/><span>Referral</span></button>
           </section>
-          <div className="activation-prompt">
+          {activationStatus === "active" ? (
+  <div className="activation-prompt">
+    <b>Account Activated ✓</b>
+    <p>Your account has been approved. You can now enjoy your member benefits.</p>
+  </div>
+) : (
+  <div className="activation-prompt">
+    <b>You’re one step away!</b>
+    <p>Activate your account to unlock your DollarFetch member benefits.</p>
+    <button onClick={() => openScreen("Activation")}>Activate</button>
+  </div>
+)}
             <Icon name="rocket" size={34}/>
             <div><b>Bravo!You are one step away!</b><p>Activate your account to unlock your DollarFetch member benefits.</p></div>
             <button onClick={() => openScreen("Activation")}>Activate</button>
