@@ -223,38 +223,7 @@ export default function DashboardPage() {
     setBusy(false);
   }
   }
-    setMessage("");
-    if (method === "M-PESA" && !/^\+254\d{9}$/.test(phone.trim())) {
-      setMessage("Enter your M-PESA number with country code, e.g. +254712345678.");
-      return;
-    }
-    if (method !== "M-PESA" && !reference.trim()) {
-      setMessage("Enter the payment transaction reference/details.");
-      return;
-    }
-    if (!user?.id) {
-      setMessage("Please log in again.");
-      return;
-    }
-    setBusy(true);
-    const { error } = await supabase.from("activation_requests").insert({
-      user_id: user.id,
-      amount: 2,
-      currency: "USD",
-      method,
-      phone: method === "M-PESA" ? phone.trim() : reference.trim(),
-      status: "pending",
-    });
-    setBusy(false);
-    if (error) {
-      setMessage(`Could not submit: ${error.message}`);
-    } else {
-      setPhone("");
-      setReference("");
-      setActivationStatus("pending");
-      setMessage("Payment details submitted. Your account stays Pending until an administrator verifies the payment.");
-    }
-  }
+    
 
   if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
 
