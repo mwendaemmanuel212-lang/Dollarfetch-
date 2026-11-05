@@ -27,6 +27,19 @@ const sections = [
   { icon: "lock", title: "Security", note: "Admin protection", color: "#fca5a5" },
 ];
 
+const paths: Record<string, string> = {
+  Members: "members",
+  Deposits: "deposits",
+  Withdrawals: "withdrawals",
+  Activation: "activation",
+  Transactions: "transactions",
+  Announcements: "announcements",
+  "Support Centre": "support",
+  Reports: "reports",
+  "Admin History": "history",
+  Security: "security",
+};
+
 function PanelIcon({ name, color }: { name: string; color: string }) {
   const common = {
     fill: "none",
@@ -87,7 +100,9 @@ function PanelIcon({ name, color }: { name: string; color: string }) {
       border: "1px solid rgba(255,255,255,.12)",
       boxShadow: "inset 0 1px 0 rgba(255,255,255,.12),0 8px 20px rgba(0,0,0,.18)"
     }}>
-      <svg width="27" height="27" viewBox="0 0 24 24">{paths[name] || paths.lock}</svg>
+      <svg width="27" height="27" viewBox="0 0 24 24">
+        {paths[name] || paths.lock}
+      </svg>
     </div>
   );
 }
@@ -248,6 +263,7 @@ export default function AdminPage() {
             ADMIN CONTROL CENTRE
           </div>
         </div>
+
         <div style={{
           width: 42,
           height: 42,
@@ -279,6 +295,7 @@ export default function AdminPage() {
         }}>
           Niaje bossie
         </div>
+
         <div style={{
           color: "#aebed3",
           fontSize: 10,
@@ -298,6 +315,7 @@ export default function AdminPage() {
         <h1 style={{ fontSize: 25, margin: "0 0 5px" }}>
           Admin Dashboard
         </h1>
+
         <p style={{
           color: "#aab8cc",
           fontSize: 12,
@@ -344,6 +362,7 @@ export default function AdminPage() {
           flexWrap: "wrap"
         }}>
           <strong>Financial overview</strong>
+
           <span style={{
             color: "#f2c66d",
             fontSize: 9,
@@ -354,6 +373,7 @@ export default function AdminPage() {
             AWAITING VERIFIED DATA
           </span>
         </div>
+
         <div style={{
           fontSize: 13,
           color: "#c7d2e1",
@@ -369,6 +389,7 @@ export default function AdminPage() {
           <h2 style={{ fontSize: 16, letterSpacing: 1, margin: 0 }}>
             MANAGEMENT CENTRE
           </h2>
+
           <p style={{ color: "#8fa2bc", fontSize: 11, margin: "5px 0 0" }}>
             All administration tools in one place
           </p>
@@ -379,79 +400,31 @@ export default function AdminPage() {
           gridTemplateColumns: "repeat(2,minmax(0,1fr))",
           gap: 10
         }}>
-          
-{sections.map(item => {
-  const paths: Record<string, string> = {
-    "Members": "members",
-    "Deposits": "deposits",
-    "Withdrawals": "withdrawals",
-    "Activation": "activation",
-    "Transactions": "transactions",
-    "Announcements": "announcements",
-    "Support Centre": "support",
-    "Reports": "reports",
-    "Admin History": "history",
-    "Security": "security"
-  };
+          {sections.map(item => (
+            <a
+              key={item.title}
+              href={`/admin/${paths[item.title]}`}
+              style={{
+                ...panel,
+                padding: 13,
+                display: "block",
+                color: "inherit",
+                textDecoration: "none",
+                cursor: "pointer"
+              }}
+            >
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10
+              }}>
+                <PanelIcon name={item.icon} color={item.color} />
 
-  return (
-    <a
-      key={item.title}
-      href={`/admin/${paths[item.title]}`}
-      style={{
-        ...panel,
-        padding: 13,
-        display: "block",
-        color: "inherit",
-        textDecoration: "none",
-        cursor: "pointer"
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{
-          background: "linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.025))",
-          borderRadius: 16,
-          padding: 7,
-          border: "1px solid rgba(255,255,255,.09)"
-        }}>
-          <PanelIcon name={item.icon} color={item.color} />
-        </div>
-
-        <div>
-          <div style={{ fontWeight: 800, fontSize: 12 }}>
-            {item.title}
-          </div>
-          <div style={{
-            color: "#aab8cc",
-            fontSize: 10,
-            marginTop: 4,
-            lineHeight: 1.4
-          }}>
-            {item.note}
-          </div>
-        </div>
-      </div>
-
-      <div style={{
-        color: "#8ebeff",
-        fontSize: 9,
-        marginTop: 12,
-        letterSpacing: .8,
-        fontWeight: 800
-      }}>
-        OPEN MODULE →
-      </div>
-    </a>
-  );
-})}
-          
-            
-              
-                </div>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 12 }}>
                     {item.title}
                   </div>
+
                   <div style={{
                     color: "#aab8cc",
                     fontSize: 10,
@@ -462,6 +435,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
+
               <div style={{
                 color: "#8ebeff",
                 fontSize: 9,
@@ -469,9 +443,10 @@ export default function AdminPage() {
                 letterSpacing: .8,
                 fontWeight: 800
               }}>
-                MANAGEMENT MODULE
-              
-            
+                OPEN MODULE →
+              </div>
+            </a>
+          ))}
         </div>
       </section>
 
@@ -486,7 +461,10 @@ export default function AdminPage() {
           <h2 style={{ fontSize: 16, margin: 0 }}>
             Member Activation Requests
           </h2>
-          <button onClick={loadMembers} style={button}>↻ Refresh</button>
+
+          <button onClick={loadMembers} style={button}>
+            ↻ Refresh
+          </button>
         </div>
 
         <p style={{
@@ -520,6 +498,7 @@ export default function AdminPage() {
                 flexWrap: "wrap"
               }}>
                 <strong>{member.full_name || "Member"}</strong>
+
                 <span style={{
                   color: member.status === "active"
                     ? "#72d6a0"
@@ -546,7 +525,11 @@ export default function AdminPage() {
               </p>
 
               {member.status === "pending" && (
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <div style={{
+                  display: "flex",
+                  gap: 8,
+                  flexWrap: "wrap"
+                }}>
                   <button
                     disabled={working === member.user_id}
                     onClick={() => updateStatus(member, "active")}
@@ -601,4 +584,4 @@ export default function AdminPage() {
       </p>
     </main>
   );
-                      }
+          }
