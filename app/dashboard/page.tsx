@@ -282,12 +282,12 @@ export default function DashboardPage() {
           <section className="hero">
             <div className="hero-tag">YOUR MEMBER DASHBOARD</div>
             <h1>Hello, {memberName}!</h1>
-            <p>Let鈥檚 grow your earnings today.</p>
+            <p>Let grow your earnings today.</p>
             <div className="hero-art">$</div>
           </section>
           <section className="balance">
             <div className="balance-icon"><Icon name="wallet" size={32} /></div>
-            <div><div className="balance-label">Your Balance</div><div className="balance-value">$0.00</div><div className="balance-note">Your member wallet balance</div></div>
+            <div className="balance-value">{`$${walletBalance.toFixed(2)}`}</div>
           </section>
           <section className="actions">
             <button className="action" onClick={() => openScreen("Activation")}><Icon name="rocket" size={29} /><span>{activationStatus === "active" ? "Account Active" : "Activate Account"}</span></button>
