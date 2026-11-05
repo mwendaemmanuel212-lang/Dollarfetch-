@@ -479,7 +479,7 @@ export default function AdminPage() {
                 MANAGEMENT MODULE
               </div>
             </div>
-          ))}
+                    })}
         </div>
       </section>
 
