@@ -317,8 +317,8 @@ export default function DashboardPage() {
         {screen === "Home" && <>
           <section className="hero">
             <div className="hero-tag">YOUR MEMBER DASHBOARD</div>
-            <h1>Hello, {memberName}!</h1>
-            <p>Let grow your earnings today.</p>
+            <h1>Bravo, {memberName}!</h1>
+            <p>ACTIVATE YOUR ACCOUNT NOW STARTING YOUR EARNING JOURNEY.</p>
             <div className="hero-art">$</div>
           </section>
           <section className="balance">
