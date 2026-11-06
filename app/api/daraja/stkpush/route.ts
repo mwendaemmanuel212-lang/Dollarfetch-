@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
           PhoneNumber: phone,
           CallBackURL: "https://dollarfetch.bwk.workers.dev/api/daraja/callback",
           AccountReference: "452055031",
-          TransactionDesc: "MANUH Activate"
+          TransactionDesc: "DOLLARFETCH-MANUH"
         })
       }
     );
