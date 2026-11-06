@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     if (insertError || !payment) throw new Error(insertError?.message || "Payment record failed.");
 
     const response = await fetch(
-      "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      https://api.safaricom.co.ke
       {
         method: "POST",
         headers: {
