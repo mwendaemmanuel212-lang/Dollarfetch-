@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       throw new Error("KES exchange rate unavailable.");
     }
 
-    const amount = 1;
+    const amount = Math.ceil(2 * rate);
 
     const timestamp = new Date(Date.now() + 3 * 60 * 60 * 1000)
       .toISOString()
