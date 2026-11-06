@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
           PartyB: shortcode,
           PhoneNumber: phone,
           CallBackURL: "https://dollarfetch.bwk.workers.dev/api/daraja/callback",
-          AccountReference: "DollarFetch",
+          AccountReference: "452055031",
           TransactionDesc: "Account activation",
         }),
       }
