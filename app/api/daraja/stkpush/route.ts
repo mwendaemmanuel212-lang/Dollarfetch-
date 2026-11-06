@@ -1,6 +1,6 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = "nodejs";
 
@@ -15,6 +15,7 @@ function normalizePhone(value: string) {
 export async function POST(request: NextRequest) {
   try {
     const token = (request.headers.get("authorization") || "").replace(/^Bearer /, "");
+
     if (!token) {
       return NextResponse.json({ error: "Please log in again." }, { status: 401 });
     }
@@ -22,10 +23,13 @@ export async function POST(request: NextRequest) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     const service = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    const key = process.env.DARAJA_CONSUMER_KEY!;
-    const secret = process.env.DARAJA_CONSUMER_SECRET!;
-    const passkey = process.env.DARAJA_PASSKEY!;
-    const shortcode = process.env.DARAJA_SHORTCODE!;
+
+    const cfEnv = getCloudflareContext().env as unknown as Record<string, string | undefined>;
+
+    const key = cfEnv.DARAJA_CONSUMER_KEY || "";
+    const secret = cfEnv.DARAJA_CONSUMER_SECRET || "";
+    const passkey = cfEnv.DARAJA_PASSKEY || "";
+    const shortcode = cfEnv.DARAJA_SHORTCODE || "";
 
     if (!url || !anon || !service || !key || !secret || !passkey || !shortcode) {
       return NextResponse.json({
@@ -184,4 +188,4 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : "Payment error."
     }, { status: 500 });
   }
-    }
+}
