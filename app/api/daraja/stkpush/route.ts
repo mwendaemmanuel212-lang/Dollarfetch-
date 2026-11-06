@@ -1,3 +1,4 @@
+
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -25,7 +26,17 @@ export async function POST(request: NextRequest) {
     const shortcode = process.env.DARAJA_SHORTCODE!;
 
     if (!url || !anon || !service || !key || !secret || !passkey || !shortcode) {
-      return NextResponse.json({ error: "Payment service is not configured." }, { status: 500 });
+      return NextResponse.json({
+        error: "Missing configuration: " + [
+          !url && "NEXT_PUBLIC_SUPABASE_URL",
+          !anon && "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+          !service && "SUPABASE_SERVICE_ROLE_KEY",
+          !key && "DARAJA_CONSUMER_KEY",
+          !secret && "DARAJA_CONSUMER_SECRET",
+          !passkey && "DARAJA_PASSKEY",
+          !shortcode && "DARAJA_SHORTCODE"
+        ].filter(Boolean).join(", ")
+      }, { status: 500 });
     }
 
     const auth = createClient(url, anon, { auth: { persistSession: false } });
@@ -123,4 +134,5 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : "Payment error.",
     }, { status: 500 });
   }
-      }
+}
+  
