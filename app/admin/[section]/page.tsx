@@ -82,9 +82,50 @@ async function reviewWithdrawal(
   const [checking, setChecking] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [workingMember, setWorkingMember] = useState<string | null>(null);
+  const [workingMember, setWorkingMember] = useState<string | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  async function updateMemberAccess(member: Member) {
+  const userId = member.user_id || member.id;
+
+  if (!userId) return;
+
+  const activate = member.is_active === false;
+
+  const confirmed = window.confirm(
+    activate
+      ? "Reactivate this member?"
+      : "Deactivate this member?"
+  );
+
+  if (!confirmed) return;
+
+  setWorkingMember(userId);
+  setError("");
+
+  const { error: updateError } = await supabase.rpc(
+    "admin_set_member_active",
+    {
+      p_user_id: userId,
+      p_is_active: activate
+    }
+  );
+
+  if (updateError) {
+    setError(updateError.message);
+  } else {
+    setMembers(current =>
+      current.map(row =>
+        row.user_id === userId
+          ? { ...row, is_active: activate }
+          : row
+      )
+    );
+  }
+
+  setWorkingMember(null);
+  }
 
   useEffect(() => {
     async function loadPage() {
@@ -273,7 +314,29 @@ async function reviewWithdrawal(
                 Status: {member.activation_status || member.status || "Pending verification"}
               </p>
               <p>
+  Account: {member.is_active === false ? "DEACTIVATED" : "ACTIVE"}
+</p>
+              <p>
                 Registered: {member.created_at
+                  <button
+  onClick={() => updateMemberAccess(member)}
+  disabled={workingMember === (member.user_id || member.id)}
+  style={{
+    marginTop: 12,
+    padding: "11px 16px",
+    border: 0,
+    borderRadius: 8,
+    background: member.is_active === false ? "#16834a" : "#b83232",
+    color: "white",
+    fontWeight: 700
+  }}
+>
+  {workingMember === (member.user_id || member.id)
+    ? "Please wait..."
+    : member.is_active === false
+      ? "Reactivate Member"
+      : "Deactivate Member"}
+</button>
                   ? new Date(member.created_at).toLocaleString()
                   : "Date unavailable"}
               </p>
