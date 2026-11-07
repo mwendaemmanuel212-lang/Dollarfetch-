@@ -552,6 +552,46 @@ async function submitWithdrawal() {
         </>}
 
         {screen === "Deposit" && <>
+  <div className="pagehead">
+    <h1>Deposit</h1>
+    <button className="back" onClick={() => openScreen("Home")}>Back</button>
+  </div>
+  <section className="section">
+    <h2>Deposit to your wallet</h2>
+    <p className="muted">Pay securely using M-PESA STK Push.</p>
+
+    <div className="field">
+      <label>Amount (USD)</label>
+      <input
+        type="number"
+        min="1"
+        value={depositAmount}
+        onChange={e => setDepositAmount(e.target.value)}
+        placeholder="Enter amount"
+      />
+    </div>
+
+    <div className="field">
+      <label>M-PESA phone number</label>
+      <input
+        value={depositPhone}
+        onChange={e => setDepositPhone(e.target.value)}
+        placeholder="+254712345678"
+        inputMode="tel"
+      />
+    </div>
+
+    <div className="notice">
+      Your M-PESA payment will be verified before your wallet is credited.
+    </div>
+
+    {message && <div className="message">{message}</div>}
+
+    <button className="primary" disabled={busy} onClick={submitDeposit}>
+      {busy ? "Processing..." : "Deposit with M-PESA"}
+    </button>
+  </section>
+</>}
           <div className="pagehead"><h1>Deposit</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
           <section className="section"><h2>Choose payment method</h2><p className="muted">Select a payment option. Live payment processing will be connected later.</p>
             <div className="method-grid">{paymentMethods.map(p => <button type="button" key={p.id} className={`method ${method === p.id ? "selected" : ""}`} onClick={() => setMethod(p.id)}>
