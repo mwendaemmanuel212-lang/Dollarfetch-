@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
-const LoginDashboard = () => {
+export default function LoginDashboard() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -78,6 +80,4 @@ const LoginDashboard = () => {
       </div>
     </div>
   );
-};
-
-export default LoginDashboard;
+}
