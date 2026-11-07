@@ -86,7 +86,7 @@ export default function Login() {
 
   setMessage(
     text.includes("banned") || text.includes("ban")
-      ? "Unable to login. Your account has been deactivated."
+      ? "Unable to login. Your session expired contact our customers support Thankyou..."
       : error.message
   );
 
