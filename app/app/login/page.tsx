@@ -300,15 +300,7 @@ export default function Login() {
                 <span/> OR <span/>
               </div>
 
-              <button
-                type="button"
-                className="google-button"
-                onClick={googleLogin}
-                disabled={loading}
-              >
-                <b>G</b>
-                Continue with Google
-              </button>
+              
 
               <div className="register">
                 <span>{words.noaccount}</span>
