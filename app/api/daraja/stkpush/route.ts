@@ -221,7 +221,7 @@ const baseUrl =
           PhoneNumber: phone,
           CallBackURL:
             "https://dollarfetch.bwk.workers.dev/api/daraja/callback",
-          AccountReference: "DollarFetch",
+          AccountReference: "DollarFetch-Bwk solutions",
           TransactionDesc:
             purpose === "deposit" ? "DollarFetch Deposit" : "DollarFetch Activation",
         }),
