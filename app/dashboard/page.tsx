@@ -55,6 +55,7 @@ export default function DashboardPage() {
   const [rateLoading, setRateLoading] = useState(true);
 const [depositAmount, setDepositAmount] = useState("5");
 const [depositPhone, setDepositPhone] = useState("");
+  const [depositReference, setDepositReference] = useState("");
 const [withdrawAmount, setWithdrawAmount] = useState("");
 const [withdrawPhone, setWithdrawPhone] = useState("");
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
@@ -304,7 +305,56 @@ async function submitDeposit() {
     setBusy(false);
   }
 }
+async function submitManualDeposit() {
+  setMessage("");
 
+  const amount = Number(depositAmount);
+  const transactionCode = depositReference.trim().toUpperCase();
+
+  if (!amount || amount <= 0) {
+    setMessage("Enter a valid deposit amount.");
+    return;
+  }
+
+  if (!transactionCode) {
+    setMessage("Enter your M-PESA transaction code.");
+    return;
+  }
+
+  if (!user?.id) {
+    setMessage("Please log in again.");
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    const { error } = await supabase.from("deposit_requests").insert({
+      user_id: user.id,
+      amount,
+      currency: "USD",
+      method: "SIM Toolkit",
+      payment_reference: transactionCode,
+      status: "pending",
+    });
+
+    if (error) throw error;
+
+    setDepositReference("");
+    setDepositAmount("5");
+    setMessage(
+      "Deposit details submitted. Your payment will be verified before your wallet is credited."
+    );
+  } catch (error) {
+    setMessage(
+      error instanceof Error
+        ? error.message
+        : "Could not submit deposit details."
+    );
+  } finally {
+    setBusy(false);
+  }
+}
 async function submitWithdrawal() {
   setMessage("");
   setWithdrawalSuccess(false);
@@ -558,22 +608,129 @@ async function submitWithdrawal() {
     <h1>Deposit</h1>
     <button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
+
   <section className="section">
     <h2>Deposit to your wallet</h2>
-    <p className="muted">Pay using M-PESA STK Push.</p>
-    <div className="field">
-      <label>Amount (USD)</label>
-      <input type="number" min="1" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} />
+
+    <div style={{
+      border: "1px solid #dc2626",
+      borderRadius: "16px",
+      padding: "16px",
+      marginBottom: "18px"
+    }}>
+      <h3>📱 M-PESA STK Push</h3>
+      <p className="muted">Receive an M-PESA payment prompt on your phone.</p>
+
+      <div className="field">
+        <label>Amount (USD)</label>
+        <input type="number" min="1" value={depositAmount}
+          onChange={e => setDepositAmount(e.target.value)} />
+      </div>
+
+      <div className="field">
+        <label>M-PESA phone number</label>
+        <input value={depositPhone}
+          onChange={e => setDepositPhone(e.target.value)}
+          placeholder="+254712345678" inputMode="tel" />
+      </div>
+
+      <button className="primary" disabled={busy} onClick={submitDeposit}>
+        {busy ? "Processing..." : "Deposit with STK Push"}
+      </button>
     </div>
-    <div className="field">
-      <label>M-PESA phone number</label>
-      <input value={depositPhone} onChange={e => setDepositPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" />
+
+    <div style={{
+      border: "1px solid #dc2626",
+      borderRadius: "16px",
+      padding: "18px",
+      marginBottom: "15px"
+    }}>
+      <h3>📲 SIM Toolkit Deposit</h3>
+      <p className="muted">
+        Pay manually using M-PESA SIM Toolkit.
+      </p>
+
+      <p style={{ fontWeight: 700, color: "inherit" }}>
+        Send payment to this number:
+      </p>
+
+      <div style={{
+        background: "#fff1f2",
+        color: "#111",
+        padding: "15px",
+        borderRadius: "12px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "10px"
+      }}>
+        <strong style={{ fontSize: "22px" }}>0732659971</strong>
+
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText("0732659971");
+            setCopied("Number copied successfully!");
+          }}
+          style={{
+            background: "#dc2626",
+            color: "#fff",
+            border: "none",
+            borderRadius: "9px",
+            padding: "11px",
+            fontWeight: 700
+          }}
+        >
+          📋 Copy Number
+        </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          window.location.href = "tel:*334%23";
+        }}
+        style={{
+          width: "100%",
+          marginTop: "15px",
+          background: "#dc2626",
+          color: "#fff",
+          border: "none",
+          borderRadius: "12px",
+          padding: "15px",
+          fontSize: "16px",
+          fontWeight: 800
+        }}
+      >
+        📞 Open *334#
+      </button>
+
+      <div className="field" style={{ marginTop: "18px" }}>
+        <label>M-PESA Transaction Code</label>
+        <input
+          placeholder="Enter transaction code after payment"
+          value={depositReference}
+          onChange={e => setDepositReference(e.target.value)}
+        />
+      </div>
+
+      <button
+        type="button"
+        className="primary"
+        disabled={busy}
+        onClick={submitManualDeposit}
+      >
+        {busy ? "Submitting..." : "Submit Deposit Details"}
+      </button>
     </div>
-    <div className="notice">Payment will be verified before your wallet is credited.</div>
-    {message && <div className="message">{message}</div>}
-    <button className="primary" disabled={busy} onClick={submitDeposit}>
-      {busy ? "Processing..." : "Deposit with M-PESA"}
-    </button>
+
+    <div className="notice">
+      Deposits are credited to your wallet only after administrator verification.
+    </div>
+
+    {(message || copied) && (
+      <div className="message">{message || copied}</div>
+    )}
   </section>
 </>}
 
