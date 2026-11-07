@@ -376,7 +376,35 @@ async function updateMemberWallet(member: Member) {
                   ? new Date(member.created_at).toLocaleString()
                   : "Date unavailable"}
               </p>
-
+<p>
+  Total Logins: {member.login_count ?? 0}
+</p>
+<p>
+  Last Login: {member.last_login_at
+    ? new Date(member.last_login_at).toLocaleString()
+    : "No login recorded yet"}
+</p>
+<p>
+  Wallet Balance: {member.wallet_currency || "USD"} {Number(member.wallet_balance ?? 0).toFixed(2)}
+</p>
+<button
+  onClick={() => updateMemberWallet(member)}
+  disabled={workingWalletMember === (member.user_id || member.id)}
+  style={{
+    marginTop: 12,
+    marginRight: 10,
+    padding: "11px 16px",
+    border: 0,
+    borderRadius: 8,
+    background: "#8b5cf6",
+    color: "white",
+    fontWeight: 700
+  }}
+>
+  {workingWalletMember === (member.user_id || member.id)
+    ? "Saving..."
+    : "Edit Wallet Balance"}
+</button>
               <button
                 onClick={() => updateMemberAccess(member)}
                 disabled={workingMember === (member.user_id || member.id)}
