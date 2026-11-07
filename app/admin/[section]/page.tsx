@@ -15,7 +15,10 @@ type Member = {
   activation_status?: string | null;
   created_at?: string | null;
   is_active?: boolean;
-}
+}  login_count?: number;
+  last_login_at?: string | null;
+  wallet_balance?: number;
+  wallet_currency?: string;
 type Withdrawal = {
   id: string;
   user_id: string;
