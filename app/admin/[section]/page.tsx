@@ -317,7 +317,31 @@ async function reviewWithdrawal(
   Account: {member.is_active === false ? "DEACTIVATED" : "ACTIVE"}
 </p>
               <p>
-                Registered: {member.created_at
+              <p>
+  Registered: {member.created_at
+    ? new Date(member.created_at).toLocaleString()
+    : "Date unavailable"}
+</p>
+
+<button
+  onClick={() => updateMemberAccess(member)}
+  disabled={workingMember === (member.user_id || member.id)}
+  style={{
+    marginTop: 12,
+    padding: "11px 16px",
+    border: 0,
+    borderRadius: 8,
+    background: member.is_active === false ? "#16834a" : "#b83232",
+    color: "white",
+    fontWeight: 700
+  }}
+>
+  {workingMember === (member.user_id || member.id)
+    ? "Please wait..."
+    : member.is_active === false
+      ? "Reactivate Member"
+      : "Deactivate Member"}
+</button>
                   <button
   onClick={() => updateMemberAccess(member)}
   disabled={workingMember === (member.user_id || member.id)}
