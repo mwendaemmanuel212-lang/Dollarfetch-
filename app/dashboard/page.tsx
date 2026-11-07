@@ -53,7 +53,10 @@ export default function DashboardPage() {
   const [rate, setRate] = useState<number | null>(null);
   const [rateError, setRateError] = useState("");
   const [rateLoading, setRateLoading] = useState(true);
-
+const [depositAmount, setDepositAmount] = useState("5");
+const [depositPhone, setDepositPhone] = useState("");
+const [withdrawAmount, setWithdrawAmount] = useState("");
+const [withdrawPhone, setWithdrawPhone] = useState("");
   useEffect(() => {
     let mounted = true;
     async function loadUser() {
