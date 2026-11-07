@@ -57,6 +57,7 @@ const [depositAmount, setDepositAmount] = useState("5");
 const [depositPhone, setDepositPhone] = useState("");
 const [withdrawAmount, setWithdrawAmount] = useState("");
 const [withdrawPhone, setWithdrawPhone] = useState("");
+  const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
   useEffect(() => {
     let mounted = true;
     async function loadUser() {
