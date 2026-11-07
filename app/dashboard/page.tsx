@@ -357,6 +357,7 @@ async function submitManualDeposit() {
   } finally {
     setBusy(false);
   }
+   } 
 async function submitWithdrawal() {
   setMessage("");
   setWithdrawalSuccess(false);
