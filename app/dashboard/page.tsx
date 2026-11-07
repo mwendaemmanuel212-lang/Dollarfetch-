@@ -575,29 +575,63 @@ async function submitWithdrawal() {
   </section>
 </>}
 
+
 {screen === "Withdraw" && <>
   <div className="pagehead">
     <h1>Withdraw</h1>
     <button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
+
   <section className="section">
     <h2>Withdraw funds</h2>
-    <p className="muted">Available balance: ${walletBalance.toFixed(2)}</p>
+    <p className="muted">
+      Available balance: ${walletBalance.toFixed(2)}
+    </p>
+
     <div className="field">
       <label>Amount (USD)</label>
-      <input type="number" min="1" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
+      <input
+        type="number"
+        min="1"
+        value={withdrawAmount}
+        onChange={e => setWithdrawAmount(e.target.value)}
+        placeholder="Enter amount"
+      />
     </div>
+
     <div className="field">
       <label>M-PESA phone number</label>
-      <input value={withdrawPhone} onChange={e => setWithdrawPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" />
+      <input
+        value={withdrawPhone}
+        onChange={e => setWithdrawPhone(e.target.value)}
+        placeholder="+254712345678"
+        inputMode="tel"
+      />
     </div>
-    <div className="notice">Your request requires administrator approval before payment is released.</div>
-    {message && <div className="message">{message}</div>}
-    <button className="primary" disabled={busy} onClick={submitWithdrawal}>
+
+    <div className="notice">
+      Your request requires administrator approval before payment is released.
+    </div>
+
+    {message && (
+      <div className="message">{message}</div>
+    )}
+
+    <button
+      className="primary"
+      disabled={busy}
+      onClick={async () => {
+        await submitWithdrawal();
+
+        // Success confirmation is displayed by the
+        // withdrawal submission handler.
+      }}
+    >
       {busy ? "Submitting..." : "Request Withdrawal"}
     </button>
   </section>
 </>}
+        
   
             
 
