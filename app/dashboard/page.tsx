@@ -418,10 +418,7 @@ async function submitWithdrawal() {
   }
 }
 
-  if (!user?.id) {
-    setMessage("Please log in again.");
-    return;
-  }
+  
 
   
 
