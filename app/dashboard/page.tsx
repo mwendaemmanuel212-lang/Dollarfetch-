@@ -803,7 +803,7 @@ async function submitWithdrawal() {
         Withdrawal Successful 🎉
       </h2>
 
-      <p style={{ color: "#222222", fontSize: "15px" }}>
+      
         <div style={{
   background: "#f8fafc",
   borderRadius: "14px",
