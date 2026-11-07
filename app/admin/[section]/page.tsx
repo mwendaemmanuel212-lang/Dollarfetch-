@@ -130,7 +130,57 @@ const [workingWalletMember, setWorkingWalletMember] = useState<string | null>(nu
 
   setWorkingMember(null);
   }
+async function updateMemberWallet(member: Member) {
+  const userId = member.user_id || member.id;
+  if (!userId) return;
 
+  const balanceInput = window.prompt(
+    "Enter the new wallet balance:",
+    String(member.wallet_balance ?? 0)
+  );
+
+  if (balanceInput === null) return;
+
+  const newBalance = Number(balanceInput);
+
+  if (!Number.isFinite(newBalance) || newBalance < 0) {
+    setError("Enter a valid balance.");
+    return;
+  }
+
+  const note = window.prompt("Enter the private admin note:");
+
+  if (!note || note.trim().length < 3) {
+    setError("Please enter a note of at least 3 characters.");
+    return;
+  }
+
+  setWorkingWalletMember(userId);
+  setError("");
+
+  const { error: walletError } = await supabase.rpc(
+    "admin_set_member_wallet_balance",
+    {
+      p_user_id: userId,
+      p_balance: newBalance,
+      p_note: note.trim()
+    }
+  );
+
+  if (walletError) {
+    setError(walletError.message);
+  } else {
+    setMembers(current =>
+      current.map(row =>
+        (row.user_id || row.id) === userId
+          ? { ...row, wallet_balance: newBalance }
+          : row
+      )
+    );
+  }
+
+  setWorkingWalletMember(null);
+}
   useEffect(() => {
     async function loadPage() {
       const { data } = await supabase.auth.getSession();
