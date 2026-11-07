@@ -228,7 +228,7 @@ const [withdrawPhone, setWithdrawPhone] = useState("");
   }
     
 
-  if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
+  
 async function submitDeposit() {
   setMessage("");
 
@@ -351,7 +351,7 @@ async function submitWithdrawal() {
   } finally {
     setBusy(false);
   }
-}
+}  if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
   return (
     <main className="df-app">
       <style>{`
