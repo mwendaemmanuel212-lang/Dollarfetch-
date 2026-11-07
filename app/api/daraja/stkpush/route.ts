@@ -20,7 +20,7 @@ function normalizePhone(value: string) {
 }
 
 export async function POST(request: NextRequest) {
-  let admin: ReturnType<typeof createClient> | null = null;
+  let admin: any = null;
   let paymentId: number | null = null;
 
   try {
