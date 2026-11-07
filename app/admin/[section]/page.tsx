@@ -317,7 +317,7 @@ async function reviewWithdrawal(
   Account: {member.is_active === false ? "DEACTIVATED" : "ACTIVE"}
 </p>
               <p>
-                            <p>
+                            
                 Registered: {member.created_at
                   ? new Date(member.created_at).toLocaleString()
                   : "Date unavailable"}
