@@ -65,6 +65,22 @@ export default function AdminSectionPage() {
       }
 
       setChecking(false);
+      if (section === "withdrawals") {
+  setLoading(true);
+  setError("");
+
+  const { data: rows, error: dbError } = await supabase.rpc(
+    "admin_list_withdrawal_requests"
+  );
+
+  if (dbError) {
+    setError(dbError.message);
+  } else {
+    setWithdrawals((rows || []) as Withdrawal[]);
+  }
+
+  setLoading(false);
+      }
 
       if (section === "members") {
         setLoading(true);
