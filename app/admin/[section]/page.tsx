@@ -51,6 +51,7 @@ export default function AdminSectionPage() {
 
   const [checking, setChecking] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
