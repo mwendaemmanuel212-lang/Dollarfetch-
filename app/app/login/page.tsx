@@ -82,8 +82,15 @@ export default function Login() {
     setLoading(false);
 
     if (error) {
-      setMessage(error.message);
-      return;
+  const text = error.message.toLowerCase();
+
+  setMessage(
+    text.includes("banned") || text.includes("ban")
+      ? "Unable to login. Your account has been deactivated."
+      : error.message
+  );
+
+  return;
     }
 
     if (data.user) {
