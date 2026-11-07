@@ -59,6 +59,9 @@ const [depositPhone, setDepositPhone] = useState("");
 const [withdrawAmount, setWithdrawAmount] = useState("");
 const [withdrawPhone, setWithdrawPhone] = useState("");
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
+  const [withdrawalTransactionId, setWithdrawalTransactionId] = useState("");
+const [completedWithdrawalAmount, setCompletedWithdrawalAmount] = useState(0);
+const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
   useEffect(() => {
     let mounted = true;
     async function loadUser() {
@@ -384,14 +387,43 @@ async function submitWithdrawal() {
   setBusy(true);
 
   try {
-    const { error } = await supabase.from("withdrawal_requests").insert({
-      user_id: user.id,
-      amount,
-      currency: "USD",
-      method: "M-PESA",
-      destination_details: withdrawPhone.trim(),
-      status: "pending",
-    });
+    const { data, error } = await supabase
+      .from("withdrawal_requests")
+      .insert({
+        user_id: user.id,
+        amount,
+        currency: "USD",
+        method: "M-PESA",
+        destination_details: withdrawPhone.trim(),
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (error) throw error;
+
+    setWithdrawalTransactionId(String(data.id));
+    setCompletedWithdrawalAmount(amount);
+    setCompletedWithdrawalKES(amount * kesRate);
+
+    setWithdrawAmount("");
+    setWithdrawPhone("");
+    setWithdrawalSuccess(true);
+  } catch (error) {
+    setMessage(
+      error instanceof Error ? error.message : "Withdrawal request failed."
+    );
+  } finally {
+    setBusy(false);
+  }
+}
+
+  if (!user?.id) {
+    setMessage("Please log in again.");
+    return;
+  }
+
+  
 
     if (error) throw error;
 
@@ -782,8 +814,58 @@ async function submitWithdrawal() {
       </h2>
 
       <p style={{ color: "#222222", fontSize: "15px" }}>
-        Your withdrawal request has been Received 👏🏿
-      </p>
+        <div style={{
+  background: "#f8fafc",
+  borderRadius: "14px",
+  padding: "18px",
+  marginTop: "18px",
+  color: "#111"
+}}>
+  <p style={{ fontWeight: 800, fontSize: "25px" }}>
+    ${completedWithdrawalAmount.toFixed(2)} USD
+  </p>
+
+  <p style={{
+    color: "#15803d",
+    fontSize: "21px",
+    fontWeight: 800,
+    marginTop: "8px"
+  }}>
+    KES {completedWithdrawalKES.toLocaleString("en-KE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}
+  </p>
+
+  <p style={{ fontSize: "13px", marginTop: "15px" }}>
+    Transaction ID
+  </p>
+
+  <div style={{
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "8px"
+  }}>
+    <strong style={{ fontSize: "13px", wordBreak: "break-all" }}>
+      {withdrawalTransactionId}
+    </strong>
+
+    <button
+      type="button"
+      onClick={() => navigator.clipboard.writeText(withdrawalTransactionId)}
+      style={{
+        background: "#dc2626",
+        color: "#fff",
+        border: "none",
+        borderRadius: "8px",
+        padding: "10px"
+      }}
+    >
+      📋 Copy
+    </button>
+  </div>
+</div>
 
       <p style={{
         color: "#111111",
