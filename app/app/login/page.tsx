@@ -94,7 +94,8 @@ export default function Login() {
     }
 
     if (data.user) {
-      window.location.assign("/dashboard");
+  await supabase.rpc("record_member_login");
+  window.location.assign("/dashboard");
     }
   }
 
