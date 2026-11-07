@@ -14,6 +14,7 @@ type Member = {
   status?: string | null;
   activation_status?: string | null;
   created_at?: string | null;
+  is_active?: boolean;
 }
 type Withdrawal = {
   id: string;
