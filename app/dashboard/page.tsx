@@ -229,7 +229,129 @@ const [withdrawPhone, setWithdrawPhone] = useState("");
     
 
   if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
+async function submitDeposit() {
+  setMessage("");
 
+  const amount = Number(depositAmount);
+
+  if (!amount || amount <= 0) {
+    setMessage("Enter a valid deposit amount.");
+    return;
+  }
+
+  if (!/^\+254\d{9}$/.test(depositPhone.trim())) {
+    setMessage("Enter your M-PESA number in format +2547XXXXXXXX.");
+    return;
+  }
+
+  if (!user?.id) {
+    setMessage("Please log in again.");
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    const { data: request, error } = await supabase
+      .from("deposit_requests")
+      .insert({
+        user_id: user.id,
+        amount,
+        currency: "USD",
+        method: "M-PESA",
+        sender_phone: depositPhone.trim(),
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (error) throw error;
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+
+    if (!token) throw new Error("Please log in again.");
+
+    const response = await fetch("/api/daraja/stkpush", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        phone: depositPhone.trim(),
+        purpose: "deposit",
+        deposit_request_id: request.id,
+        amount,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || "Could not start M-PESA payment.");
+    }
+
+    setDepositAmount("5");
+    setDepositPhone("");
+    setMessage(
+      `M-PESA prompt sent. Enter your PIN to pay KES ${result.amount}. Your deposit will be verified before your wallet is credited.`
+    );
+  } catch (error) {
+    setMessage(error instanceof Error ? error.message : "Deposit failed.");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function submitWithdrawal() {
+  setMessage("");
+
+  const amount = Number(withdrawAmount);
+
+  if (!amount || amount <= 0) {
+    setMessage("Enter a valid withdrawal amount.");
+    return;
+  }
+
+  if (amount > walletBalance) {
+    setMessage("Your withdrawal amount exceeds your available balance.");
+    return;
+  }
+
+  if (!/^\+254\d{9}$/.test(withdrawPhone.trim())) {
+    setMessage("Enter your M-PESA number in format +2547XXXXXXXX.");
+    return;
+  }
+
+  if (!user?.id) {
+    setMessage("Please log in again.");
+    return;
+  }
+
+  setBusy(true);
+
+  try {
+    const { error } = await supabase.from("withdrawal_requests").insert({
+      user_id: user.id,
+      amount,
+      currency: "USD",
+      method: "M-PESA",
+      destination_details: withdrawPhone.trim(),
+      status: "pending",
+    });
+
+    if (error) throw error;
+
+    setWithdrawAmount("");
+    setWithdrawPhone("");
+    setMessage("Withdrawal request submitted. It is waiting for administrator approval.");
+  } catch (error) {
+    setMessage(error instanceof Error ? error.message : "Withdrawal request failed.");
+  } finally {
+    setBusy(false);
+  }
+}
   return (
     <main className="df-app">
       <style>{`
