@@ -447,7 +447,7 @@ async function submitWithdrawal() {
             <div className="hero-art">$</div>
           </section>
           <section className="balance">
-            <div className="balance-icon"><Icon name="wallet" size={32} /></div>
+            <div className="balance-icon">🇺🇸</div>
             <div className="balance-value">{`🇺🇸{walletBalance.toFixed(2)}`}</div>
           </section>
           <section className="actions">
