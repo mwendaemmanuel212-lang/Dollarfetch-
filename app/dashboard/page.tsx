@@ -404,7 +404,7 @@ async function submitWithdrawal() {
 
     setWithdrawalTransactionId(String(data.id));
     setCompletedWithdrawalAmount(amount);
-    setCompletedWithdrawalKES(amount * kesRate);
+    setCompletedWithdrawalKES(amount * (rate ?? 0));
 
     setWithdrawAmount("");
     setWithdrawPhone("");
