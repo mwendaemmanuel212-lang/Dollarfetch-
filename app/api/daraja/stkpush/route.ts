@@ -152,7 +152,19 @@ export async function POST(request: NextRequest) {
       shortcode + passkey + timestamp
     ).toString("base64");
 
-    const baseUrl = "https://sandbox.safaricom.co.ke";
+    const darajaEnv = (cfEnv.DARAJA_ENV || "sandbox").toLowerCase();
+
+if (darajaEnv !== "sandbox" && darajaEnv !== "production") {
+  return NextResponse.json(
+    { error: "DARAJA_ENV must be sandbox or production." },
+    { status: 500 }
+  );
+}
+
+const baseUrl =
+  darajaEnv === "production"
+    ? "https://api.safaricom.co.ke"
+    : "https://sandbox.safaricom.co.ke";
 
     const oauth = await fetch(
       `${baseUrl}/oauth/v1/generate?grant_type=client_credentials`,
