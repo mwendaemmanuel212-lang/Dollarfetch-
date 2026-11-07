@@ -425,17 +425,7 @@ async function submitWithdrawal() {
 
   
 
-    if (error) throw error;
-
-    setWithdrawAmount("");
-    setWithdrawPhone("");
-    setWithdrawalSuccess(true);
-  } catch (error) {
-    setMessage(error instanceof Error ? error.message : "Withdrawal request failed.");
-  } finally {
-    setBusy(false);
-  }
-}
+    
   return (
     <main className="df-app">
       <style>{`
