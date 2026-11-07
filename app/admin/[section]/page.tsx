@@ -48,13 +48,7 @@ export default function AdminSectionPage() {
 
   const section = String(params.section || "");
   const item = sections[section];
-async function reviewWithdrawal(
-  
 
-  if (reviewError) {
-    setError(reviewError.message);
-    return;
-  }
 async function reviewWithdrawal(
   requestId: string,
   decision: "approved" | "rejected"
