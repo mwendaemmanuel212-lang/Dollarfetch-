@@ -448,7 +448,7 @@ async function submitWithdrawal() {
           </section>
           <section className="balance">
             <div className="balance-icon"><Icon name="wallet" size={32} /></div>
-            <div className="balance-value">{`$${walletBalance.toFixed(2)}`}</div>
+            <div className="balance-value">{`🇺🇸{walletBalance.toFixed(2)}`}</div>
           </section>
           <section className="actions">
             <button className="action" onClick={() => openScreen("Activation")}><Icon name="rocket" size={29} /><span>{activationStatus === "active" ? "Account Active" : "Activate Account"}</span></button>
