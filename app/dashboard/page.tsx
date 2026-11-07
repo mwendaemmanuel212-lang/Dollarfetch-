@@ -599,7 +599,7 @@ async function submitWithdrawal() {
   </section>
 </>}
   
-    <button className="back" onClick={() => openScreen("Home")}>Back</button>
+            value={withdra<button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
   <section className="section">
     <h2>Deposit to your wallet</h2>
@@ -662,7 +662,7 @@ async function submitWithdrawal() {
       <input
         type="number"
         min="1"
-        value={withdrawAmount}
+wAmount}
         onChange={e => setWithdrawAmount(e.target.value)}
         placeholder="Enter amount"
       />
@@ -678,26 +678,7 @@ async function submitWithdrawal() {
       />
     </div>
 
-    <div className="notice">
-      Your request will be reviewed by an administrator before payment is released.
-    </div>
 
-    {message && <div className="message">{message}</div>}
-
-    <button
-      className="primary"
-      disabled={busy}
-      onClick={submitWithdrawal}
-    >
-      {busy ? "Submitting..." : "Request Withdrawal"}
-    </button>
-  </section>
-</>}
-          <div className="pagehead"><h1>Withdraw</h1><button className="back" onClick={() => openScreen("Home")}>Back</button></div>
-          <section className="section"><h2>Withdrawal requests</h2><p className="muted">Withdrawals require administrator authorization before payment is released.</p>
-            <div className="notice">Your available balance is currently $0.00. Withdrawal requests will be enabled after the wallet and admin approval process are connected.</div>
-          </section>
-        </>}
 
         {screen === "Earnings" && <>
           <div className="pagehead"><h1>Earnings</h1></div>
