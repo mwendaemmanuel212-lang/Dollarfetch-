@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
-import RegisterAdminServiceWorker from "./register-sw";
 
 export const metadata: Metadata = {
   title: "DollarFetch Admin",
   applicationName: "DollarFetch Admin",
-  manifest: "/admin/manifest.webmanifest",
-  appleWebApp: {
-    capable: true,
-    title: "DollarFetch Admin",
-    statusBarStyle: "black-translucent",
-  },
 };
 
 export default function AdminLayout({
@@ -17,10 +10,5 @@ export default function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <RegisterAdminServiceWorker />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
