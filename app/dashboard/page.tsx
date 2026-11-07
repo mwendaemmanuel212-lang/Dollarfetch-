@@ -552,6 +552,52 @@ async function submitWithdrawal() {
         </>}
 
         {screen === "Deposit" && <>
+  <div className="pagehead">
+    <h1>Deposit</h1>
+    <button className="back" onClick={() => openScreen("Home")}>Back</button>
+  </div>
+  <section className="section">
+    <h2>Deposit to your wallet</h2>
+    <p className="muted">Pay using M-PESA STK Push.</p>
+    <div className="field">
+      <label>Amount (USD)</label>
+      <input type="number" min="1" value={depositAmount} onChange={e => setDepositAmount(e.target.value)} />
+    </div>
+    <div className="field">
+      <label>M-PESA phone number</label>
+      <input value={depositPhone} onChange={e => setDepositPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" />
+    </div>
+    <div className="notice">Payment will be verified before your wallet is credited.</div>
+    {message && <div className="message">{message}</div>}
+    <button className="primary" disabled={busy} onClick={submitDeposit}>
+      {busy ? "Processing..." : "Deposit with M-PESA"}
+    </button>
+  </section>
+</>}
+
+{screen === "Withdraw" && <>
+  <div className="pagehead">
+    <h1>Withdraw</h1>
+    <button className="back" onClick={() => openScreen("Home")}>Back</button>
+  </div>
+  <section className="section">
+    <h2>Withdraw funds</h2>
+    <p className="muted">Available balance: ${walletBalance.toFixed(2)}</p>
+    <div className="field">
+      <label>Amount (USD)</label>
+      <input type="number" min="1" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
+    </div>
+    <div className="field">
+      <label>M-PESA phone number</label>
+      <input value={withdrawPhone} onChange={e => setWithdrawPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" />
+    </div>
+    <div className="notice">Your request requires administrator approval before payment is released.</div>
+    {message && <div className="message">{message}</div>}
+    <button className="primary" disabled={busy} onClick={submitWithdrawal}>
+      {busy ? "Submitting..." : "Request Withdrawal"}
+    </button>
+  </section>
+</>}
   
     <button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
