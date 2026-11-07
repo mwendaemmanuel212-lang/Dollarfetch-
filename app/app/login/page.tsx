@@ -697,6 +697,67 @@ export default function Login() {
             font-size: 26px;
           }
         }
+                .page {
+          background: #100b24;
+        }
+
+        .page::before {
+          background: #6d28d9;
+        }
+
+        .logo {
+          border-color: #8b5cf6;
+          color: #c4b5fd;
+        }
+
+        .logo small,
+        .brand-text small {
+          color: #c4b5fd;
+        }
+
+        .welcome-mark {
+          background: #211342;
+          border-color: #6d28d9;
+          color: #c4b5fd;
+        }
+
+        .welcome-mark small {
+          color: #ddd6fe;
+        }
+
+        .card {
+          background: #17102b;
+          border-color: #49366f;
+        }
+
+        .field {
+          background: #100b24;
+          border-color: #49366f;
+          color: #a78bfa;
+        }
+
+        .field:focus-within {
+          border-color: #8b5cf6;
+        }
+
+        .login-button {
+          background: #7c3aed;
+        }
+
+        .login-button:active {
+          background: #6d28d9;
+        }
+
+        .forgot,
+        .register a,
+        .back {
+          color: #c4b5fd;
+        }
+
+        .message {
+          background: #2a1c49;
+          color: #e9ddff;
+        }
       `}</style>
     </main>
   );
