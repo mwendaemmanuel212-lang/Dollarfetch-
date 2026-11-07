@@ -49,19 +49,7 @@ export default function AdminSectionPage() {
   const section = String(params.section || "");
   const item = sections[section];
 async function reviewWithdrawal(
-  requestId: string,
-  decision: "approved" | "rejected"
-) {
-  const note = window.prompt("Optional admin note:") || null;
-
-  const { error: reviewError } = await supabase.rpc(
-    "admin_review_withdrawal_request",
-    {
-      p_request_id: requestId,
-      p_status: decision,
-      p_admin_note: note
-    }
-  );
+  
 
   if (reviewError) {
     setError(reviewError.message);
