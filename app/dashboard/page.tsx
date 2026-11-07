@@ -307,6 +307,7 @@ async function submitDeposit() {
 
 async function submitWithdrawal() {
   setMessage("");
+  setWithdrawalSuccess(false);
 
   const amount = Number(withdrawAmount);
 
@@ -346,13 +347,13 @@ async function submitWithdrawal() {
 
     setWithdrawAmount("");
     setWithdrawPhone("");
-    setMessage("Withdrawal request submitted. It is waiting for administrator approval.");
+    setWithdrawalSuccess(true);
   } catch (error) {
     setMessage(error instanceof Error ? error.message : "Withdrawal request failed.");
   } finally {
     setBusy(false);
   }
-}  if (loading) return <div className="loading"><div className="spinner" />Loading DollarFetch...</div>;
+}
   return (
     <main className="df-app">
       <style>{`
