@@ -552,8 +552,7 @@ async function submitWithdrawal() {
         </>}
 
         {screen === "Deposit" && <>
-  <div className="pagehead">
-    <h1>Deposit</h1>
+  
     <button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
   <section className="section">
@@ -602,8 +601,7 @@ async function submitWithdrawal() {
         </>}
 
         {screen === "Withdraw" && <>
-  <div className="pagehead">
-    <h1>Withdraw</h1>
+  
     <button className="back" onClick={() => openScreen("Home")}>Back</button>
   </div>
 
