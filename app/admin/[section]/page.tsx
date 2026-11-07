@@ -169,7 +169,71 @@ async function reviewWithdrawal(
 
       <p style={{ color: "#b9c5d5" }}>{item.description}</p>
 
-      {section === "members" ? (
+      {section === "withdrawals" ? (
+  <div style={{
+    marginTop: 25,
+    padding: 18,
+    borderRadius: 16,
+    background: "#1d2d48"
+  }}>
+    <h2>Withdrawal Requests ({withdrawals.length})</h2>
+
+    {loading && <p>Loading withdrawals...</p>}
+
+    {error && <p style={{ color: "#ff9999" }}>{error}</p>}
+
+    {!loading && withdrawals.length === 0 && (
+      <p>No withdrawal requests found.</p>
+    )}
+
+    {withdrawals.map(row => (
+      <div key={row.id} style={{
+        marginTop: 15,
+        padding: 15,
+        borderRadius: 12,
+        background: "#263b5b"
+      }}>
+        <h3>{row.full_name || row.email || row.user_id}</h3>
+        <p>Email: {row.email || "Not available"}</p>
+        <p>Amount: {row.currency} {row.amount}</p>
+        <p>Method: {row.method}</p>
+        <p>Payment details: {row.destination_details}</p>
+        <p>Status: {row.status}</p>
+        <p>Admin note: {row.admin_note || "None"}</p>
+
+        {row.status === "pending" && (
+          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+            <button
+              onClick={() => reviewWithdrawal(row.id, "approved")}
+              style={{
+                padding: 12,
+                background: "#16834a",
+                color: "white",
+                border: 0,
+                borderRadius: 8
+              }}
+            >
+              Approve
+            </button>
+
+            <button
+              onClick={() => reviewWithdrawal(row.id, "rejected")}
+              style={{
+                padding: 12,
+                background: "#b83232",
+                color: "white",
+                border: 0,
+                borderRadius: 8
+              }}
+            >
+              Reject
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+) : section === "members" ? (
         <div style={{
           marginTop: 25,
           padding: 18,
