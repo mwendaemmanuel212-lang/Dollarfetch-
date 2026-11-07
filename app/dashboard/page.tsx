@@ -778,11 +778,11 @@ async function submitWithdrawal() {
         fontWeight: 800,
         marginBottom: "12px"
       }}>
-        Withdrawal Request Received!
+        Withdrawal Successful 🎉
       </h2>
 
       <p style={{ color: "#222222", fontSize: "15px" }}>
-        Your withdrawal request has been submitted successfully.
+        Your withdrawal request has been Received 👏🏿
       </p>
 
       <p style={{
@@ -790,7 +790,7 @@ async function submitWithdrawal() {
         fontWeight: 700,
         marginTop: "18px"
       }}>
-        Status: Pending Administrator Approval
+        Status: disbursement on process 
       </p>
 
       <p style={{
@@ -799,7 +799,7 @@ async function submitWithdrawal() {
         marginTop: "12px",
         lineHeight: 1.6
       }}>
-        Once approved, payment is expected to reflect in your account within 5–10 minutes. Timing may vary.
+        Once processed, payment is expected to reflect in your account within 5–10 minutes. Timing may vary.
       </p>
 
       <button
