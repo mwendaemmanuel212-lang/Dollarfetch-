@@ -14,6 +14,18 @@ type Member = {
   status?: string | null;
   activation_status?: string | null;
   created_at?: string | null;
+};type Withdrawal = {
+  id: string;
+  user_id: string;
+  email: string | null;
+  full_name: string | null;
+  amount: number;
+  currency: string;
+  method: string;
+  destination_details: string;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
 };
 
 const sections: Record<string, { title: string; description: string }> = {
