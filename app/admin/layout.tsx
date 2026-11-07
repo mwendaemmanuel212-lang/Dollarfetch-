@@ -4,7 +4,7 @@ import RegisterAdminServiceWorker from "./register-sw";
 export const metadata: Metadata = {
   title: "DollarFetch Admin",
   applicationName: "DollarFetch Admin",
-  manifest: "/manifest.webmanifest",
+  manifest: "/admin/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     title: "DollarFetch Admin",
