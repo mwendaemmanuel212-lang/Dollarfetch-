@@ -358,7 +358,7 @@ async function submitWithdrawal() {
         *{box-sizing:border-box}
         body{margin:0;background:#f5f0ff}
         .df-app{min-height:100vh;background:linear-gradient(180deg,#047857e 0,#2b0872 34%,#f6f1ff 34%,#f6f1ff 100%);color:#211044;font-family:Arial,Helvetica,sans-serif;padding-bottom:100px}
-        .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#6730c8}
+        .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#047857,}
         .spinner{width:36px;height:36px;border:4px solid #e8ddff;border-top-color:#6726d9;border-radius:50%;animation:spin .8s linear infinite}
         @keyframes spin{to{transform:rotate(360deg)}}
         .wrap{width:min(100%,760px);margin:auto;padding:20px 17px 35px}
