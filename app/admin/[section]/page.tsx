@@ -14,7 +14,8 @@ type Member = {
   status?: string | null;
   activation_status?: string | null;
   created_at?: string | null;
-};type Withdrawal = {
+}
+type Withdrawal = {
   id: string;
   user_id: string;
   email: string | null;
