@@ -115,10 +115,9 @@ async function reviewWithdrawal(
         setLoading(true);
         setError("");
 
-        const { data: rows, error: dbError } = await supabase
-          .from("profiles")
-          .select("*")
-          .order("created_at", { ascending: false });
+        const { data: rows, error: dbError } = await supabase.rpc(
+  "admin_list_members"
+);
 
         if (dbError) {
           setError(dbError.message);
