@@ -357,7 +357,6 @@ async function submitManualDeposit() {
   } finally {
     setBusy(false);
   }
-}
 async function submitWithdrawal() {
   setMessage("");
   setWithdrawalSuccess(false);
@@ -387,22 +386,20 @@ async function submitWithdrawal() {
   setBusy(true);
 
   try {
-    const { data, error } = await supabase
-      .from("withdrawal_requests")
-      .insert({
-        user_id: user.id,
-        amount,
-        currency: "USD",
-        method: "M-PESA",
-        destination_details: withdrawPhone.trim(),
-        status: "pending",
-      })
-      .select("id")
-      .single();
+    const { data, error } = await supabase.rpc("member_request_withdrawal", {
+      p_amount: amount,
+      p_method: "M-PESA",
+      p_destination_details: withdrawPhone.trim(),
+    });
 
     if (error) throw error;
+    if (!data) throw new Error("Withdrawal request was not created.");
 
-    setWithdrawalTransactionId(String(data.id));
+    setWalletBalance(currentBalance =>
+      Math.max(0, currentBalance - amount)
+    );
+
+    setWithdrawalTransactionId(String(data));
     setCompletedWithdrawalAmount(amount);
     setCompletedWithdrawalKES(amount * (rate ?? 0));
 
