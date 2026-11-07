@@ -55,7 +55,34 @@ async function reviewWithdrawal(
     setError(reviewError.message);
     return;
   }
+async function reviewWithdrawal(
+  requestId: string,
+  decision: "approved" | "rejected"
+) {
+  const note = window.prompt("Optional admin note:") || null;
 
+  const { error: reviewError } = await supabase.rpc(
+    "admin_review_withdrawal_request",
+    {
+      p_request_id: requestId,
+      p_status: decision,
+      p_admin_note: note
+    }
+  );
+
+  if (reviewError) {
+    setError(reviewError.message);
+    return;
+  }
+
+  setWithdrawals(current =>
+    current.map(row =>
+      row.id === requestId
+        ? { ...row, status: decision, admin_note: note }
+        : row
+    )
+  );
+}
   setWithdrawals(current =>
     current.map(row =>
       row.id === requestId
