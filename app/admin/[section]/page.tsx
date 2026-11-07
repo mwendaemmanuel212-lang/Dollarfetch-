@@ -77,14 +77,7 @@ async function reviewWithdrawal(
     )
   );
 }
-  setWithdrawals(current =>
-    current.map(row =>
-      row.id === requestId
-        ? { ...row, status: decision, admin_note: note }
-        : row
-    )
-  );
-}
+  
   const [checking, setChecking] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
