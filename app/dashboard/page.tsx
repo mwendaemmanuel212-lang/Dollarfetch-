@@ -579,59 +579,135 @@ async function submitWithdrawal() {
 
 
 {screen === "Withdraw" && <>
-  <div className="pagehead">
-    <h1>Withdraw</h1>
-    <button className="back" onClick={() => openScreen("Home")}>Back</button>
-  </div>
+  {withdrawalSuccess ? (
+    <section style={{
+      background: "#ffffff",
+      color: "#111111",
+      borderRadius: "20px",
+      padding: "35px 22px",
+      textAlign: "center",
+      marginTop: "20px",
+      boxShadow: "0 8px 25px rgba(0,0,0,0.08)"
+    }}>
+      <div style={{
+        width: "115px",
+        height: "115px",
+        borderRadius: "50%",
+        border: "7px solid #16a34a",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "0 auto 22px"
+      }}>
+        <svg viewBox="0 0 60 60" width="85" height="85">
+          <path
+            d="M10 31 L24 46 L52 13"
+            fill="none"
+            stroke="#16a34a"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
 
-  <section className="section">
-    <h2>Withdraw funds</h2>
-    <p className="muted">
-      Available balance: ${walletBalance.toFixed(2)}
-    </p>
+      <div style={{ fontSize: "38px", marginBottom: "12px" }}>
+        🎉
+      </div>
 
-    <div className="field">
-      <label>Amount (USD)</label>
-      <input
-        type="number"
-        min="1"
-        value={withdrawAmount}
-        onChange={e => setWithdrawAmount(e.target.value)}
-        placeholder="Enter amount"
-      />
-    </div>
+      <h2 style={{
+        color: "#111111",
+        fontSize: "24px",
+        fontWeight: 800,
+        marginBottom: "12px"
+      }}>
+        Withdrawal Request Received!
+      </h2>
 
-    <div className="field">
-      <label>M-PESA phone number</label>
-      <input
-        value={withdrawPhone}
-        onChange={e => setWithdrawPhone(e.target.value)}
-        placeholder="+254712345678"
-        inputMode="tel"
-      />
-    </div>
+      <p style={{ color: "#222222", fontSize: "15px" }}>
+        Your withdrawal request has been submitted successfully.
+      </p>
 
-    <div className="notice">
-      Your request requires administrator approval before payment is released.
-    </div>
+      <p style={{
+        color: "#111111",
+        fontWeight: 700,
+        marginTop: "18px"
+      }}>
+        Status: Pending Administrator Approval
+      </p>
 
-    {message && (
-      <div className="message">{message}</div>
-    )}
+      <p style={{
+        color: "#333333",
+        fontSize: "14px",
+        marginTop: "12px",
+        lineHeight: 1.6
+      }}>
+        Once approved, payment is expected to reflect in your account within 5–10 minutes. Timing may vary.
+      </p>
 
-    <button
-      className="primary"
-      disabled={busy}
-      onClick={async () => {
-        await submitWithdrawal();
+      <button
+        className="primary"
+        style={{ marginTop: "25px" }}
+        onClick={() => {
+          setWithdrawalSuccess(false);
+          openScreen("Home");
+        }}
+      >
+        Back to Dashboard
+      </button>
+    </section>
+  ) : (
+    <>
+      <div className="pagehead">
+        <h1>Withdraw</h1>
+        <button className="back" onClick={() => openScreen("Home")}>Back</button>
+      </div>
 
-        // Success confirmation is displayed by the
-        // withdrawal submission handler.
-      }}
-    >
-      {busy ? "Submitting..." : "Request Withdrawal"}
-    </button>
-  </section>
+      <section className="section">
+        <h2>Withdraw funds</h2>
+        <p className="muted">
+          Available balance: ${walletBalance.toFixed(2)}
+        </p>
+
+        <div className="field">
+          <label>Amount (USD)</label>
+          <input
+            type="number"
+            min="1"
+            value={withdrawAmount}
+            onChange={e => setWithdrawAmount(e.target.value)}
+            placeholder="Enter amount"
+          />
+        </div>
+
+        <div className="field">
+          <label>M-PESA phone number</label>
+          <input
+            value={withdrawPhone}
+            onChange={e => setWithdrawPhone(e.target.value)}
+            placeholder="+254712345678"
+            inputMode="tel"
+          />
+        </div>
+
+        <div className="notice">
+          Your request requires administrator approval before payment is released.
+        </div>
+
+        {message && (
+          <div className="message">{message}</div>
+        )}
+
+        <button
+          className="primary"
+          disabled={busy}
+          onClick={submitWithdrawal}
+        >
+          {busy ? "Submitting..." : "Request Withdrawal"}
+        </button>
+      </section>
+    </>
+  )}
 </>}
         
   
