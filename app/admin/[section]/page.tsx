@@ -86,7 +86,7 @@ async function reviewWithdrawal(
   const [checking, setChecking] = useState(true);
   const [members, setMembers] = useState<Member[]>([]);
   const [workingMember, setWorkingMember] = useState<string | null>(null);
-
+const [workingWalletMember, setWorkingWalletMember] = useState<string | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
