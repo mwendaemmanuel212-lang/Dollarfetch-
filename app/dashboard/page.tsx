@@ -631,38 +631,96 @@ async function submitWithdrawal() {
             </> : <>
               <div className="activation-banner"><div className="activation-rocket">🚀</div><div><h2>Activate your account</h2><p>Submit your $2 activation payment details for administrator verification.</p></div></div>
               <h2>Choose payment method</h2>
-              <p className="muted">We recommend M-PESA SIM Toolkit for a simple payment experience.</p>
-              <div className="method-grid">
-                {paymentMethods.map(p => <button type="button" key={p.id} className={`method ${method === p.id ? "selected" : ""}`} onClick={() => setMethod(p.id)}>
-                  <div className="logo">{p.logo ? <img src={p.logo} alt={`${p.id} logo`} /> : <span>SIM</span>}</div>
-                  <div><b>{p.id}</b><small>{p.note}</small></div>
-                </button>)}
-              </div>
-              {method === "M-PESA" ? <div className="field">
-                <label>M-PESA phone number (include country code)</label>
-                <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+254712345678" inputMode="tel" />
-              </div> : method === "SIM Toolkit" ? <>
-                <div className="payment-steps">
-                  <b>SIM Toolkit / M-PESA payment procedure</b>
-                  <ol>
-                    <li>Open the M-PESA menu using *334#.</li>
-                    <li>Select Send Money.</li>
-                    <li>Enter recipient number 0732659971.</li>
-                    <li>Enter the KES equivalent of the $2 activation fee.</li>
-                    <li>Confirm the recipient details before sending.</li>
-                    <li>Enter your M-PESA transaction code below.</li>
-                  </ol>
-                  <div className="copy-number"><span>0732659971</span><button className="copy-btn" type="button" onClick={() => copyValue("0732659971", "Number")}>Copy number</button></div>
-                  <button className="primary" type="button" onClick={() => { window.location.href = "tel:*334%23"; }}>Open *334#</button>
-                </div>
-                <div className="field"><label>M-PESA transaction code</label><input value={reference} onChange={e => setReference(e.target.value)} placeholder="Enter confirmation code" /></div>
-              </> : <div className="field">
-                <label>{method} payment reference / transaction details</label>
-                <input value={reference} onChange={e => setReference(e.target.value)} placeholder="Enter transaction reference" />
-              </div>}
-              <div className="notice">Payment must be verified by an administrator before account activation. Confirm the recipient and amount before sending.</div>
-              {(message || copied) && <div className="message">{message || copied}</div>}
-              <button className="primary" disabled={busy} onClick={submitActivation}>{busy ? (method === "M-PESA" ? "Sending STK prompt..." : "Submitting...") : (method === "M-PESA" ? "Pay with M-PESA" : "Submit payment details")}</button>
+<p className="muted">
+  SIM Toolkit is our recommended and pinned activation payment method.
+</p>
+
+<div className="method-grid">
+  {paymentMethods.map(p => (
+    <button
+      type="button"
+      key={p.id}
+      className={`method ${method === p.id ? "selected" : ""}`}
+      onClick={() => setMethod(p.id)}
+      style={p.id === "SIM Toolkit" ? {
+        border: "2px solid #a855f7",
+        background: "linear-gradient(135deg,#3b0764,#6b21a8)",
+        color: "#fff",
+        position: "relative"
+      } : {}}
+    >
+      <div className="logo">
+        {p.logo ? <img src={p.logo} alt={`${p.id} logo`} /> : <span>SIM</span>}
+      </div>
+      <div>
+        <b>{p.id}</b>
+        <small>{p.note}</small>
+        {p.id === "SIM Toolkit" && (
+          <small style={{ color: "#facc15", fontWeight: 800 }}>
+            📌 PINNED · RECOMMENDED
+          </small>
+        )}
+      </div>
+    </button>
+  ))}
+</div>
+
+{method === "SIM Toolkit" && (
+  <div className="payment-steps">
+    <b>SIM Toolkit / M-PESA payment procedure</b>
+    <ol>
+      <li>Open the M-PESA menu using *334#.</li>
+      <li>Select Send Money.</li>
+      <li>Enter recipient number 0732659971.</li>
+      <li>Enter the KES equivalent of the $2 activation fee.</li>
+      <li>Confirm the recipient details before sending.</li>
+      <li>Enter your M-PESA transaction code below.</li>
+    </ol>
+    <div className="copy-number">
+      <span>0732659971</span>
+      <button
+        className="copy-btn"
+        type="button"
+        onClick={() => copyValue("0732659971", "Number")}
+      >
+        Copy number
+      </button>
+    </div>
+    <button
+      className="primary"
+      type="button"
+      onClick={() => { window.location.href = "tel:*334%23"; }}
+    >
+      Open *334#
+    </button>
+  </div>
+)}
+
+<div className="field">
+  <label>
+    {method === "SIM Toolkit"
+      ? "M-PESA transaction code"
+      : `${method} payment reference / transaction details`}
+  </label>
+  <input
+    value={reference}
+    onChange={e => setReference(e.target.value)}
+    placeholder="Enter transaction reference"
+  />
+</div>
+
+<div className="notice">
+  Payment must be verified by an administrator before account activation.
+  Confirm the recipient and amount before sending.
+</div>
+
+{(message || copied) && (
+  <div className="message">{message || copied}</div>
+)}
+
+<button className="primary" disabled={busy} onClick={submitActivation}>
+  {busy ? "Submitting..." : "Submit payment details"}
+</button>
             </>}
           </section>
         </>}
