@@ -9,13 +9,13 @@ type Screen = "Home" | "Earnings" | "Rewards" | "Settings" | "Activation" | "Dep
 type ActivationStatus = "checking" | "active" | "pending" | "rejected" | "not_submitted" | "unknown";
 
 const paymentMethods = [
-  { id: "M-PESA", note: "Safaricom mobile money", logo: "https://commons.wikimedia.org/wiki/Special:FilePath/M-PESA_LOGO-01.svg" },
+  { id: "SIM Toolkit", note: "Recommended M-PESA payment", logo: "" },
   { id: "Postbank", note: "Kenya Post Office Savings Bank", logo: "https://www.google.com/s2/favicons?domain=postbank.co.ke&sz=256" },
   { id: "Equity Bank", note: "Equity Bank Kenya", logo: "https://www.google.com/s2/favicons?domain=equitybankgroup.com&sz=256" },
   { id: "Binance", note: "Cryptocurrency payment", logo: "https://cdn.simpleicons.org/binance/F0B90B" },
   { id: "Airtel Money", note: "Airtel mobile money", logo: "https://www.google.com/s2/favicons?domain=airtelkenya.com&sz=256" },
-  { id: "SIM Toolkit", note: "Mobile SIM menu payment", logo: "" },
 ];
+
 
 function Icon({ name, size = 24 }: { name: string; size?: number }) {
   const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("Home");
-  const [method, setMethod] = useState("M-PESA");
+  const [method, setMethod] = useState("SIM Toolkit");
   const [phone, setPhone] = useState("");
   const [reference, setReference] = useState("");
   const [message, setMessage] = useState("");
