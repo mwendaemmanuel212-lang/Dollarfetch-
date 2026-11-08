@@ -1048,6 +1048,6 @@ async function submitWithdrawal() {
         <button className={screen === "Rewards" ? "active" : ""} onClick={() => openScreen("Rewards")}><Icon name="gift" size={22} />Rewards</button>
         <button className={screen === "Settings" ? "active" : ""} onClick={() => openScreen("Settings")}><Icon name="settings" size={22} />Settings</button>
       </nav>
-    </main>
+        </main>
   );
-              
+      }
