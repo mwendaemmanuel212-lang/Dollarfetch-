@@ -1013,7 +1013,7 @@ async function submitWithdrawal() {
           <section className="section"><h2>Member profile</h2>
             <div className="rowline"><span>Name</span><b>{memberName}</b></div>
             <div className="rowline"><span>Email</span><b>{user?.email || "—"}</b></div>
-            <div className="rowline"><span>Account status</span><b>{activationStatus === "active" ? "Activated" : activationStatus === "pending" ? "Pending" : activationStatus === "rejected" ? "Rejected" : activationStatus === "unknown" || activationStatus === "checking" ? "Status unavailable" : "Not activated"}</b></div>
+            <div className="rowline"><span>Account status</span><b>{activationStatus === "active" ? "Activated" : activationStatus === "pending" ? "Pending" : activationStatus === "rejected" ? "Rejected" : activationStatus === "unknown" ? "Status unavailable"
             <button className="primary" style={{ marginTop: 18 }} onClick={logout}><Icon name="logout" size={18} /> Log out</button>
           </section>
         </>}
