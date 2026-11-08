@@ -420,7 +420,54 @@ async function submitWithdrawal() {
 
   
 
-    
+      if (loading || activationStatus === "checking") {
+    return (
+      <main style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        background: "#f6f1ff",
+        color: "#4b12b2",
+        fontWeight: 800
+      }}>
+        Checking account status...
+      </main>
+    );
+  }
+
+  if (activationStatus !== "active" && screen !== "Activation") {
+    return (
+      <main style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: 24,
+        background: "linear-gradient(145deg,#25005d,#7624d7)",
+        fontFamily: "Arial,sans-serif"
+      }}>
+        <button
+          onClick={() => setScreen("Activation")}
+          style={{
+            width: "100%",
+            maxWidth: 420,
+            minHeight: 180,
+            border: "2px solid #ffffff",
+            borderRadius: 25,
+            background: "linear-gradient(145deg,#ffffff,#e8d7ff)",
+            color: "#4b12b2",
+            fontSize: 25,
+            fontWeight: 900,
+            boxShadow: "0 15px 35px #0005"
+          }}
+        >
+          🚀 ACTIVATE ACCOUNT
+          <div style={{ fontSize: 14, marginTop: 12 }}>
+            Tap here to unlock DollarFetch
+          </div>
+        </button>
+      </main>
+    );
+  }
   return (
     <main className="df-app">
       <style>{`
