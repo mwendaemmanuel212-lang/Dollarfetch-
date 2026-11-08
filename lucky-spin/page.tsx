@@ -101,6 +101,20 @@ export default function LuckySpinPage() {
   const canSpin =
     !nextSpin || Date.now() >= new Date(nextSpin).getTime();
 
+  async function loadHistoryOnly() {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+
+    const { data } = await supabase
+      .from("lucky_spin_history")
+      .select("prize_amount, created_at")
+      .eq("user_id", auth.user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (data) setHistory(data as SpinHistory[]);
+  }
+
   async function playSpin() {
     if (spinning || !activated || !canSpin) return;
 
@@ -122,10 +136,12 @@ export default function LuckySpinPage() {
 
     if (
       !result ||
-      typeof result.prize_amount !== "number" ||
+      Number(result.prize_amount) !== 0 ||
       typeof result.new_balance !== "number"
     ) {
-      setMessage("The spin result was invalid. Please refresh and check your wallet.");
+      setMessage(
+        "Invalid spin result. Please refresh and check your wallet."
+      );
       setSpinning(false);
       return;
     }
@@ -133,31 +149,18 @@ export default function LuckySpinPage() {
     setRotation((previous) => previous + 1800 + Math.random() * 360);
 
     setTimeout(async () => {
-      setWon(result.prize_amount);
+      setWon(0);
       setBalance(result.new_balance);
       setNextSpin(result.next_spin_at);
+
       setMessage(
-        `Congratulations! You won $${result.prize_amount.toFixed(2)}. Your wallet has been credited.`
+        "Your spin result is $0.00. No reward was credited to your wallet."
       );
 
       await loadHistoryOnly();
 
       setSpinning(false);
     }, 2500);
-  }
-
-  async function loadHistoryOnly() {
-    const { data: auth } = await supabase.auth.getUser();
-    if (!auth.user) return;
-
-    const { data } = await supabase
-      .from("lucky_spin_history")
-      .select("prize_amount, created_at")
-      .eq("user_id", auth.user.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    if (data) setHistory(data as SpinHistory[]);
   }
 
   if (loading) {
@@ -180,8 +183,13 @@ export default function LuckySpinPage() {
         </h1>
 
         <p className="mt-2 text-blue-100">
-          Your chance to win real USD wallet rewards.
+          Spin once every 24 hours.
         </p>
+
+        <div className="mt-5 rounded-xl border border-yellow-400/40 bg-yellow-400/10 p-3 text-sm text-yellow-200">
+          Please note: All spins currently award $0.00.
+          The displayed prize amounts are not available winnings.
+        </div>
 
         <div className="mt-8 rounded-3xl border border-white/20 bg-white/10 p-6">
           <div
@@ -197,7 +205,7 @@ export default function LuckySpinPage() {
           </div>
 
           <p className="mt-5 font-semibold text-yellow-300">
-            Possible prizes
+            Displayed prizes
           </p>
 
           <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -227,7 +235,7 @@ export default function LuckySpinPage() {
 
           {won !== null && (
             <p className="mt-5 text-2xl font-extrabold text-yellow-300">
-              You won ${won.toFixed(2)}!
+              Spin result: ${won.toFixed(2)}
             </p>
           )}
 
@@ -273,4 +281,4 @@ export default function LuckySpinPage() {
       </div>
     </main>
   );
-      }
+}
