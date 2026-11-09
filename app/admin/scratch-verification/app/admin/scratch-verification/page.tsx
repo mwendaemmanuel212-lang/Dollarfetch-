@@ -23,9 +23,33 @@ export default function ScratchVerificationPage() {
   const [error, setError] = useState("");
   const [working, setWorking] = useState("");
 
-  const loadCards = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  
+const loadCards = useCallback(async () => {
+  setLoading(true);
+  setError("");
+
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+
+  if (sessionError || !sessionData.session) {
+    window.location.href = "/app/login";
+    return;
+  }
+
+  const { data, error } = await supabase.rpc(
+    "admin_list_scratch_verifications"
+  );
+
+  if (error) {
+    setError(error.message);
+    setCards([]);
+  } else {
+    setCards((data || []) as ScratchCard[]);
+  }
+
+  setLoading(false);
+}, []);
+  
 
     const { data, error } = await supabase.rpc(
       "admin_list_scratch_verifications"
