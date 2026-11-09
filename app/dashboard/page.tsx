@@ -42,6 +42,43 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("Home");
+  {screen === "Scratch" && <>
+  const [scratchCards, setScratchCards] = useState<Array<{
+  card_id: string;
+  card_status: string;
+  created_at: string;
+}>>([]);
+const [scratchLoading, setScratchLoading] = useState(false);
+const [scratchError, setScratchError] = useState("");
+
+useEffect(() => {
+  if (screen !== "Scratch" || !user?.id) return;
+
+  let mounted = true;
+
+  async function loadScratchCards() {
+    setScratchLoading(true);
+    setScratchError("");
+
+    const { data, error } = await supabase.rpc("member_list_scratch_cards");
+
+    if (!mounted) return;
+
+    if (error) {
+      setScratchError(error.message);
+    } else {
+      setScratchCards(data || []);
+    }
+
+    setScratchLoading(false);
+  }
+
+  loadScratchCards();
+
+  return () => {
+    mounted = false;
+  };
+}, [screen, user?.id]);
   const [method, setMethod] = useState("SIM Toolkit");
   const [phone, setPhone] = useState("");
   const [reference, setReference] = useState("");
