@@ -447,7 +447,17 @@ async function submitWithdrawal() {
         background: "linear-gradient(145deg,#25005d,#7624d7)",
         fontFamily: "Arial,sans-serif"
       }}>
-                <button
+                  if (activationStatus !== "active" && screen !== "Activation") {
+    return (
+      <main style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: 24,
+        background: "linear-gradient(145deg,#25005d,#7624d7)",
+        fontFamily: "Arial,sans-serif"
+      }}>
+        <button
           type="button"
           onClick={() => setScreen("Activation")}
           aria-label="Activate your account"
@@ -458,27 +468,27 @@ async function submitWithdrawal() {
             padding: "26px 16px",
             border: "3px solid #f5ce55",
             borderRadius: 30,
-            background: "linear-gradient(135deg,#a83cff 0%,#6b16d4 48%,#31006d 100%)",
+            background: "linear-gradient(135deg,#a83cff,#6b16d4 48%,#31006d)",
             color: "#ffffff",
             fontSize: 27,
             fontWeight: 950,
             letterSpacing: "1px",
             lineHeight: 1.25,
-            boxShadow: "0 0 0 4px #ffffff30,0 18px 38px #17002f80,inset 0 2px 12px #ffffff55",
+            boxShadow: "0 0 0 4px #ffffff30,0 18px 38px #17002f80",
             cursor: "pointer",
-            textAlign: "center",
-            textShadow: "0 3px 8px #24004f"
+            textAlign: "center"
           }}
         >
           <span style={{
             display: "block",
             fontSize: 52,
-            lineHeight: 1,
             marginBottom: 15
           }}>🛡️</span>
-          🎉 ACTIVATE YOUR ACCOUNT 👆
-                  unlock dollarfetch features 
+          🎉 ACTIVATE YOUR ACCOUNT 👆 UNLOCK  FEATURES 
         </button>
+      </main>
+    );
+        }
   return (
     <main className="df-app">
       <style>{`
