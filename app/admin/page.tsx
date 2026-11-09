@@ -85,9 +85,13 @@ function PanelIcon({ name, color }: { name: string; color: string }) {
       <path {...common} d="M3 12a9 9 0 1 0 2.6-6.4L3 8" />
       <path {...common} d="M3 3v5h5m4-1v5l4 2" />
     </>,
-    lock: <>
+        lock: <>
       <rect {...common} x="4" y="10" width="16" height="11" rx="2" />
       <path {...common} d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" />
+    </>,
+    gift: <>
+      <rect {...common} x="3" y="10" width="18" height="11" rx="2" />
+      <path {...common} d="M12 10v11M3 14h18M12 10H7a2.5 2.5 0 1 1 2.5-2.5L12 10Zm0 0h5a2.5 2.5 0 1 0-2.5-2.5L12 10Z" />
     </>,
   };
 
