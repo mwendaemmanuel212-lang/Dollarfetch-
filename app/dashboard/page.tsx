@@ -42,7 +42,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("Home");
-  {screen === "Scratch" && <>
+  
   const [scratchCards, setScratchCards] = useState<Array<{
   card_id: string;
   card_status: string;
