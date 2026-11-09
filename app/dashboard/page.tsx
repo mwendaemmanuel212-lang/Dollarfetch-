@@ -649,6 +649,19 @@ async function submitWithdrawal() {
     <span>PLAY →</span>
   </a>
 )}
+          <button
+  className="referral"
+  style={{ width: "100%", textAlign: "left", marginTop: 16 }}
+  onClick={() => openScreen("Scratch")}
+>
+  <div className="gift"><Icon name="gift" size={48} /></div>
+  <div>
+    <small>DOLLARFETCH GAME</small>
+    <strong>Scratch & Win</strong>
+    <p>Refer verified members to unlock scratch cards!</p>
+  </div>
+  <span style={{ marginLeft: "auto", fontWeight: 900 }}>PLAY →</span>
+</button>
           <div className="activation-prompt">
             <div>
               <b>{activationStatus === "active" ? "Account Activated 鉁�" : activationStatus === "pending" ? "Activation Pending" : activationStatus === "unknown" ? "Checking account status" : activationStatus === "rejected" ? "Activation not approved" : "You’re one step away!"}</b>
