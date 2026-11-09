@@ -1188,7 +1188,46 @@ async function submitWithdrawal() {
         🎟️ No scratch cards yet. Refer a member and ensure they complete activation and get verified by an admin to unlock a card.
       </div>
     )}
-
+<div style={{
+  marginTop: 18,
+  padding: 18,
+  borderRadius: 16,
+  background: "linear-gradient(135deg,#f3e8ff,#e9d5ff)",
+  textAlign: "center"
+}}>
+  <div style={{ fontSize: 35 }}>🎁</div>
+  <h3 style={{ color: "#581c87" }}>Invite a Member</h3>
+  <p style={{ color: "#6b4b83" }}>
+    Invite friends to DollarFetch. When they activate and an admin verifies them, you unlock another scratch card!
+  </p>
+  <button
+    className="copy-action"
+    type="button"
+    onClick={async () => {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Join DollarFetch",
+            text: "Join me on DollarFetch!",
+            url: referralLink
+          });
+        } catch {}
+      } else {
+        await copyValue(referralLink, "Invitation link");
+      }
+    }}
+  >
+    🎁 Invite a Member
+  </button>
+  <button
+    className="copy-action"
+    type="button"
+    onClick={() => copyValue(referralLink, "Invitation link")}
+  >
+    Copy Invitation Link
+  </button>
+  {copied && <p className="message">{copied}</p>}
+</div>
     {scratchCards.map(card => (
       <div key={card.card_id} style={{
         padding: 18,
