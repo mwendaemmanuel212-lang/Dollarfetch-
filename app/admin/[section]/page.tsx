@@ -44,7 +44,11 @@ const sections: Record<string, { title: string; description: string }> = {
   support: { title: "Support Centre", description: "Member support requests." },
   reports: { title: "Reports", description: "Financial and membership reports." },
   history: { title: "Admin History", description: "Administrator activity." },
-  security: { title: "Security", description: "Administrator security controls." }
+  security: { title: "Security", description: "Administrator security controls."
+            "scratch-verification": {
+  title: "Scratch Verification",
+  description: "Review referrals and unlock member scratch cards."
+}}
 };
 
 export default function AdminSectionPage() {
