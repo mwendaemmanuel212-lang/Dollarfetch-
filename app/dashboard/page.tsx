@@ -109,15 +109,27 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
         router.replace("/app/login");
         return;
       }
-      let currentUser = data.user;
-      let code = currentUser.user_metadata?.referral_code as string | undefined;
-      if (!code) {
-        code = `BWK-${currentUser.id.replace(/-/g, "").slice(0, 12).toUpperCase()}`;
-        const { data: updated, error: updateError } = await supabase.auth.updateUser({ data: { referral_code: code } });
-        if (!updateError && updated.user) currentUser = updated.user;
-      }
-      if (mounted) {
-        setUser({ ...currentUser, user_metadata: { ...currentUser.user_metadata, referral_code: code } });
+            const currentUser = data.user;
+
+      const { data: referralCodeRow } = await supabase
+        .from("member_referral_codes")
+        .select("referral_code")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+      if (!mounted) return;
+
+      const code = referralCodeRow?.referral_code ||
+        `BWK${currentUser.id.replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+
+      setUser({
+        ...currentUser,
+        user_metadata: {
+          ...currentUser.user_metadata,
+          referral_code: code
+        }
+      });
+      setLoading(false);
         setLoading(false);
       }
     }
