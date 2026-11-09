@@ -30,6 +30,7 @@ export default function LuckySpinPage() {
   const [balance, setBalance] = useState<number | null>(null);
   const [history, setHistory] = useState<SpinHistory[]>([]);
   const [nextSpin, setNextSpin] = useState<string | null>(null);
+  const [extraSpins, setExtraSpins] = useState(0);
   const [message, setMessage] = useState("");
   const [won, setWon] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
