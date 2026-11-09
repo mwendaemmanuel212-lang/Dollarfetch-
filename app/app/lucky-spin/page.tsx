@@ -206,20 +206,7 @@ setRotation((previous) => {
   return previous + 1800 + alignment;
 });
 
-const targetIndex =
-  landingIndexes[
-    Math.floor(Math.random() * landingIndexes.length)
-  ];
 
-const sliceAngle = 360 / rewards.length;
-const sliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
-
-setRotation((previous) => {
-  const alignment =
-    (360 - sliceCenter - (previous % 360) + 360) % 360;
-
-  return previous + 1800 + alignment;
-});
 
 
     setTimeout(async () => {
