@@ -454,19 +454,14 @@ async function submitWithdrawal() {
     setBusy(false);
   }
 }
-
-  
-
-  
-
-      if (loading || activationStatus === "checking") {
+  if (loading || activationStatus === "checking") {
     return (
       <main style={{
         minHeight: "100vh",
         display: "grid",
         placeItems: "center",
-        background: "#f6f1ff",
-        color: "#4b12b2",
+        background: "#310064",
+        color: "#fff",
         fontWeight: 800
       }}>
         Checking account status...
@@ -474,76 +469,133 @@ async function submitWithdrawal() {
     );
   }
 
-<style>{`
-  @keyframes activatePulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.09); }
+  if (activationStatus !== "active" && screen !== "Activation") {
+    return (
+      <main style={{
+        minHeight: "100vh",
+        background: "linear-gradient(160deg,#210044,#6500ad,#30005e)",
+        color: "#fff",
+        padding: "35px 20px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontFamily: "Arial,sans-serif"
+      }}>
+        <style>{`
+          @keyframes activatePulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.09); }
+          }
+          @keyframes activateSpin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+
+        <div style={{
+          width: "100%",
+          maxWidth: 430,
+          textAlign: "center"
+        }}>
+          <h1 style={{
+            fontSize: 29,
+            fontWeight: 900,
+            marginBottom: 12
+          }}>
+            Welcome to DollarFetch!
+          </h1>
+
+          <div style={{
+            fontSize: 25,
+            fontWeight: 900,
+            color: "#ffdf70",
+            marginBottom: 10
+          }}>
+            $2.00 USD
+          </div>
+
+          <p style={{ fontSize: 14, marginBottom: 30 }}>
+            One-time account activation fee
+          </p>
+
+          <h2 style={{
+            fontSize: 22,
+            fontWeight: 900,
+            textDecoration: "underline",
+            textUnderlineOffset: 8,
+            marginBottom: 32
+          }}>
+            ACTIVATE YOUR ACCOUNT
+          </h2>
+
+          <div style={{
+            width: 180,
+            height: 180,
+            position: "relative",
+            margin: "0 auto 35px",
+            display: "grid",
+            placeItems: "center"
+          }}>
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              borderRadius: "50%",
+              border: "5px solid transparent",
+              borderTopColor: "#fff",
+              borderRightColor: "#ffdf70",
+              animation: "activateSpin 2s linear infinite"
+            }} />
+
+            <button
+              type="button"
+              onClick={() => setScreen("Activation")}
+              style={{
+                width: 148,
+                height: 148,
+                borderRadius: "50%",
+                border: "3px solid #fff",
+                background: "linear-gradient(145deg,#bd63ff,#4b0099)",
+                color: "#fff",
+                fontSize: 21,
+                fontWeight: 900,
+                boxShadow: "0 0 30px #ffffff80",
+                animation: "activatePulse 1.5s ease-in-out infinite"
+              }}
+            >
+              TAP TO
+              <br />
+              ACTIVATE
+            </button>
+          </div>
+
+          <div style={{
+            textAlign: "left",
+            background: "#ffffff16",
+            border: "1px solid #ffffff35",
+            borderRadius: 18,
+            padding: 20
+          }}>
+            <div style={{
+              fontSize: 17,
+              fontWeight: 900,
+              textAlign: "center",
+              marginBottom: 18
+            }}>
+              MEMBER FEATURES
+            </div>
+
+            <p>1. Dollar Wheel Roll</p>
+            <p>2. Scratch Dollar Prize</p>
+            <p>3. Referrals — Earn $0.50</p>
+          </div>
+        </div>
+      </main>
+    );
   }
+  
 
-  @keyframes activateSpin {
-    to { transform: rotate(360deg); }
-  }
-`}</style>
+  
 
-<div style={{
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: 22,
-  width: "100%"
-}}>
-  <div style={{
-    color: "#ffffff",
-    fontSize: 25,
-    fontWeight: 1000,
-    textDecoration: "underline",
-    textUnderlineOffset: 8,
-    textAlign: "center"
-  }}>
-    ACTIVATE YOUR ACCOUNT
-  </div>
-
-  <div style={{
-    width: 174,
-    height: 174,
-    position: "relative",
-    display: "grid",
-    placeItems: "center"
-  }}>
-    <div style={{
-      position: "absolute",
-      inset: 0,
-      borderRadius: "50%",
-      border: "5px solid transparent",
-      borderTopColor: "#ffffff",
-      borderRightColor: "#f5ce55",
-      animation: "activateSpin 2s linear infinite"
-    }} />
-
-    <button
-      type="button"
-      onClick={() => setScreen("Activation")}
-      aria-label="Activate your account"
-      style={{
-        width: 145,
-        height: 145,
-        borderRadius: "50%",
-        border: "3px solid #ffffff",
-        background: "linear-gradient(145deg,#a83cff,#31006d)",
-        color: "#ffffff",
-        fontSize: 21,
-        fontWeight: 1000,
-        cursor: "pointer",
-        boxShadow: "0 0 28px #ffffff80",
-        animation: "activatePulse 1.5s ease-in-out infinite"
-      }}
-    >
-      TAP TO
-      <br />
-      ACTIVATE
-    </button>
-  </div>
-</div>
+      
   return (
     <main className="df-app">
       <style>{`
