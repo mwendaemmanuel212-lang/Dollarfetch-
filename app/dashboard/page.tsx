@@ -1184,16 +1184,37 @@ async function submitWithdrawal() {
       background: "linear-gradient(135deg,#3b0764,#7e22ce)",
       color: "#fff"
     }}>
-      <div style={{ fontSize: 58 }}>🎟️</div>
-      <h2 style={{ color: "#fff" }}>Your cards are waiting!</h2>
-      <p>Eligible cards will appear here after verification.</p>
-    </div>
+      <div style={{ marginTop: 20 }}>
+  {scratchLoading && <p>Loading your scratch cards...</p>}
 
+  {scratchError && (
+    <div className="notice">Could not load cards: {scratchError}</div>
+  )}
+
+  {!scratchLoading && !scratchError && scratchCards.length === 0 && (
     <div className="notice">
-      Scratch cards remain pending until an administrator verifies them.
+      🎟️ No scratch cards yet. Refer a member and ensure they complete activation and get verified by an admin to unlock a card.
     </div>
-  </section>
-</>}
+  )}
+
+  {scratchCards.map(card => (
+    <div
+      key={card.card_id}
+      style={{
+        padding: 18,
+        marginBottom: 12,
+        borderRadius: 14,
+        background: "linear-gradient(135deg,#3b0764,#7e22ce)",
+        color: "#fff"
+      }}
+    >
+      <div style={{ fontSize: 32 }}>🎁</div>
+      <strong>Scratch Card</strong>
+      <p>Status: {card.card_status.toUpperCase()}</p>
+      <small>{new Date(card.created_at).toLocaleDateString()}</small>
+    </div>
+  ))}
+</div>
         {screen === "Rewards" && <>
           <div className="pagehead"><h1>Referral Rewards</h1></div>
           <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p>
