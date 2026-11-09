@@ -100,16 +100,21 @@ const [withdrawPhone, setWithdrawPhone] = useState("");
 const [completedWithdrawalAmount, setCompletedWithdrawalAmount] = useState(0);
   const [completedWithdrawalPhone, setCompletedWithdrawalPhone] = useState("");
 const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
+  
   useEffect(() => {
     let mounted = true;
+
     async function loadUser() {
       const { data, error } = await supabase.auth.getUser();
+
       if (!mounted) return;
+
       if (error || !data.user) {
         router.replace("/app/login");
         return;
       }
-            const currentUser = data.user;
+
+      const currentUser = data.user;
 
       const { data: referralCodeRow } = await supabase
         .from("member_referral_codes")
@@ -129,13 +134,17 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
           referral_code: code
         }
       });
+
       setLoading(false);
-        setLoading(false);
-      }
     }
+
     loadUser();
-    return () => { mounted = false; };
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
+  
 
   useEffect(() => {
     if (!user?.id) return;
