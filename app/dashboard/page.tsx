@@ -484,7 +484,24 @@ async function submitWithdrawal() {
         .brand small{display:block;font-size:10px;letter-spacing:1.5px;color:#d9c9ff;margin-top:3px}
         .topicons{display:flex;gap:10px}
         .round{width:43px;height:43px;border-radius:50%;border:1px solid #ffffff55;background:#ffffff18;color:#fff;display:grid;place-items:center}
-        .hero{position:relative;overflow:hidden;border-radius:25px;padding:26px 22px 28px;min-height:190px;background:radial-gradient(circle at 78% 40%,#8f3dff 0,#5412c5 35%,#25005d 100%);color:#fff;box-shadow:0 15px 32px #4a13a744}
+        .hero.announcement{
+  margin:14px 0;
+  padding:13px;
+  background:linear-gradient(90deg,#3b0764,#7e22ce);
+  border-radius:14px;
+  overflow:hidden;
+  color:#fff;
+  white-space:nowrap;
+}
+.announcement-track{
+  display:inline-block;
+  width:max-content;
+  animation:announcementMove 22s linear infinite;
+}
+@keyframes announcementMove{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(100vw)}
+}{position:relative;overflow:hidden;border-radius:25px;padding:26px 22px 28px;min-height:190px;background:radial-gradient(circle at 78% 40%,#8f3dff 0,#5412c5 35%,#25005d 100%);color:#fff;box-shadow:0 15px 32px #4a13a744}
         .hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #ffffff28;border-radius:50%;right:-50px;top:-90px;box-shadow:0 0 0 24px #ffffff08,0 0 0 48px #ffffff08}
         .hero h1{font-size:30px;line-height:1.1;margin:12px 0 8px;max-width:70%;position:relative;z-index:1}
         .hero p{margin:0;color:#e4d4ff;font-size:14px;position:relative;z-index:1}
@@ -561,7 +578,14 @@ async function submitWithdrawal() {
             <h1>Bravo, {memberName}!</h1>
             <p>lets make some cash 💷💰</p>
             <div className="hero-art">$</div>
+                    </section>
+
+          <section className="announcement">
+            <div className="announcement-track">
+              📢 WELCOME TO DOLLARFETCH! • IMPORTANT NOTICE: SCHEDULED SYSTEM MAINTENANCE WILL TAKE PLACE ON THURSDAY. • PLEASE STAY UPDATED ON OUR POLICY CHANGES. • EXCITING NEW FEATURES ARE COMING SOON. • THANK YOU FOR BEING PART OF DOLLARFETCH! •
+            </div>
           </section>
+
           <section className="balance">
             <div className="balance-icon">🇺🇸</div>
             <div className="balance-value">${walletBalance.toFixed(2)}</div>
