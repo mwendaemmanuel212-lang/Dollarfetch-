@@ -447,29 +447,38 @@ async function submitWithdrawal() {
         background: "linear-gradient(145deg,#25005d,#7624d7)",
         fontFamily: "Arial,sans-serif"
       }}>
-        <button
+                <button
+          type="button"
           onClick={() => setScreen("Activation")}
+          aria-label="Activate your account"
           style={{
             width: "100%",
-            maxWidth: 420,
-            minHeight: 180,
-            border: "2px solid #ffffff",
-            borderRadius: 25,
-            background: "linear-gradient(145deg,#ffffff,#e8d7ff)",
-            color: "#4b12b2",
-            fontSize: 25,
-            fontWeight: 900,
-            boxShadow: "0 15px 35px #0005"
+            maxWidth: 440,
+            minHeight: 190,
+            padding: "26px 16px",
+            border: "3px solid #f5ce55",
+            borderRadius: 30,
+            background: "linear-gradient(135deg,#a83cff 0%,#6b16d4 48%,#31006d 100%)",
+            color: "#ffffff",
+            fontSize: 27,
+            fontWeight: 950,
+            letterSpacing: "1px",
+            lineHeight: 1.25,
+            boxShadow: "0 0 0 4px #ffffff30,0 18px 38px #17002f80,inset 0 2px 12px #ffffff55",
+            cursor: "pointer",
+            textAlign: "center",
+            textShadow: "0 3px 8px #24004f"
           }}
         >
-          🚀 ACTIVATE ACCOUNT
-          <div style={{ fontSize: 14, marginTop: 12 }}>
-            Tap here to unlock DollarFetch
-          </div>
+          <span style={{
+            display: "block",
+            fontSize: 52,
+            lineHeight: 1,
+            marginBottom: 15
+          }}>🛡️</span>
+          🎉 ACTIVATE YOUR ACCOUNT 👆
+                  unlock dollarfetch features 
         </button>
-      </main>
-    );
-  }
   return (
     <main className="df-app">
       <style>{`
