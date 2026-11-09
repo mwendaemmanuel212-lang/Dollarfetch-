@@ -202,25 +202,6 @@ setRotation((previous) => {
   return previous + 1800 + alignment;
 });
 
-    if (matchingIndexes.length === 0) {
-      setMessage("The server returned an unexpected prize.");
-      setSpinning(false);
-      return;
-    }
-
-    const targetIndex =
-      matchingIndexes[
-        Math.floor(Math.random() * matchingIndexes.length)
-      ];
-
-    const sliceCenter = targetIndex * 22.5 + 11.25;
-
-    setRotation((previous) => {
-      const alignment =
-        (360 - sliceCenter - (previous % 360) + 360) % 360;
-
-      return previous + 1800 + alignment;
-    });
 
     setTimeout(async () => {
       setWon(prize);
