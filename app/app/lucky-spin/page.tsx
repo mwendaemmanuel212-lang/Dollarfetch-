@@ -49,7 +49,10 @@ export default function LuckySpinPage() {
     }
 
     const userId = auth.user.id;
-
+const { data: credits } = await supabase.rpc(
+  "member_get_lucky_spin_credits"
+);
+setExtraSpins(Number(credits || 0));
     const { data: activation, error: activationError } =
       await supabase
         .from("activation_requests")
