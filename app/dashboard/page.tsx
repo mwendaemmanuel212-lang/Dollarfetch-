@@ -1177,44 +1177,34 @@ async function submitWithdrawal() {
       unlocks one additional scratch card.
     </p>
 
-    <div style={{
-      textAlign: "center",
-      padding: "25px 12px",
-      borderRadius: 18,
-      background: "linear-gradient(135deg,#3b0764,#7e22ce)",
-      color: "#fff"
-    }}>
-      <div style={{ marginTop: 20 }}>
-  {scratchLoading && <p>Loading your scratch cards...</p>}
+    {scratchLoading && <p>Loading your scratch cards...</p>}
 
-  {scratchError && (
-    <div className="notice">Could not load cards: {scratchError}</div>
-  )}
+    {scratchError && (
+      <div className="notice">Could not load cards: {scratchError}</div>
+    )}
 
-  {!scratchLoading && !scratchError && scratchCards.length === 0 && (
-    <div className="notice">
-      🎟️ No scratch cards yet. Refer a member and ensure they complete activation and get verified by an admin to unlock a card.
-    </div>
-  )}
+    {!scratchLoading && !scratchError && scratchCards.length === 0 && (
+      <div className="notice">
+        🎟️ No scratch cards yet. Refer a member and ensure they complete activation and get verified by an admin to unlock a card.
+      </div>
+    )}
 
-  {scratchCards.map(card => (
-    <div
-      key={card.card_id}
-      style={{
+    {scratchCards.map(card => (
+      <div key={card.card_id} style={{
         padding: 18,
         marginBottom: 12,
         borderRadius: 14,
         background: "linear-gradient(135deg,#3b0764,#7e22ce)",
         color: "#fff"
-      }}
-    >
-      <div style={{ fontSize: 32 }}>🎁</div>
-      <strong>Scratch Card</strong>
-      <p>Status: {card.card_status.toUpperCase()}</p>
-      <small>{new Date(card.created_at).toLocaleDateString()}</small>
-    </div>
-  ))}
-</div>
+      }}>
+        <div style={{ fontSize: 32 }}>🎁</div>
+        <strong>Scratch Card</strong>
+        <p>Status: {card.card_status.toUpperCase()}</p>
+        <small>{new Date(card.created_at).toLocaleDateString()}</small>
+      </div>
+    ))}
+  </section>
+</>}
         {screen === "Rewards" && <>
           <div className="pagehead"><h1>Referral Rewards</h1></div>
           <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p>
