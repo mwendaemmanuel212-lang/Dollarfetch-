@@ -1127,7 +1127,36 @@ async function submitWithdrawal() {
             <div className="rowline"><span>Total earnings</span><b>$0.00</b></div><div className="rowline"><span>Available balance</span><b>$0.00</b></div>
           </section>
         </>}
+{screen === "Scratch" && <>
+  <div className="pagehead">
+    <h1>🎁 Scratch & Win</h1>
+    <button className="back" onClick={() => openScreen("Home")}>Back</button>
+  </div>
 
+  <section className="section">
+    <h2>Your Scratch Cards</h2>
+    <p className="muted">
+      Every new referral who completes activation and is verified by an admin
+      unlocks one additional scratch card.
+    </p>
+
+    <div style={{
+      textAlign: "center",
+      padding: "25px 12px",
+      borderRadius: 18,
+      background: "linear-gradient(135deg,#3b0764,#7e22ce)",
+      color: "#fff"
+    }}>
+      <div style={{ fontSize: 58 }}>🎟️</div>
+      <h2 style={{ color: "#fff" }}>Your cards are waiting!</h2>
+      <p>Eligible cards will appear here after verification.</p>
+    </div>
+
+    <div className="notice">
+      Scratch cards remain pending until an administrator verifies them.
+    </div>
+  </section>
+</>}
         {screen === "Rewards" && <>
           <div className="pagehead"><h1>Referral Rewards</h1></div>
           <section className="section"><h2>Invite friends and earn</h2><p className="muted">Earn $0.50 for each eligible referral, subject to the referral rules.</p>
