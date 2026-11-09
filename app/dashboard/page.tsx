@@ -402,9 +402,9 @@ async function submitWithdrawal() {
 
   const amount = Number(withdrawAmount);
 
-  if (!amount || amount <= 0) {
-    setMessage("Enter a valid withdrawal amount.");
-    return;
+  if (!amount || amount < 5) {
+  setMessage("Minimum withdrawal amount is $5 USD.");
+  return;
   }
 
   if (amount > walletBalance) {
