@@ -49,10 +49,14 @@ export default function LuckySpinPage() {
     }
 
     const userId = auth.user.id;
-const { data: credits } = await supabase.rpc(
-  "member_get_lucky_spin_credits"
-);
-setExtraSpins(Number(credits || 0));
+
+    const { data: credits, error: creditsError } =
+      await supabase.rpc("member_get_lucky_spin_credits");
+
+    if (!creditsError) {
+      setExtraSpins(Number(credits || 0));
+    }
+
     const { data: activation, error: activationError } =
       await supabase
         .from("activation_requests")
@@ -128,12 +132,23 @@ setExtraSpins(Number(credits || 0));
     loadPage();
   }, [loadPage]);
 
+  const cooldownActive =
+    Boolean(nextSpin) &&
+    Date.now() < new Date(nextSpin!).getTime();
+
   const canSpin =
-    extraSpins > 0 || !nextSpin || Date.now() >= new Date(nextSpin).getTime();
+    extraSpins > 0 || !cooldownActive;
 
   async function loadHistoryOnly() {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return;
+
+    const { data: credits, error: creditsError } =
+      await supabase.rpc("member_get_lucky_spin_credits");
+
+    if (!creditsError) {
+      setExtraSpins(Number(credits || 0));
+    }
 
     const { data } = await supabase
       .from("lucky_spin_history")
@@ -154,6 +169,8 @@ setExtraSpins(Number(credits || 0));
 
   async function playSpin() {
     if (spinning || !activated || !canSpin) return;
+
+    const usedExtraSpin = cooldownActive && extraSpins > 0;
 
     setSpinning(true);
     setMessage("");
@@ -180,51 +197,57 @@ setExtraSpins(Number(credits || 0));
       !Number.isFinite(newBalance) ||
       !result.next_spin_at
     ) {
-      setMessage("Invalid spin result. Please refresh and check your wallet.");
+      setMessage(
+        "Invalid spin result. Please refresh and check your wallet."
+      );
       setSpinning(false);
       return;
     }
 
     const matchingIndexes = rewards
-  .map((amount, index) => amount === prize ? index : -1)
-  .filter((index) => index !== -1);
+      .map((amount, index) => amount === prize ? index : -1)
+      .filter((index) => index !== -1);
 
-if (matchingIndexes.length === 0) {
-  setMessage("The server returned an unexpected prize.");
-  setSpinning(false);
-  return;
-}
+    if (matchingIndexes.length === 0) {
+      setMessage("The server returned an unexpected prize.");
+      setSpinning(false);
+      return;
+    }
 
-const targetIndex =
-  matchingIndexes[
-    Math.floor(Math.random() * matchingIndexes.length)
-  ];
+    const targetIndex =
+      matchingIndexes[
+        Math.floor(Math.random() * matchingIndexes.length)
+      ];
 
-const sliceAngle = 360 / rewards.length;
-const sliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
+    const sliceAngle = 360 / rewards.length;
+    const sliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
 
-setRotation((previous) => {
-  const alignment =
-    (360 - sliceCenter - (previous % 360) + 360) % 360;
+    setRotation((previous) => {
+      const alignment =
+        (360 - sliceCenter - (previous % 360) + 360) % 360;
 
-  return previous + 1800 + alignment;
-});
-
-
-
+      return previous + 1800 + alignment;
+    });
 
     setTimeout(async () => {
       setWon(prize);
       setBalance(newBalance);
       setNextSpin(result.next_spin_at);
 
-      setMessage(
-        prize === 0
-          ? "No reward this time. Your next free spin is available in 24 hours."
-          : `You won $${prize.toFixed(2)}! Your wallet has been credited.`
-      );
+      if (prize === 0) {
+        setMessage(
+          usedExtraSpin
+            ? "No reward this time. Your extra spin has been used."
+            : "No reward this time. Your next free spin is available in 24 hours."
+        );
+      } else {
+        setMessage(
+          `You won $${prize.toFixed(2)}! Your wallet has been credited.`
+        );
+      }
 
       await loadHistoryOnly();
+
       setSpinning(false);
     }, 2600);
   }
@@ -287,8 +310,22 @@ setRotation((previous) => {
           color: "#dbeafe",
           fontSize: "15px",
         }}>
-          One free spin every 24 hours.
+          One free spin every 24 hours. Admin may grant extra spins.
         </p>
+
+        <div style={{
+          maxWidth: "430px",
+          margin: "14px auto",
+          padding: "12px",
+          borderRadius: "12px",
+          background: "rgba(250,204,21,0.12)",
+          border: "1px solid rgba(250,204,21,0.4)",
+          textAlign: "center",
+          color: "#fde68a",
+          fontWeight: 800,
+        }}>
+          Extra spins remaining: {extraSpins}
+        </div>
 
         <section style={cardStyle}>
           <div style={{
@@ -328,7 +365,7 @@ setRotation((previous) => {
             }}>
               {rewards.map((amount, index) => {
                 const sliceAngle = 360 / rewards.length;
-const angle = index * sliceAngle + sliceAngle / 2;
+                const angle = index * sliceAngle + sliceAngle / 2;
 
                 return (
                   <span
@@ -391,6 +428,7 @@ const angle = index * sliceAngle + sliceAngle / 2;
               { amount: 2, count: 1 },
               { amount: 5, count: 1 },
               { amount: 10, count: 1 },
+              { amount: 4.5, count: 1 },
             ].map((prize) => (
               <div
                 key={prize.amount}
@@ -407,7 +445,7 @@ const angle = index * sliceAngle + sliceAngle / 2;
                   color: "#bfdbfe",
                   marginTop: "4px",
                 }}>
-                  {prize.count} of 16 slices
+                  {prize.count} of 17 slices
                 </div>
               </div>
             ))}
@@ -436,7 +474,9 @@ const angle = index * sliceAngle + sliceAngle / 2;
               ? "SPINNING..."
               : !activated
               ? "ACTIVATION REQUIRED"
-              : !canSpin
+              : cooldownActive && extraSpins > 0
+              ? `USE EXTRA SPIN (${extraSpins} LEFT)`
+              : cooldownActive
               ? "WAIT 24 HOURS"
               : "SPIN NOW"}
           </button>
@@ -526,4 +566,5 @@ const angle = index * sliceAngle + sliceAngle / 2;
       </div>
     </main>
   );
-            }
+          }
+          
