@@ -51,19 +51,7 @@ const loadCards = useCallback(async () => {
 }, []);
   
 
-    const { data, error } = await supabase.rpc(
-      "admin_list_scratch_verifications"
-    );
-
-    if (error) {
-      setError(error.message);
-      setCards([]);
-    } else {
-      setCards((data || []) as ScratchCard[]);
-    }
-
-    setLoading(false);
-  }, []);
+    
 
   useEffect(() => {
     loadCards();
