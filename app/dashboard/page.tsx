@@ -447,16 +447,6 @@ async function submitWithdrawal() {
         background: "linear-gradient(145deg,#25005d,#7624d7)",
         fontFamily: "Arial,sans-serif"
       }}>
-                  if (activationStatus !== "active" && screen !== "Activation") {
-    return (
-      <main style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-        background: "linear-gradient(145deg,#25005d,#7624d7)",
-        fontFamily: "Arial,sans-serif"
-      }}>
         <button
           type="button"
           onClick={() => setScreen("Activation")}
@@ -484,11 +474,11 @@ async function submitWithdrawal() {
             fontSize: 52,
             marginBottom: 15
           }}>🛡️</span>
-          🎉 ACTIVATE YOUR ACCOUNT 👆 UNLOCK  FEATURES 
+          🎉 ACTIVATE YOUR ACCOUNT 👆
         </button>
       </main>
     );
-        }
+  }
   return (
     <main className="df-app">
       <style>{`
