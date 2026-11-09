@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,11 +27,10 @@ const sections = [
   { icon: "history", title: "Admin History", note: "Administrator actions", color: "#cbd5e1" },
   { icon: "lock", title: "Security", note: "Admin protection", color: "#fca5a5" },
   { icon: "users", title: "Active Admins", note: "Administrator contact directory", color: "#a78bfa" },
-{ icon: "gift", title: "Scratch Verification", note: "Approve member scratch cards", color: "#f0abfc" },
+  { icon: "gift", title: "Scratch Verification", note: "Approve member scratch cards", color: "#f0abfc" },
 ];
 
 const paths: Record<string, string> = {
-  "Active Admins": "admins",
   Members: "members",
   Deposits: "deposits",
   Withdrawals: "withdrawals",
@@ -39,7 +39,7 @@ const paths: Record<string, string> = {
   Announcements: "announcements",
   "Support Centre": "support",
   Reports: "reports",
-    "Admin History": "history",
+  "Admin History": "history",
   "Active Admins": "admins",
   Security: "security",
   "Scratch Verification": "scratch-verification",
@@ -88,7 +88,7 @@ function PanelIcon({ name, color }: { name: string; color: string }) {
       <path {...common} d="M3 12a9 9 0 1 0 2.6-6.4L3 8" />
       <path {...common} d="M3 3v5h5m4-1v5l4 2" />
     </>,
-        lock: <>
+    lock: <>
       <rect {...common} x="4" y="10" width="16" height="11" rx="2" />
       <path {...common} d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" />
     </>,
@@ -593,4 +593,4 @@ export default function AdminPage() {
       </p>
     </main>
   );
-          }
+                }
