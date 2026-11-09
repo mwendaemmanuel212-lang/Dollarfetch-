@@ -86,7 +86,7 @@ export default function Login() {
 
   setMessage(
     text.includes("banned") || text.includes("ban")
-      ? "Unable to login. Dollafetch is under maintenance try to login again later"
+      ? "Unable to login"
       : error.message
   );
 
