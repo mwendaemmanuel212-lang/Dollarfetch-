@@ -129,7 +129,7 @@ setExtraSpins(Number(credits || 0));
   }, [loadPage]);
 
   const canSpin =
-    !nextSpin || Date.now() >= new Date(nextSpin).getTime();
+    extraSpins > 0 || !nextSpin || Date.now() >= new Date(nextSpin).getTime();
 
   async function loadHistoryOnly() {
     const { data: auth } = await supabase.auth.getUser();
