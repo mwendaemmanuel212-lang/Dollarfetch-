@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-type Screen = "Home" | "Earnings" | "Rewards" | "Settings" | "Activation" | "Deposit" | "Withdraw";
+type Screen = "Home" | "Earnings" | "Rewards" | "Scratch" | "Settings" | "Activation" | "Deposit" | "Withdraw";
 type ActivationStatus = "checking" | "active" | "pending" | "rejected" | "not_submitted" | "unknown";
 
 const paymentMethods = [
