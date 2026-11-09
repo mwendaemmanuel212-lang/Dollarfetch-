@@ -474,48 +474,76 @@ async function submitWithdrawal() {
     );
   }
 
-  if (activationStatus !== "active" && screen !== "Activation") {
-    return (
-      <main style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 24,
-        background: "linear-gradient(145deg,#25005d,#7624d7)",
-        fontFamily: "Arial,sans-serif"
-      }}>
-        <button
-          type="button"
-          onClick={() => setScreen("Activation")}
-          aria-label="Activate your account"
-          style={{
-            width: "100%",
-            maxWidth: 440,
-            minHeight: 190,
-            padding: "26px 16px",
-            border: "3px solid #f5ce55",
-            borderRadius: 30,
-            background: "linear-gradient(135deg,#a83cff,#6b16d4 48%,#31006d)",
-            color: "#ffffff",
-            fontSize: 27,
-            fontWeight: 950,
-            letterSpacing: "1px",
-            lineHeight: 1.25,
-            boxShadow: "0 0 0 4px #ffffff30,0 18px 38px #17002f80",
-            cursor: "pointer",
-            textAlign: "center"
-          }}
-        >
-          <span style={{
-            display: "block",
-            fontSize: 52,
-            marginBottom: 15
-          }}>🛡️</span>
-          🎉 ACTIVATE YOUR ACCOUNT 👆
-        </button>
-      </main>
-    );
+<style>{`
+  @keyframes activatePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.09); }
   }
+
+  @keyframes activateSpin {
+    to { transform: rotate(360deg); }
+  }
+`}</style>
+
+<div style={{
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: 22,
+  width: "100%"
+}}>
+  <div style={{
+    color: "#ffffff",
+    fontSize: 25,
+    fontWeight: 1000,
+    textDecoration: "underline",
+    textUnderlineOffset: 8,
+    textAlign: "center"
+  }}>
+    ACTIVATE YOUR ACCOUNT
+  </div>
+
+  <div style={{
+    width: 174,
+    height: 174,
+    position: "relative",
+    display: "grid",
+    placeItems: "center"
+  }}>
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      borderRadius: "50%",
+      border: "5px solid transparent",
+      borderTopColor: "#ffffff",
+      borderRightColor: "#f5ce55",
+      animation: "activateSpin 2s linear infinite"
+    }} />
+
+    <button
+      type="button"
+      onClick={() => setScreen("Activation")}
+      aria-label="Activate your account"
+      style={{
+        width: 145,
+        height: 145,
+        borderRadius: "50%",
+        border: "3px solid #ffffff",
+        background: "linear-gradient(145deg,#a83cff,#31006d)",
+        color: "#ffffff",
+        fontSize: 21,
+        fontWeight: 1000,
+        cursor: "pointer",
+        boxShadow: "0 0 28px #ffffff80",
+        animation: "activatePulse 1.5s ease-in-out infinite"
+      }}
+    >
+      TAP TO
+      <br />
+      ACTIVATE
+    </button>
+  </div>
+</div>
   return (
     <main className="df-app">
       <style>{`
