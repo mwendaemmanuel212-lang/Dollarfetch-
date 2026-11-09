@@ -42,7 +42,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [screen, setScreen] = useState<Screen>("Home");
-  
+  const [showPolicies, setShowPolicies] = useState(false);
+const [policyAgreed, setPolicyAgreed] = useState(false);
   const [scratchCards, setScratchCards] = useState<Array<{
   card_id: string;
   card_status: string;
@@ -608,6 +609,88 @@ async function submitWithdrawal() {
             <p>2. Scratch Dollar Prize</p>
             <p>3. Referrals — Earn $0.50</p>
           </div>
+          
+          <button
+            type="button"
+            onClick={() => setShowPolicies(value => !value)}
+            style={{
+              marginTop: 15,
+              padding: "12px 22px",
+              borderRadius: 30,
+              border: "1px solid #fff",
+              background: "#ffffff20",
+              color: "#fff",
+              fontWeight: 900,
+              textDecoration: "underline"
+            }}
+          >
+            {showPolicies ? "READ LESS" : "READ MORE"}
+          </button>
+
+          {showPolicies && (
+            <div style={{
+              marginTop: 16,
+              padding: 18,
+              borderRadius: 16,
+              background: "#fff",
+              color: "#321052",
+              textAlign: "left",
+              maxHeight: 430,
+              overflowY: "auto"
+            }}>
+              <h2 style={{ textAlign: "center", color: "#6b21a8" }}>
+                DOLLARFETCH MEMBER POLICIES
+              </h2>
+              <p style={{ textAlign: "center" }}>Powered by BWK Solutions</p>
+
+              <h3>1. Account Activation</h3>
+              <p>Account activation costs $2.00 USD. Your account becomes active after your payment has been verified and approved. Always submit accurate payment details.</p>
+
+              <h3>2. Referral Policy</h3>
+              <p>Earn $0.50 USD for each person who registers using your referral code and successfully activates their account. Registration alone does not qualify for a referral reward.</p>
+
+              <h3>3. Dollar Wheel Policy</h3>
+              <p>Members may participate in the Dollar Wheel according to the platform's spin rules and fair-use requirements.</p>
+
+              <h3>4. Scratch Card Policy</h3>
+              <p>Scratch-card participation and rewards are subject to the platform's reward rules. Fraudulent activity is prohibited.</p>
+
+              <h3>5. Withdrawals</h3>
+              <p>Withdrawals are sent to your active payment method (M-PESA). Ensure your M-PESA number is correct and active.</p>
+
+              <h3>6. Fair Use</h3>
+              <p>Fake accounts, referral manipulation, payment fraud and attempts to exploit the platform are prohibited.</p>
+
+              <h3>7. Policy Updates</h3>
+              <p>DollarFetch may update these policies when necessary. Members should review the latest version.</p>
+
+              <div style={{
+                marginTop: 18,
+                padding: 14,
+                background: "#f3e8ff",
+                borderRadius: 12
+              }}>
+                <label style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "flex-start",
+                  fontWeight: 800
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={policyAgreed}
+                    onChange={e => setPolicyAgreed(e.target.checked)}
+                    style={{ width: 20, height: 20 }}
+                  />
+                  I have read and agree to the DollarFetch Member Policies.
+                </label>
+                <p style={{ fontSize: 12 }}>
+                  {policyAgreed ? "✓ Agreement confirmed." : "Please tick the box to agree."}
+                </p>
+              </div>
+            </div>
+          )}
+          
         </div>
       </main>
     );
