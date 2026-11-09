@@ -57,7 +57,7 @@ const [depositAmount, setDepositAmount] = useState("5");
 const [depositPhone, setDepositPhone] = useState("");
   const [depositReference, setDepositReference] = useState("");
 const [withdrawAmount, setWithdrawAmount] = useState("");
-
+const [withdrawPhone, setWithdrawPhone] = useState("");
   const [withdrawalSuccess, setWithdrawalSuccess] = useState(false);
   const [withdrawalTransactionId, setWithdrawalTransactionId] = useState("");
 const [completedWithdrawalAmount, setCompletedWithdrawalAmount] = useState(0);
