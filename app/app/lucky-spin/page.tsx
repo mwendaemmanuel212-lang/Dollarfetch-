@@ -326,7 +326,7 @@ setRotation((previous) => {
               borderRadius: "50%",
               border: "8px solid #facc15",
               background: `conic-gradient(${rewards.map((amount, index) =>
-                `${index % 2 === 0 ? "#facc15" : "#2563eb"} ${index * 22.5}deg ${(index + 1) * 22.5}deg`
+                `${index % 2 === 0 ? "#facc15" : "#2563eb"} ${index * (360 / rewards.length)}deg ${(index + 1) * (360 / rewards.length)}deg`
               ).join(",")})`,
               transform: `rotate(${rotation}deg)`,
               transition: spinning
