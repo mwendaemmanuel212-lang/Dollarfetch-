@@ -87,6 +87,7 @@ async function reviewWithdrawal(
   const [members, setMembers] = useState<Member[]>([]);
   const [workingMember, setWorkingMember] = useState<string | null>(null);
 const [workingWalletMember, setWorkingWalletMember] = useState<string | null>(null);
+const [workingSpinMember, setWorkingSpinMember] = useState<string | null>(null);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -181,6 +182,36 @@ async function updateMemberWallet(member: Member) {
 
   setWorkingWalletMember(null);
 }
+  async function addMemberSpinCredits(member: Member) {
+  const userId = member.user_id || member.id;
+  if (!userId) return;
+
+  const input = window.prompt("How many extra spins should this member receive?", "1");
+  if (input === null) return;
+
+  const spins = Number(input);
+
+  if (!Number.isInteger(spins) || spins < 1 || spins > 100) {
+    setError("Enter a whole number from 1 to 100.");
+    return;
+  }
+
+  setWorkingSpinMember(userId);
+  setError("");
+
+  const { data, error } = await supabase.rpc(
+    "admin_add_lucky_spin_credits",
+    { p_user_id: userId, p_spins: spins }
+  );
+
+  if (error) {
+    setError(error.message);
+  } else {
+    alert(`Success! Member now has ${data} extra spins.`);
+  }
+
+  setWorkingSpinMember(null);
+  }
   useEffect(() => {
     async function loadPage() {
       const { data } = await supabase.auth.getSession();
@@ -387,6 +418,24 @@ async function updateMemberWallet(member: Member) {
 <p>
   Wallet Balance: {member.wallet_currency || "USD"} {Number(member.wallet_balance ?? 0).toFixed(2)}
 </p>
+              <button
+  onClick={() => addMemberSpinCredits(member)}
+  disabled={workingSpinMember === (member.user_id || member.id)}
+  style={{
+    marginTop: 12,
+    marginRight: 10,
+    padding: "11px 16px",
+    border: 0,
+    borderRadius: 8,
+    background: "#d97706",
+    color: "white",
+    fontWeight: 700
+  }}
+>
+  {workingSpinMember === (member.user_id || member.id)
+    ? "Adding..."
+    : "Add Extra Spins"}
+</button>
 <button
   onClick={() => updateMemberWallet(member)}
   disabled={workingWalletMember === (member.user_id || member.id)}
