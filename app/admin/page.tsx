@@ -25,10 +25,12 @@ const sections = [
   { icon: "chart", title: "Reports", note: "Financial reports", color: "#86efac" },
   { icon: "history", title: "Admin History", note: "Administrator actions", color: "#cbd5e1" },
   { icon: "lock", title: "Security", note: "Admin protection", color: "#fca5a5" },
+  { icon: "users", title: "Active Admins", note: "Administrator contact directory", color: "#a78bfa" },
 { icon: "gift", title: "Scratch Verification", note: "Approve member scratch cards", color: "#f0abfc" },
 ];
 
 const paths: Record<string, string> = {
+  "Active Admins": "admins",
   Members: "members",
   Deposits: "deposits",
   Withdrawals: "withdrawals",
@@ -38,6 +40,7 @@ const paths: Record<string, string> = {
   "Support Centre": "support",
   Reports: "reports",
     "Admin History": "history",
+  "Active Admins": "admins",
   Security: "security",
   "Scratch Verification": "scratch-verification",
 };
