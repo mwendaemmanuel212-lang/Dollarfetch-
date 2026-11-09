@@ -310,7 +310,7 @@ export default function LuckySpinPage() {
           color: "#dbeafe",
           fontSize: "15px",
         }}>
-          One free spin every 24 hours. Admin may grant extra spins.
+          One free spin every 24 hours. 
         </p>
 
         <div style={{
