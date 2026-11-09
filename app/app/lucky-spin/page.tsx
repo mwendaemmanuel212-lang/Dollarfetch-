@@ -20,6 +20,7 @@ const rewards = [
   0, 0.5, 0, 2,
   0, 0.5, 0, 1,
   0, 5, 0, 10,
+  4.5,
 ];
 
 export default function LuckySpinPage() {
@@ -180,9 +181,26 @@ export default function LuckySpinPage() {
       return;
     }
 
-    const matchingIndexes = rewards
-      .map((amount, index) => amount === prize ? index : -1)
-      .filter((index) => index !== -1);
+    const landingIndexes = rewards
+  .map((amount, index) =>
+    amount === 0 || amount === 4.5 ? index : -1
+  )
+  .filter((index) => index !== -1);
+
+const targetIndex =
+  landingIndexes[
+    Math.floor(Math.random() * landingIndexes.length)
+  ];
+
+const sliceAngle = 360 / rewards.length;
+const sliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
+
+setRotation((previous) => {
+  const alignment =
+    (360 - sliceCenter - (previous % 360) + 360) % 360;
+
+  return previous + 1800 + alignment;
+});
 
     if (matchingIndexes.length === 0) {
       setMessage("The server returned an unexpected prize.");
