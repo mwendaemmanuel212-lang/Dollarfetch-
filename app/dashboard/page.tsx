@@ -645,7 +645,26 @@ async function submitWithdrawal() {
 
               <h3>1. Account Activation</h3>
               <p>Account activation costs $2.00 USD. Your account becomes active after your payment has been verified and approved. Always submit accurate payment details.</p>
-
+<h4>Payment Safety and Activation Verification</h4>
+<p>
+  DollarFetch is committed to transparency and protecting members'
+  money. Your $2.00 USD activation fee should only be sent to our
+  designated M-PESA number:
+</p>
+<p style={{ fontSize: 20, fontWeight: 900, textAlign: "center" }}>
+  0732659971
+</p>
+<p>
+  This locally provided number makes activation simple and convenient.
+  After sending your payment, proceed to the next page and paste your
+  M-PESA transaction code in the space provided. Your account will
+  remain pending until the payment is verified.
+</p>
+<p>
+  Always confirm the recipient number before sending. Never send your
+  activation fee to an unlisted number or an individual claiming to
+  represent DollarFetch.
+</p>
               <h3>2. Referral Policy</h3>
               <p>Earn $0.50 USD for each person who registers using your referral code and successfully activates their account. Registration alone does not qualify for a referral reward.</p>
 
