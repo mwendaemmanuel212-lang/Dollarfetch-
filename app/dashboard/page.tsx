@@ -402,6 +402,8 @@ async function submitWithdrawal() {
 
     setWithdrawalTransactionId(String(data));
     setCompletedWithdrawalAmount(amount);
+    const [completedWithdrawalPhone, setCompletedWithdrawalPhone] = useState("");
+setCompletedWithdrawalPhone(withdrawPhone.trim());
     setCompletedWithdrawalKES(amount * (rate ?? 0));
 
     setWithdrawAmount("");
