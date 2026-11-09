@@ -403,8 +403,7 @@ async function submitWithdrawal() {
 
     setWithdrawalTransactionId(String(data));
     setCompletedWithdrawalAmount(amount);
-    const [completedWithdrawalPhone, setCompletedWithdrawalPhone] = useState("");
-setCompletedWithdrawalPhone(withdrawPhone.trim());
+    setCompletedWithdrawalPhone(withdrawPhone.trim());
     setCompletedWithdrawalKES(amount * (rate ?? 0));
 
     setWithdrawAmount("");
@@ -959,15 +958,17 @@ setCompletedWithdrawalPhone(withdrawPhone.trim());
   marginTop: "18px",
   color: "#111"
 }}>
-  <p style={{ fontWeight: 800, fontSize: "25px" }}>
-    ${completedWithdrawalAmount.toFixed(2)} USD
-    <p style={{ fontWeight: 700, marginTop: "12px" }}>
+  <div style={{ fontWeight: 800, fontSize: "25px" }}>
+  ${completedWithdrawalAmount.toFixed(2)} USD
+</div>
+
+<p style={{ fontWeight: 700, marginTop: "12px" }}>
   Mobile number paid to:
 </p>
+
 <p style={{ fontSize: "18px", color: "#6d28d9", fontWeight: 800 }}>
   {completedWithdrawalPhone}
 </p>
-  </p>
 
   <p style={{
     color: "#15803d",
