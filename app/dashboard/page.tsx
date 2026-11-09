@@ -960,6 +960,12 @@ setCompletedWithdrawalPhone(withdrawPhone.trim());
 }}>
   <p style={{ fontWeight: 800, fontSize: "25px" }}>
     ${completedWithdrawalAmount.toFixed(2)} USD
+    <p style={{ fontWeight: 700, marginTop: "12px" }}>
+  Mobile number paid to:
+</p>
+<p style={{ fontSize: "18px", color: "#6d28d9", fontWeight: 800 }}>
+  {completedWithdrawalPhone}
+</p>
   </p>
 
   <p style={{
