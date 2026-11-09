@@ -181,11 +181,30 @@ export default function LuckySpinPage() {
       return;
     }
 
-    const landingIndexes = rewards
-  .map((amount, index) =>
-    amount === 0 || amount === 4.5 ? index : -1
-  )
+    const matchingIndexes = rewards
+  .map((amount, index) => amount === prize ? index : -1)
   .filter((index) => index !== -1);
+
+if (matchingIndexes.length === 0) {
+  setMessage("The server returned an unexpected prize.");
+  setSpinning(false);
+  return;
+}
+
+const targetIndex =
+  matchingIndexes[
+    Math.floor(Math.random() * matchingIndexes.length)
+  ];
+
+const sliceAngle = 360 / rewards.length;
+const sliceCenter = targetIndex * sliceAngle + sliceAngle / 2;
+
+setRotation((previous) => {
+  const alignment =
+    (360 - sliceCenter - (previous % 360) + 360) % 360;
+
+  return previous + 1800 + alignment;
+});
 
 const targetIndex =
   landingIndexes[
