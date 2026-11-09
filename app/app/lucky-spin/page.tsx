@@ -336,7 +336,8 @@ setRotation((previous) => {
               overflow: "hidden",
             }}>
               {rewards.map((amount, index) => {
-                const angle = index * 22.5 + 11.25;
+                const sliceAngle = 360 / rewards.length;
+const angle = index * sliceAngle + sliceAngle / 2;
 
                 return (
                   <span
