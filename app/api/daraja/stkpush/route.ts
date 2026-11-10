@@ -144,7 +144,16 @@ export async function POST(request: NextRequest) {
     const providerPaymentId = String(result.paymentId || "");
 
     if (!response.ok || result.success !== true || !providerPaymentId) {
-      const message = result.message || result.error || "Neptune STK Push request failed.";
+     const details = Array.isArray(result.errors)
+  ? result.errors.map((item: any) =>
+      `${item.field || "Field"}: ${item.message || "Invalid"}`
+    ).join("; ")
+  : "";
+
+const message = [
+  result.message || result.error || "Neptune STK Push request failed.",
+  details,
+].filter(Boolean).join(" — ");
 
       await admin.from("mpesa_stk_payments")
         .update({
