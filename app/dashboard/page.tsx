@@ -532,7 +532,7 @@ async function submitWithdrawal() {
             color: "#ffdf70",
             marginBottom: 10
           }}>
-            $2.00 USD
+            $0.76 USD (approximately KSh 99)
           </div>
 
           <p style={{ fontSize: 14, marginBottom: 30 }}>
@@ -648,7 +648,7 @@ async function submitWithdrawal() {
 <h4>Payment Safety and Activation Verification</h4>
 <p>
   DollarFetch is committed to transparency and protecting members'
-  money. Your $2.00 USD activation fee should only be sent to our
+  money. Your $0.76USD activation fee should only be sent to our
   designated M-PESA number:
 </p>
 <p style={{ fontSize: 20, fontWeight: 900, textAlign: "center" }}>
