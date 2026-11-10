@@ -272,7 +272,7 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
     } else {
       const { error } = await supabase.from("activation_requests").insert({
         user_id: user.id,
-        amount: 2,
+        amount: 0.76,
         currency: "USD",
         method,
         phone: reference.trim(),
@@ -644,7 +644,7 @@ async function submitWithdrawal() {
               <p style={{ textAlign: "center" }}>Powered by BWK Solutions</p>
 
               <h3>1. Account Activation</h3>
-              <p>Account activation costs $2.00 USD. Your account becomes active after your payment has been verified and approved. Always submit accurate payment details.</p>
+              <p>Account activation costs $0.76 USD. Your account becomes active after your payment has been verified and approved. Always submit accurate payment details.</p>
 <h4>Payment Safety and Activation Verification</h4>
 <p>
   DollarFetch is committed to transparency and protecting members'
