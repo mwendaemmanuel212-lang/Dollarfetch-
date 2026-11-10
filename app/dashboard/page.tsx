@@ -938,7 +938,7 @@ async function submitWithdrawal() {
               <div className="activation-banner"><div className="activation-rocket">✓</div><div><h2>Account activated</h2><p>Your account has been approved by the administrator.</p></div></div>
               <div className="notice">You do not need to submit another activation payment.</div>
             </> : <>
-              <div className="activation-banner"><div className="activation-rocket">🚀</div><div><h2>Activate your account</h2><p>Submit your $2 activation payment details for administrator verification.</p></div></div>
+              <div className="activation-banner"><div className="activation-rocket">🚀</div><div><h2>Activate your account</h2><p>Submit your $0.76 app KES 99 activation payment details for  verification.</p></div></div>
               <h2>Choose payment method</h2>
 <p className="muted">
   SIM Toolkit is our recommended and pinned activation payment method.
@@ -981,8 +981,8 @@ async function submitWithdrawal() {
       <li>Open the M-PESA menu using *334#.</li>
       <li>Select Send Money.</li>
       <li>Enter recipient number 0732659971.</li>
-      <li>Enter the KES equivalent of the $2 activation fee.</li>
-      <li>Confirm the recipient details before sending.</li>
+      <li>Enter the KES equivalent of the $0.76activation fee.</li>
+      <li>Confirm details before sending.</li>
       <li>Enter your M-PESA transaction code below.</li>
     </ol>
     <div className="copy-number">
@@ -1019,8 +1019,8 @@ async function submitWithdrawal() {
 </div>
 
 <div className="notice">
-  Payment must be verified by an administrator before account activation.
-  Confirm the recipient and amount before sending.
+  Payment must be verified  before account activation.
+  Confirm Details and amount before sending.
 </div>
 
 {(message || copied) && (
