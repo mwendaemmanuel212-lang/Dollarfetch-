@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
       phone,
       amount,
       webhook_url: webhookUrl,
-      reference: "DF-" + payment.id,
+      reference: "DollarFetch",
       description:
         purpose === "activation"
           ? "DollarFetch activation"
