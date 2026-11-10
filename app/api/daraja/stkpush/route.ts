@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
@@ -10,9 +9,11 @@ function normalizePhone(value: string) {
   const digits = value.replace(/\D/g, "");
 
   if (digits.startsWith("254") && digits.length === 12) return digits;
+
   if (digits.startsWith("0") && digits.length === 10) {
     return "254" + digits.slice(1);
   }
+
   if (digits.length === 9 && /^[17]/.test(digits)) {
     return "254" + digits;
   }
@@ -78,13 +79,16 @@ export async function POST(request: NextRequest) {
     const purpose =
       body.purpose === "deposit" ? "deposit" : "activation";
 
-    let usdAmount = 2;
+    let usdAmount: number | null = null;
+    let amount = 99;
     let depositRequestId: string | null = null;
 
     admin = createClient(url, service, {
       auth: { persistSession: false },
     });
 
+    // Deposits use the live USD-to-KES exchange rate.
+    // Activation always uses the fixed KES 99 fee.
     if (purpose === "deposit") {
       depositRequestId = String(body.deposit_request_id || "");
 
@@ -111,7 +115,10 @@ export async function POST(request: NextRequest) {
         deposit.method !== "M-PESA"
       ) {
         return NextResponse.json(
-          { error: "This pending M-PESA deposit request could not be verified." },
+          {
+            error:
+              "This pending M-PESA deposit request could not be verified.",
+          },
           { status: 400 }
         );
       }
@@ -124,26 +131,26 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+
+      const fx = await fetch(
+        "https://open.er-api.com/v6/latest/USD",
+        { cache: "no-store" }
+      );
+
+      const fxData = await fx.json();
+      const rate = Number(fxData?.rates?.KES);
+
+      if (
+        !fx.ok ||
+        fxData?.result !== "success" ||
+        !Number.isFinite(rate) ||
+        rate <= 0
+      ) {
+        throw new Error("KES exchange rate unavailable.");
+      }
+
+      amount = Math.ceil(usdAmount * rate);
     }
-
-    const fx = await fetch(
-      "https://open.er-api.com/v6/latest/USD",
-      { cache: "no-store" }
-    );
-
-    const fxData = await fx.json();
-    const rate = Number(fxData?.rates?.KES);
-
-    if (
-      !fx.ok ||
-      fxData?.result !== "success" ||
-      !Number.isFinite(rate) ||
-      rate <= 0
-    ) {
-      throw new Error("KES exchange rate unavailable.");
-    }
-
-    const amount = Math.ceil(usdAmount * rate);
 
     const { data: payment, error: insertError } = await admin
       .from("mpesa_stk_payments")
@@ -273,4 +280,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+        }
