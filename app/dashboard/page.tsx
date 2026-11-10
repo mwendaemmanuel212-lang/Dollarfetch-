@@ -939,77 +939,25 @@ async function submitWithdrawal() {
               <div className="notice">You do not need to submit another activation payment.</div>
             </> : <>
               <div className="activation-banner"><div className="activation-rocket">🚀</div><div><h2>Activate your account</h2><p>Submit your $0.76 app KES 99 activation payment details for  verification.</p></div></div>
-              <h2>Choose payment method</h2>
+              ="button"
+      <h2>Pay with M-PESA</h2>
+
 <p className="muted">
-  SIM Toolkit is our recommended and pinned activation payment method.
+  Enter your Safaricom M-PESA number. We will send a secure payment prompt directly to your phone.
 </p>
 
-<div className="method-grid">
-  {paymentMethods.map(p => (
-    <button
-      type="button"
-      key={p.id}
-      className={`method ${method === p.id ? "selected" : ""}`}
-      onClick={() => setMethod(p.id)}
-      style={p.id === "SIM Toolkit" ? {
-        border: "2px solid #a855f7",
-        background: "linear-gradient(135deg,#3b0764,#6b21a8)",
-        color: "#fff",
-        position: "relative"
-      } : {}}
-    >
-      <div className="logo">
-        {p.logo ? <img src={p.logo} alt={`${p.id} logo`} /> : <span>SIM</span>}
-      </div>
-      <div>
-        <b>{p.id}</b>
-        <small>{p.note}</small>
-        {p.id === "SIM Toolkit" && (
-          <small style={{ color: "#facc15", fontWeight: 800 }}>
-            📌 PINNED · RECOMMENDED
-          </small>
-        )}
-      </div>
-    </button>
-  ))}
+<div className="field">
+  <label>M-PESA phone number</label>
+  <input
+    type="tel"
+    value={phone}
+    onChange={e => setPhone(e.target.value)}
+    placeholder="+254712345678"
+    inputMode="tel"
+  />
 </div>
 
-{method === "SIM Toolkit" && (
-  <div className="payment-steps">
-    <b>SIM Toolkit / M-PESA payment procedure</b>
-    <ol>
-      <li>Open the M-PESA menu using *334#.</li>
-      <li>Select Send Money.</li>
-      <li>Enter recipient number 0732659971.</li>
-      <li>Enter the KES equivalent of the $0.76activation fee.</li>
-      <li>Confirm details before sending.</li>
-      <li>Enter your M-PESA transaction code below.</li>
-    </ol>
-    <div className="copy-number">
-      <span>0732659971</span>
-      <button
-        className="copy-btn"
-        type="button"
-        onClick={() => copyValue("0732659971", "Number")}
-      >
-        Copy number
-      </button>
-    </div>
-    <button
-      className="primary"
-      type="button"
-      onClick={() => { window.location.href = "tel:*334%23"; }}
-    >
-      Open *334#
-    </button>
-  </div>
-)}
 
-<div className="field">
-  <label>
-    {method === "SIM Toolkit"
-      ? "M-PESA transaction code"
-      : `${method} payment reference / transaction details`}
   </label>
   <input
     value={reference}
