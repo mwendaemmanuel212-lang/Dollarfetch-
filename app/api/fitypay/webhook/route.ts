@@ -1,4 +1,7 @@
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 function challengeResponse(challenge: string | null) {
   if (!challenge) {
     return new Response("Missing challenge", { status: 400 });
