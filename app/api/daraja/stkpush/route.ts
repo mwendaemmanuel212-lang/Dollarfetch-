@@ -2,15 +2,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { createHmac } from "node:crypto";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 function normalizePhone(value: string) {
   const digits = value.replace(/\D/g, "");
+
   if (digits.startsWith("254") && digits.length === 12) return digits;
-  if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
-  if (digits.length === 9 && /^[17]/.test(digits)) return "254" + digits;
+  if (digits.startsWith("0") && digits.length === 10) {
+    return "254" + digits.slice(1);
+  }
+  if (digits.length === 9 && /^[17]/.test(digits)) {
+    return "254" + digits;
+  }
+
   return null;
 }
 
@@ -19,48 +25,74 @@ export async function POST(request: NextRequest) {
   let paymentId: number | null = null;
 
   try {
-    const token = (request.headers.get("authorization") || "").replace(/^Bearer /i, "");
+    const token = (request.headers.get("authorization") || "")
+      .replace(/^Bearer /i, "")
+      .trim();
+
     if (!token) {
-      return NextResponse.json({ error: "Please log in again." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Please log in again." },
+        { status: 401 }
+      );
     }
 
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
     const service = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-    const cfEnv = getCloudflareContext().env as unknown as Record<string, string | undefined>;
-    const publicKey = cfEnv.NEPTUNE_PUBLIC_KEY || "";
-    const secretKey = cfEnv.NEPTUNE_SECRET_KEY || "";
+    const cfEnv = getCloudflareContext().env as unknown as
+      Record<string, string | undefined>;
 
-    if (!url || !anon || !service || !publicKey || !secretKey) {
-      return NextResponse.json({ error: "Neptune payment configuration is incomplete." }, { status: 500 });
+    const productToken = cfEnv.FITYPAY_PRODUCT_TOKEN || "";
+
+    if (!url || !anon || !service || !productToken) {
+      return NextResponse.json(
+        { error: "FityPay or Supabase payment configuration is incomplete." },
+        { status: 500 }
+      );
     }
 
-    const auth = createClient(url, anon, { auth: { persistSession: false } });
+    const auth = createClient(url, anon, {
+      auth: { persistSession: false },
+    });
+
     const { data, error: authError } = await auth.auth.getUser(token);
 
     if (authError || !data.user) {
-      return NextResponse.json({ error: "Please log in again." }, { status: 401 });
+      return NextResponse.json(
+        { error: "Please log in again." },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const phone = normalizePhone(String(body.phone || ""));
 
     if (!phone) {
-      return NextResponse.json({ error: "Enter a valid Kenyan M-PESA number." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Enter a valid Kenyan M-PESA number." },
+        { status: 400 }
+      );
     }
 
-    const purpose = body.purpose === "deposit" ? "deposit" : "activation";
+    const purpose =
+      body.purpose === "deposit" ? "deposit" : "activation";
+
     let usdAmount = 2;
     let depositRequestId: string | null = null;
 
-    admin = createClient(url, service, { auth: { persistSession: false } });
+    admin = createClient(url, service, {
+      auth: { persistSession: false },
+    });
 
     if (purpose === "deposit") {
       depositRequestId = String(body.deposit_request_id || "");
 
       if (!depositRequestId) {
-        return NextResponse.json({ error: "Deposit request ID is required." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Deposit request ID is required." },
+          { status: 400 }
+        );
       }
 
       const { data: deposit, error: depositError } = await admin
@@ -72,22 +104,42 @@ export async function POST(request: NextRequest) {
 
       if (depositError) throw depositError;
 
-      if (!deposit || deposit.status !== "pending" || deposit.currency !== "USD" || deposit.method !== "M-PESA") {
-        return NextResponse.json({ error: "This pending M-PESA deposit request could not be verified." }, { status: 400 });
+      if (
+        !deposit ||
+        deposit.status !== "pending" ||
+        deposit.currency !== "USD" ||
+        deposit.method !== "M-PESA"
+      ) {
+        return NextResponse.json(
+          { error: "This pending M-PESA deposit request could not be verified." },
+          { status: 400 }
+        );
       }
 
       usdAmount = Number(deposit.amount);
 
       if (!Number.isFinite(usdAmount) || usdAmount <= 0) {
-        return NextResponse.json({ error: "Enter a valid deposit amount." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Enter a valid deposit amount." },
+          { status: 400 }
+        );
       }
     }
 
-    const fx = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
+    const fx = await fetch(
+      "https://open.er-api.com/v6/latest/USD",
+      { cache: "no-store" }
+    );
+
     const fxData = await fx.json();
     const rate = Number(fxData?.rates?.KES);
 
-    if (!fx.ok || fxData?.result !== "success" || !Number.isFinite(rate) || rate <= 0) {
+    if (
+      !fx.ok ||
+      fxData?.result !== "success" ||
+      !Number.isFinite(rate) ||
+      rate <= 0
+    ) {
       throw new Error("KES exchange rate unavailable.");
     }
 
@@ -107,32 +159,34 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (insertError || !payment) {
-      throw new Error(insertError?.message || "Payment record failed.");
+      throw new Error(
+        insertError?.message || "Payment record failed."
+      );
     }
 
     paymentId = payment.id;
 
+    const webhookUrl =
+      "https://dollarfetch.bwk.workers.dev/api/fitypay/webhook";
+
     const requestBody = {
-  phone,
-  amount,
-  reference: "DF-" + payment.id,
-};
-
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-
-    const signature = createHmac("sha256", secretKey)
-      .update(timestamp + "." + JSON.stringify(requestBody))
-      .digest("hex");
+      phone,
+      amount,
+      webhook_url: webhookUrl,
+      reference: "DF-" + payment.id,
+      description:
+        purpose === "activation"
+          ? "DollarFetch activation"
+          : "DollarFetch deposit",
+    };
 
     const response = await fetch(
-      "https://api.neptunepay.co.ke/api/v1/payments/stk-push",
+      "https://api.kinaracloud.co.ke/v1/start",
       {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${productToken}`,
           "Content-Type": "application/json",
-          "x-public-key": publicKey,
-          "x-timestamp": timestamp,
-          "x-signature": signature,
         },
         body: JSON.stringify(requestBody),
         cache: "no-store",
@@ -140,36 +194,43 @@ export async function POST(request: NextRequest) {
     );
 
     const result = await response.json().catch(() => ({}));
-    const providerPaymentId = String(result.paymentId || "");
 
-    if (!response.ok || result.success !== true || !providerPaymentId) {
-     const details = Array.isArray(result.errors)
-  ? result.errors.map((item: any) =>
-      `${item.field || "Field"}: ${item.message || "Invalid"}`
-    ).join("; ")
-  : "";
+    const checkoutRequestId = String(
+      result.checkout_request_id || ""
+    );
 
-const message = [
-  result.message || result.error || "Neptune STK Push request failed.",
-  details,
-].filter(Boolean).join(" — ");
+    if (
+      !response.ok ||
+      result.success !== true ||
+      !checkoutRequestId
+    ) {
+      const message = String(
+        result.message ||
+        result.error ||
+        "FityPay STK Push request failed."
+      );
 
-      await admin.from("mpesa_stk_payments")
+      await admin
+        .from("mpesa_stk_payments")
         .update({
           status: "failed",
-          result_description: String(message),
+          result_description: message,
           updated_at: new Date().toISOString(),
         })
         .eq("id", payment.id);
 
-      return NextResponse.json({ error: String(message) }, { status: 502 });
+      return NextResponse.json(
+        { error: message },
+        { status: 502 }
+      );
     }
 
-    const { error: updateError } = await admin.from("mpesa_stk_payments")
+    const { error: updateError } = await admin
+      .from("mpesa_stk_payments")
       .update({
         status: "pending",
-        checkout_request_id: providerPaymentId,
-        result_description: "Neptune STK request accepted.",
+        checkout_request_id: checkoutRequestId,
+        result_description: "FityPay STK request accepted.",
         updated_at: new Date().toISOString(),
       })
       .eq("id", payment.id);
@@ -182,23 +243,34 @@ const message = [
       amount,
       currency: "KES",
       usdAmount,
-      paymentId: providerPaymentId,
-      message: result.message || "STK prompt sent. Check your phone and enter your M-PESA PIN.",
+      paymentId: checkoutRequestId,
+      message:
+        result.message ||
+        "STK prompt sent. Check your phone and enter your M-PESA PIN.",
     });
-
   } catch (error) {
     if (admin && paymentId !== null) {
-      await admin.from("mpesa_stk_payments")
+      await admin
+        .from("mpesa_stk_payments")
         .update({
           status: "failed",
-          result_description: error instanceof Error ? error.message : "Payment error.",
+          result_description:
+            error instanceof Error
+              ? error.message
+              : "Payment error.",
           updated_at: new Date().toISOString(),
         })
         .eq("id", paymentId);
     }
 
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : "Payment error.",
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Payment error.",
+      },
+      { status: 500 }
+    );
   }
 }
