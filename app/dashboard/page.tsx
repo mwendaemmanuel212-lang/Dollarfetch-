@@ -532,7 +532,7 @@ async function submitWithdrawal() {
             color: "#ffdf70",
             marginBottom: 10
           }}>
-            $0.76 USD (approximately KSh 99)
+            $0.76 USD
           </div>
 
           <p style={{ fontSize: 14, marginBottom: 30 }}>
