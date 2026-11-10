@@ -958,14 +958,7 @@ async function submitWithdrawal() {
 </div>
 
 
-  </label>
-  <input
-    value={reference}
-    onChange={e => setReference(e.target.value)}
-    placeholder="Enter transaction reference"
-  />
-</div>
-
+  
 <div className="notice">
   Payment must be verified  before account activation.
   Confirm Details and amount before sending.
