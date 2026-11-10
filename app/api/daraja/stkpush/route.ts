@@ -113,11 +113,10 @@ export async function POST(request: NextRequest) {
     paymentId = payment.id;
 
     const requestBody = {
-      phone,
-      amount,
-      reference: "DF-" + payment.id,
-      description: purpose === "deposit" ? "DollarFetch deposit" : "DollarFetch activation",
-    };
+  phone,
+  amount,
+  reference: "DF-" + payment.id,
+};
 
     const timestamp = Math.floor(Date.now() / 1000).toString();
 
