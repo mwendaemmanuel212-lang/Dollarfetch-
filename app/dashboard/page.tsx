@@ -80,7 +80,7 @@ useEffect(() => {
     mounted = false;
   };
 }, [screen, user?.id]);
-  const [method, setMethod] = useState("SIM Toolkit");
+  const [method, setMethod] = useState("M-PESA");
   const [phone, setPhone] = useState("");
   const [reference, setReference] = useState("");
   const [message, setMessage] = useState("");
