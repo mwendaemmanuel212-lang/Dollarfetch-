@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
       amount,
       webhook_url: webhookUrl,
       reference: "DollarFetch",
-      description:
+      description: Dollafetch 
         purpose === "activation"
           ? "DollarFetch activation"
           : "DollarFetch deposit",
