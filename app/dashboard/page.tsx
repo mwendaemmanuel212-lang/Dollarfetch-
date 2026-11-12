@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ActivationChat from "@/components/ActivationChat";
+import SampleWithdrawalActivity from "@/components/SampleWithdrawalActivity";
 type Screen = "Home" | "Earnings" | "Rewards" | "Scratch" | "Settings" | "Activation" | "Deposit" | "Withdraw";
 type ActivationStatus = "checking" | "active" | "pending" | "rejected" | "not_submitted" | "unknown";
 
