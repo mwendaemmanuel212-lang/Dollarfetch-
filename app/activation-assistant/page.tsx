@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 type Message = {
   role: "user" | "assistant";
   content: string;
+  time?: string;
 };
 
 export default function ActivationAssistantPage() {
@@ -17,7 +18,7 @@ export default function ActivationAssistantPage() {
     {
       role: "assistant",
       content:
-        "Hello! 👋 Welcome to DollarFetch AI Support. I can help you with activation, payments, referrals and account questions. Your activation fee is $0.76 USD. How can I help you today?",
+        "Hello! 👋 Welcome to DollarFetch Support. I can help with activation, payments, referrals and account questions. Your activation fee is $0.76 USD. How can I help you today?",
     },
   ]);
 
@@ -32,9 +33,16 @@ export default function ActivationAssistantPage() {
 
     if (!text || loading) return;
 
-    const updatedMessages = [
+    const updatedMessages: Message[] = [
       ...messages,
-      { role: "user" as const, content: text },
+      {
+        role: "user",
+        content: text,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
     ];
 
     setMessages(updatedMessages);
@@ -52,7 +60,7 @@ export default function ActivationAssistantPage() {
       const token = data.session?.access_token;
 
       if (!token) {
-        throw new Error("Please log in again to use DollarFetch AI.");
+        throw new Error("Please log in again to use DollarFetch Support.");
       }
 
       const response = await fetch("/api/activation-assistant", {
@@ -75,7 +83,7 @@ export default function ActivationAssistantPage() {
         result = JSON.parse(responseText);
       } catch {
         throw new Error(
-          `Server returned an invalid response (HTTP ${response.status}). Please check the Cloudflare deployment and logs.`
+          `Server returned an invalid response (HTTP ${response.status}). Please try again.`
         );
       }
 
@@ -86,9 +94,7 @@ export default function ActivationAssistantPage() {
       }
 
       if (!result.reply || typeof result.reply !== "string") {
-        throw new Error(
-          "The AI returned an empty reply. Please try again."
-        );
+        throw new Error("The AI returned an empty reply. Please try again.");
       }
 
       setMessages((previous) => [
@@ -96,6 +102,10 @@ export default function ActivationAssistantPage() {
         {
           role: "assistant",
           content: result.reply!,
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } catch (error) {
@@ -107,6 +117,10 @@ export default function ActivationAssistantPage() {
             error instanceof Error
               ? error.message
               : "Something went wrong. Please try again.",
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } finally {
@@ -115,88 +129,102 @@ export default function ActivationAssistantPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-[200] flex h-[100dvh] flex-col overflow-hidden bg-white text-gray-900">
+    <main className="fixed inset-0 z-[200] flex h-[100dvh] flex-col overflow-hidden bg-[#efeae2] text-gray-900">
 
-      <header className="flex shrink-0 items-center gap-3 border-b border-gray-100 bg-white px-4 py-4 shadow-sm">
+      <header className="flex shrink-0 items-center gap-3 bg-[#075e54] px-3 py-3 text-white shadow-md">
         <button
           onClick={() => {
             window.location.href = "/dashboard";
           }}
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-2xl text-gray-700"
+          className="flex h-10 w-9 shrink-0 items-center justify-center rounded-full text-3xl leading-none text-white"
           aria-label="Back to dashboard"
         >
           ‹
         </button>
 
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-100 text-2xl text-purple-800">
-          ✦
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-xl font-black text-[#075e54]">
+          D
         </div>
 
         <div className="min-w-0 flex-1">
-          <h1 className="text-base font-extrabold text-gray-900">
-            DollarFetch AI
+          <h1 className="truncate text-base font-bold text-white">
+            DollarFetch Support
           </h1>
-          <p className="text-xs text-green-600">
-            ● Activation Support Assistant
+          <p className="text-xs text-green-100">
+            Online · AI assistant
           </p>
         </div>
 
-        <div className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">
-          AI SUPPORT
-        </div>
+        <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold tracking-wide text-white">
+          SUPPORT
+        </span>
       </header>
 
-      <section className="shrink-0 border-b border-gray-100 bg-white px-4 py-4 text-center">
-        <h2 className="text-sm font-bold text-gray-800">
-          How can we help you?
-        </h2>
-        <p className="mt-1 text-xs text-gray-500">
-          Ask anything about your DollarFetch account.
-        </p>
-      </section>
-
-      <section className="flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5">
-        <div className="text-center">
-          <span className="rounded-full bg-gray-100 px-4 py-2 text-[11px] text-gray-500">
-            Your private support conversation
-          </span>
+      <section
+        className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-4 sm:px-5"
+        style={{
+          backgroundColor: "#efeae2",
+          backgroundImage:
+            "radial-gradient(rgba(90,75,55,0.07) 0.8px, transparent 0.8px)",
+          backgroundSize: "18px 18px",
+        }}
+      >
+        <div className="self-center rounded-lg bg-white/80 px-3 py-1.5 text-[11px] text-gray-500 shadow-sm">
+          Your private DollarFetch support chat
         </div>
 
         {messages.map((item, index) => (
           <div
             key={index}
             className={`flex w-full items-end gap-2 ${
-              item.role === "user"
-                ? "justify-end"
-                : "justify-start"
+              item.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
             {item.role === "assistant" && (
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-100 font-bold text-purple-800">
-                ✦
+              <div className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-xs font-black text-white shadow-sm">
+                D
               </div>
             )}
 
             <div
-              className={`max-w-[82%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm leading-6 shadow-sm ${
+              className={`flex max-w-[88%] flex-col rounded-2xl px-3 py-2 shadow-sm sm:max-w-[75%] ${
                 item.role === "user"
-                  ? "rounded-br-md bg-purple-700 text-white"
-                  : "rounded-bl-md border border-gray-100 bg-gray-50 text-gray-800"
+                  ? "rounded-br-sm bg-[#d9fdd3] text-[#172b20]"
+                  : "rounded-bl-sm bg-white text-gray-800"
               }`}
             >
-              {item.content}
+              {item.role === "assistant" && (
+                <span className="mb-1 text-[10px] font-bold text-[#075e54]">
+                  DollarFetch Support
+                </span>
+              )}
+
+              <p className="whitespace-pre-wrap break-words text-[14px] leading-[1.55]">
+                {item.content}
+              </p>
+
+              {item.time && (
+                <span className="mt-1 self-end text-[10px] text-gray-500">
+                  {item.time}
+                </span>
+              )}
             </div>
           </div>
         ))}
 
         {loading && (
           <div className="flex items-end gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 text-purple-800">
-              ✦
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-xs font-black text-white">
+              D
             </div>
 
-            <div className="rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-500">
-              DollarFetch AI is typing...
+            <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
+              <span className="mr-2">DollarFetch Support</span>
+              <span className="inline-flex gap-1 align-middle">
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:120ms]" />
+                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:240ms]" />
+              </span>
             </div>
           </div>
         )}
@@ -204,36 +232,38 @@ export default function ActivationAssistantPage() {
         <div ref={bottomRef} />
       </section>
 
-      <footer className="shrink-0 border-t border-gray-100 bg-white px-3 pt-3 pb-[max(14px,env(safe-area-inset-bottom))]">
-        <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-purple-200 bg-gray-50 p-2 focus-within:border-purple-500">
-          <textarea
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-              }
-            }}
-            placeholder="Write your message..."
-            rows={1}
-            className="max-h-28 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-2 py-3 text-sm text-gray-800 outline-none"
-          />
+      <footer className="shrink-0 border-t border-gray-200 bg-[#f0f2f5] px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+        <div className="mx-auto flex max-w-3xl items-end gap-2">
+          <div className="flex min-h-12 flex-1 items-end rounded-3xl bg-white px-4 py-1 shadow-sm">
+            <textarea
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  sendMessage();
+                }
+              }}
+              placeholder="Type a message"
+              rows={1}
+              className="max-h-28 min-h-10 min-w-0 flex-1 resize-none bg-transparent py-3 text-sm text-gray-800 outline-none"
+            />
+          </div>
 
           <button
             onClick={sendMessage}
             disabled={loading || !message.trim()}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-purple-700 text-xl font-bold text-white disabled:opacity-40"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#00a884] text-2xl font-bold text-white shadow-sm disabled:opacity-40"
             aria-label="Send message"
           >
             ↑
           </button>
         </div>
 
-        <p className="mt-2 text-center text-[10px] text-gray-400">
+        <p className="mt-2 text-center text-[10px] text-gray-500">
           Never share your M-PESA PIN, OTP or password.
         </p>
       </footer>
     </main>
   );
-          }
+}
