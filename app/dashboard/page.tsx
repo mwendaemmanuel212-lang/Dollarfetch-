@@ -37,11 +37,6 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
   };
   return <svg {...common}>{paths[name] || paths.wallet}</svg>;
 }
-
-        
-
-
-
 }, [screen, user?.id]);
   const [method, setMethod] = useState("M-PESA");
   const [phone, setPhone] = useState("");
