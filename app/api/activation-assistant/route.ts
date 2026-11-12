@@ -1,5 +1,6 @@
 
-export const runtime = "edge";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 type ChatMessage = {
   role: "user" | "assistant";
