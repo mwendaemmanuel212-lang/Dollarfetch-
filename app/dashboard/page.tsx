@@ -38,6 +38,121 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
   return <svg {...common}>{paths[name] || paths.wallet}</svg>;
 }
 
+const activationPreviewMembers = [
+  { name: "Brian Mwangi", phone: "+254 7** *** 214", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Faith Wanjiku", phone: "+254 7** *** 583", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Kevin Otieno", phone: "+254 7** *** 761", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Mercy Njeri", phone: "+254 7** *** 492", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "David Kiptoo", phone: "+254 7** *** 138", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Esther Achieng", phone: "+254 7** *** 826", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Samuel Kamau", phone: "+254 7** *** 357", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Linda Chebet", phone: "+254 7** *** 905", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
+  { name: "Amina Nakato", phone: "+256 7** *** 412", country: "Uganda", flag: "🇺🇬", amount: "UGX 7,500", currency: "UGX" },
+  { name: "Chiamaka Okafor", phone: "+234 8** *** 631", country: "Nigeria", flag: "🇳🇬", amount: "NGN 2,900", currency: "NGN" },
+];
+
+function SampleActivationFeed() {
+  const members = [...activationPreviewMembers, ...activationPreviewMembers];
+
+  return (
+    <div style={{
+      marginTop: 22,
+      marginBottom: 20,
+      padding: 16,
+      borderRadius: 18,
+      background: "linear-gradient(145deg,#260044,#490078)",
+      border: "1px solid #ffffff35",
+      color: "#fff",
+      overflow: "hidden"
+    }}>
+      <div style={{
+        fontSize: 16,
+        fontWeight: 900,
+        textAlign: "center",
+        marginBottom: 5
+      }}>
+        MEMBERS ACTIVATION ACTIVITY
+      </div>
+
+      <div style={{
+        fontSize: 10,
+        textAlign: "center",
+        color: "#e5caff",
+        marginBottom: 13
+      }}>
+         activity preview
+      </div>
+
+      <div style={{
+        height: 250,
+        overflow: "hidden",
+        position: "relative"
+      }}>
+        <style>{`
+          @keyframes activationFeedUp {
+            from { transform: translateY(0); }
+            to { transform: translateY(-50%); }
+          }
+        `}</style>
+
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          animation: "activationFeedUp 32s linear infinite"
+        }}>
+          {members.map((member, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "11px 8px",
+                borderBottom: "1px solid #ffffff20",
+                minHeight: 65
+              }}
+            >
+              <div style={{ fontSize: 25 }}>{member.flag}</div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{
+                  fontSize: 13,
+                  fontWeight: 800
+                }}>
+                  {member.name}
+                </div>
+                <div style={{
+                  fontSize: 11,
+                  color: "#d9c2ed"
+                }}>
+                  {member.phone} · {member.country}
+                </div>
+              </div>
+
+              <div style={{ textAlign: "right" }}>
+                <div style={{
+                  fontSize: 12,
+                  fontWeight: 900,
+                  color: "#ffdf83"
+                }}>
+                  {member.amount}
+                </div>
+                <div style={{
+                  fontSize: 10,
+                  color: "#aaffc5",
+                  fontWeight: 800
+                }}>
+                  Activating
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
