@@ -763,6 +763,20 @@ async function submitWithdrawal() {
   width:max-content;
   animation:announcementMove 22s linear infinite
 }
+.withdrawal-activity{margin:16px 0;padding:17px 0 12px;background:linear-gradient(135deg,#fff,#f4eaff);border:1px solid #e6d5ff;border-radius:20px;overflow:hidden;box-shadow:0 8px 22px #43128a12}
+.withdrawal-activity-head{padding:0 17px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.withdrawal-activity-head h2{margin:0;color:#32105d;font-size:17px;font-weight:900}
+.sample-label{font-size:9px;font-weight:900;letter-spacing:.7px;color:#6d28d9;background:#eee2ff;border-radius:20px;padding:6px 9px;white-space:nowrap}
+.withdrawal-viewport{overflow:hidden;width:100%;display:flex;flex-direction:column;gap:9px;padding:2px 0 8px}
+.withdrawal-entry{width:max-content;max-width:none;display:flex;align-items:center;gap:11px;margin-left:0;padding:10px 13px;border:1px solid #eadfff;border-radius:13px;background:#fff;box-shadow:0 3px 10px #32105d0b;white-space:nowrap;animation:withdrawalSlide 19s linear infinite}
+.withdrawal-entry:nth-child(even){animation-duration:23s}
+.withdrawal-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#8b35e8,#4c0b91);color:#fff;font-size:13px;font-weight:900}
+.withdrawal-person{display:flex;flex-direction:column;gap:3px}
+.withdrawal-person strong{font-size:12px;color:#291044}
+.withdrawal-person small{font-size:10px;color:#87769a}
+.withdrawal-amount{font-size:13px;font-weight:900;color:#5b21b6;margin-left:5px}
+@keyframes withdrawalSlide{from{transform:translateX(105vw)}to{transform:translateX(-110%)}}
+@media(prefers-reduced-motion:reduce){.withdrawal-entry{animation:none;transform:none;margin-left:12px}}
 @keyframes announcementMove{
   from{transform:translateX(-100%)}
   to{transform:translateX(100vw)}
