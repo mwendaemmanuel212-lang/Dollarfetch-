@@ -18,7 +18,11 @@ export default function ActivationAssistantPage() {
     {
       role: "assistant",
       content:
-        "Hello! 👋 Welcome to DollarFetch Support. I can help with activation, payments, referrals and account questions. Your activation fee is $0.76 USD. How can I help you today?",
+        "Hello! 👋 Welcome to DollarFetch AI. I can help you with activation, payments, spin rolls, referrals and scratch cards. Your activation fee is $0.76 USD. How can I help you today?",
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     },
   ]);
 
@@ -148,7 +152,7 @@ export default function ActivationAssistantPage() {
 
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-base font-bold text-white">
-            DollarFetch Support
+            DollarFetch AI
           </h1>
           <p className="text-xs text-green-100">
             Online · AI assistant
@@ -170,15 +174,17 @@ export default function ActivationAssistantPage() {
         }}
       >
         <div className="self-center rounded-lg bg-white/80 px-3 py-1.5 text-[11px] text-gray-500 shadow-sm">
-          Your private DollarFetch support chat
+          Your private DollarFetch conversation
         </div>
 
         {messages.map((item, index) => (
           <div
             key={index}
-            className={`flex w-full items-end gap-2 ${
-              item.role === "user" ? "justify-end" : "justify-start"
-            }`}
+            className="flex w-full items-end gap-2"
+            style={{
+              justifyContent:
+                item.role === "user" ? "flex-end" : "flex-start",
+            }}
           >
             {item.role === "assistant" && (
               <div className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-xs font-black text-white shadow-sm">
@@ -187,15 +193,25 @@ export default function ActivationAssistantPage() {
             )}
 
             <div
-              className={`flex max-w-[88%] flex-col rounded-2xl px-3 py-2 shadow-sm sm:max-w-[75%] ${
-                item.role === "user"
-                  ? "rounded-br-sm bg-[#d9fdd3] text-[#172b20]"
-                  : "rounded-bl-sm bg-white text-gray-800"
-              }`}
+              className="flex w-fit flex-col rounded-2xl px-3 py-2 shadow-sm"
+              style={{
+                maxWidth: "82%",
+                marginLeft: item.role === "user" ? "auto" : "0",
+                marginRight: item.role === "assistant" ? "auto" : "0",
+                alignSelf:
+                  item.role === "user" ? "flex-end" : "flex-start",
+                backgroundColor:
+                  item.role === "user" ? "#d9fdd3" : "#ffffff",
+                color: item.role === "user" ? "#172b20" : "#333333",
+                borderBottomRightRadius:
+                  item.role === "user" ? "4px" : "16px",
+                borderBottomLeftRadius:
+                  item.role === "assistant" ? "4px" : "16px",
+              }}
             >
               {item.role === "assistant" && (
                 <span className="mb-1 text-[10px] font-bold text-[#075e54]">
-                  DollarFetch Support
+                  DollarFetch AI
                 </span>
               )}
 
@@ -213,13 +229,16 @@ export default function ActivationAssistantPage() {
         ))}
 
         {loading && (
-          <div className="flex items-end gap-2">
+          <div
+            className="flex w-full items-end gap-2"
+            style={{ justifyContent: "flex-start" }}
+          >
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#075e54] text-xs font-black text-white">
               D
             </div>
 
-            <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
-              <span className="mr-2">DollarFetch Support</span>
+            <div className="mr-auto rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-sm text-gray-500 shadow-sm">
+              <span className="mr-2">DollarFetch AI</span>
               <span className="inline-flex gap-1 align-middle">
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:120ms]" />
@@ -266,4 +285,4 @@ export default function ActivationAssistantPage() {
       </footer>
     </main>
   );
-}
+      }
