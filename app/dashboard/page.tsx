@@ -724,7 +724,7 @@ async function submitWithdrawal() {
               ACTIVATE
             </button>
           </div>
-
+<SampleActivationFeed />
           <div style={{
             textAlign: "left",
             background: "#ffffff16",
