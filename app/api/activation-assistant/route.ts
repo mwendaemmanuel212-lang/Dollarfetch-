@@ -9,13 +9,13 @@ type ChatMessage = {
 
 export async function POST(request: Request) {
   try {
-    const openaiKey = process.env.OPENAI_API_KEY;
+    const groqKey = process.env.GROQ_API_KEY;
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!openaiKey || !supabaseUrl || !supabaseKey) {
+    if (!groqKey || !supabaseUrl || !supabaseKey) {
       return Response.json(
-        { error: "Assistant configuration is incomplete. Check Cloudflare environment variables." },
+        { error: "AI configuration is incomplete. Check Cloudflare secrets." },
         { status: 500 }
       );
     }
@@ -135,18 +135,17 @@ IMPORTANT BUSINESS INFORMATION:
 MEMBER ACTIVATION STATUS:
 ${activationStatus}
 
-ACTIVATION SUPPORT RULES:
-1. Respond naturally and warmly to greetings such as Hello or Hi.
-2. Help members with activation, payments, referrals and account questions.
-3. Explain activation steps patiently and one step at a time.
+SUPPORT RULES:
+1. Respond naturally and warmly to greetings like Hello and Hi.
+2. Help with activation, payments, referrals and account questions.
+3. Explain instructions patiently, one step at a time.
 4. If a member says they paid but cannot activate, ask whether
    they received an M-PESA confirmation SMS.
-5. If they received it, ask them to type the M-PESA transaction
-   code exactly as shown in the SMS.
-6. Never ask for their M-PESA PIN, OTP or password.
-7. If they provide a transaction code, explain that support/admin
-   must verify the payment manually.
-8. Never claim a transaction code has been verified.
+5. If they received it, ask for the transaction code exactly
+   as shown in the SMS.
+6. Never ask for an M-PESA PIN, OTP or password.
+7. Explain that support/admin must verify transaction codes.
+8. Never claim a payment has been verified.
 9. Never approve payments, activate accounts, credit balances,
    reject requests or modify member records.
 10. If status is pending, explain that admin verification is required.
@@ -159,21 +158,20 @@ You are a support assistant only.
 `;
 
     const aiResponse = await fetch(
-      "https://api.openai.com/v1/chat/completions",
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${openaiKey}`,
+          Authorization: `Bearer ${groqKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-4.1-mini",
+          model: "openai/gpt-oss-20b",
           messages: [
             { role: "system", content: systemPrompt },
             ...messages,
           ],
-          max_tokens: 350,
-          temperature: 0.4,
+          max_completion_tokens: 700,
         }),
       }
     );
@@ -190,18 +188,18 @@ You are a support assistant only.
           errorData?.message ||
           errorText;
       } catch {
-        // Keep the original response text.
+        // Keep original error text.
       }
 
       console.error(
-        "DollarFetch OpenAI error:",
+        "DollarFetch Groq error:",
         aiResponse.status,
         errorMessage
       );
 
       return Response.json(
         {
-          error: `AI provider error (${aiResponse.status}): ${errorMessage.slice(0, 300)}`,
+          error: `Groq AI error (${aiResponse.status}): ${errorMessage.slice(0, 300)}`,
         },
         { status: 502 }
       );
@@ -225,11 +223,11 @@ You are a support assistant only.
     return Response.json({ reply });
 
   } catch (error) {
-    console.error("DollarFetch assistant route error:", error);
+    console.error("DollarFetch assistant error:", error);
 
     return Response.json(
       { error: "Something went wrong while processing your message." },
       { status: 500 }
     );
   }
-      }
+}
