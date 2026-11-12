@@ -38,6 +38,141 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
   return <svg {...common}>{paths[name] || paths.wallet}</svg>;
 }
 
+const sampleActivationMembers = [
+  { name: "Brian Mwangi", phone: "+254 7** *** 481", country: "Kenya", amount: "KES 99" },
+  { name: "Amina Hassan", phone: "+254 7** *** 206", country: "Kenya", amount: "KES 99" },
+  { name: "Chinedu Okafor", phone: "+234 8** *** 714", country: "Nigeria", amount: "NGN 1,200" },
+  { name: "Neema Joseph", phone: "+255 7** *** 395", country: "Tanzania", amount: "TZS 2,500" },
+  { name: "Grace Wanjiku", phone: "+254 7** *** 853", country: "Kenya", amount: "KES 99" },
+  { name: "Kwame Mensah", phone: "+233 5** *** 128", country: "Ghana", amount: "GHS 8" },
+  { name: "Peter Okello", phone: "+256 7** *** 642", country: "Uganda", amount: "UGX 2,800" },
+  { name: "Faith Njeri", phone: "+254 7** *** 917", country: "Kenya", amount: "KES 99" },
+  { name: "Mutesi Diane", phone: "+250 7** *** 503", country: "Rwanda", amount: "RWF 700" },
+  { name: "Kevin Otieno", phone: "+254 7** *** 164", country: "Kenya", amount: "KES 99" },
+  { name: "Priya Sharma", phone: "+91 9** *** 276", country: "India", amount: "INR 55" },
+  { name: "Mercy Atieno", phone: "+254 7** *** 730", country: "Kenya", amount: "KES 99" },
+  { name: "Maria Santos", phone: "+63 9** *** 851", country: "Philippines", amount: "PHP 45" },
+  { name: "David Kiptoo", phone: "+254 7** *** 309", country: "Kenya", amount: "KES 99" }
+];
+
+function SampleActivationFeed() {
+  return (
+    <div style={{
+      margin: "0 auto 28px",
+      padding: 16,
+      maxWidth: 520,
+      background: "#17052c",
+      border: "1px solid #a855f7",
+      borderRadius: 18,
+      textAlign: "left",
+      overflow: "hidden"
+    }}>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 6
+      }}>
+        <strong style={{ color: "#fff", fontSize: 16 }}>
+          Recent Activations
+        </strong>
+        <span style={{
+          background: "#7134a5",
+          color: "#fff",
+          borderRadius: 20,
+          padding: "5px 9px",
+          fontSize: 10,
+          fontWeight: 900
+        }}>
+          SAMPLE DATA
+        </span>
+      </div>
+
+      <div style={{ color: "#d8b4fe", fontSize: 11, marginBottom: 13 }}>
+        Illustrative examples only — not real member payments.
+      </div>
+
+      <div style={{
+        height: 250,
+        overflow: "hidden",
+        position: "relative"
+      }}>
+        <div className="df-activation-track">
+          {[0, 1].map(copy => (
+            <div key={copy} aria-hidden={copy === 1}>
+              {sampleActivationMembers.map(member => (
+                <div key={member.name} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 8,
+                  padding: "11px 8px",
+                  marginBottom: 7,
+                  background: "#ffffff12",
+                  borderRadius: 11,
+                  border: "1px solid #ffffff18"
+                }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{
+                      color: "#fff",
+                      fontWeight: 800,
+                      fontSize: 12
+                    }}>
+                      {member.name}
+                    </div>
+                    <div style={{
+                      color: "#c4b5fd",
+                      fontSize: 10,
+                      marginTop: 3
+                    }}>
+                      {member.phone} · {member.country}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{
+                      color: "#f0abfc",
+                      fontWeight: 900,
+                      fontSize: 12
+                    }}>
+                      {member.amount}
+                    </div>
+                    <div style={{
+                      color: "#86efac",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      marginTop: 3
+                    }}>
+                      ✓ Activated
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .df-activation-track {
+          animation: dollarfetchActivationScroll 30s linear infinite;
+        }
+
+        @keyframes dollarfetchActivationScroll {
+          from { transform: translateY(0); }
+          to { transform: translateY(-50%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .df-activation-track {
+            animation: none;
+          }
+        }
+      `}</style>
+    </div>
+  );
+        }
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
