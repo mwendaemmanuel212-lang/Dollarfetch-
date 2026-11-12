@@ -12,11 +12,12 @@ type Message = {
 export default function ActivationAssistantPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
       content:
-        "Hello! 👋 Welcome to DollarFetch AI Support. I can help you activate your account, understand payment confirmation and resolve activation questions. Your activation fee is $0.76 USD. How can I help you today?",
+        "Hello! 👋 Welcome to DollarFetch AI Support. I can help you with activation, payments, referrals and account questions. Your activation fee is $0.76 USD. How can I help you today?",
     },
   ]);
 
@@ -41,7 +42,13 @@ export default function ActivationAssistantPage() {
     setLoading(true);
 
     try {
-      const { data } = await supabase.auth.getSession();
+      const { data, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError) {
+        throw new Error(sessionError.message);
+      }
+
       const token = data.session?.access_token;
 
       if (!token) {
@@ -57,25 +64,38 @@ export default function ActivationAssistantPage() {
         body: JSON.stringify({ messages: updatedMessages }),
       });
 
-      const contentType = response.headers.get("content-type") || "";
+      const responseText = await response.text();
 
-      if (!contentType.includes("application/json")) {
+      let result: {
+        reply?: string;
+        error?: string;
+      };
+
+      try {
+        result = JSON.parse(responseText);
+      } catch {
         throw new Error(
-          "The assistant service returned an invalid response. Please try again."
+          `Server returned an invalid response (HTTP ${response.status}). Please check the Cloudflare deployment and logs.`
         );
       }
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || "The assistant is unavailable.");
+        throw new Error(
+          result.error || `Assistant error (HTTP ${response.status}).`
+        );
+      }
+
+      if (!result.reply || typeof result.reply !== "string") {
+        throw new Error(
+          "The AI returned an empty reply. Please try again."
+        );
       }
 
       setMessages((previous) => [
         ...previous,
         {
           role: "assistant",
-          content: result.reply || "Please try again.",
+          content: result.reply!,
         },
       ]);
     } catch (error) {
@@ -97,7 +117,7 @@ export default function ActivationAssistantPage() {
   return (
     <main className="fixed inset-0 z-[200] flex h-[100dvh] flex-col overflow-hidden bg-white text-gray-900">
 
-      <header className="flex shrink-0 items-center gap-3 bg-white px-4 py-4 shadow-sm border-b border-gray-100">
+      <header className="flex shrink-0 items-center gap-3 border-b border-gray-100 bg-white px-4 py-4 shadow-sm">
         <button
           onClick={() => {
             window.location.href = "/dashboard";
@@ -131,7 +151,7 @@ export default function ActivationAssistantPage() {
           How can we help you?
         </h2>
         <p className="mt-1 text-xs text-gray-500">
-          Ask anything about your DollarFetch activation.
+          Ask anything about your DollarFetch account.
         </p>
       </section>
 
@@ -146,7 +166,9 @@ export default function ActivationAssistantPage() {
           <div
             key={index}
             className={`flex w-full items-end gap-2 ${
-              item.role === "user" ? "justify-end" : "justify-start"
+              item.role === "user"
+                ? "justify-end"
+                : "justify-start"
             }`}
           >
             {item.role === "assistant" && (
@@ -172,6 +194,7 @@ export default function ActivationAssistantPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 text-purple-800">
               ✦
             </div>
+
             <div className="rounded-2xl bg-gray-100 px-4 py-3 text-sm text-gray-500">
               DollarFetch AI is typing...
             </div>
