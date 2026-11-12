@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     if (!openaiKey || !supabaseUrl || !supabaseKey) {
       return Response.json(
-        { error: "Assistant configuration is incomplete." },
+        { error: "Assistant configuration is incomplete. Check Cloudflare environment variables." },
         { status: 500 }
       );
     }
@@ -115,7 +115,8 @@ export async function POST(request: Request) {
 
         activationStatus = rows[0]?.status || "not_submitted";
       }
-    } catch {
+    } catch (error) {
+      console.error("Activation status lookup failed:", error);
       activationStatus = "unavailable";
     }
 
@@ -135,22 +136,24 @@ MEMBER ACTIVATION STATUS:
 ${activationStatus}
 
 ACTIVATION SUPPORT RULES:
-1. Explain activation steps patiently and one step at a time.
-2. If a member says they paid but cannot activate, ask whether
+1. Respond naturally and warmly to greetings such as Hello or Hi.
+2. Help members with activation, payments, referrals and account questions.
+3. Explain activation steps patiently and one step at a time.
+4. If a member says they paid but cannot activate, ask whether
    they received an M-PESA confirmation SMS.
-3. If they received it, ask them to type the M-PESA transaction
+5. If they received it, ask them to type the M-PESA transaction
    code exactly as shown in the SMS.
-4. Never ask for their M-PESA PIN, OTP or password.
-5. If they provide a transaction code, explain that support/admin
+6. Never ask for their M-PESA PIN, OTP or password.
+7. If they provide a transaction code, explain that support/admin
    must verify the payment manually.
-6. Never claim a transaction code has been verified.
-7. Never approve payments, activate accounts, credit balances,
+8. Never claim a transaction code has been verified.
+9. Never approve payments, activate accounts, credit balances,
    reject requests or modify member records.
-8. If status is pending, explain that admin verification is required.
-9. If status is active, congratulate the member.
-10. If status is unavailable, do not guess.
-11. Keep replies short, clear and focused on activation.
-12. Never invent payment results or timelines.
+10. If status is pending, explain that admin verification is required.
+11. If status is active, congratulate the member.
+12. If status is unavailable, do not guess.
+13. Keep replies short, clear and helpful.
+14. Never invent payment results or timelines.
 
 You are a support assistant only.
 `;
@@ -176,8 +179,30 @@ You are a support assistant only.
     );
 
     if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+
+      let errorMessage = errorText;
+
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage =
+          errorData?.error?.message ||
+          errorData?.message ||
+          errorText;
+      } catch {
+        // Keep the original response text.
+      }
+
+      console.error(
+        "DollarFetch OpenAI error:",
+        aiResponse.status,
+        errorMessage
+      );
+
       return Response.json(
-        { error: "The assistant is temporarily unavailable. Please try again." },
+        {
+          error: `AI provider error (${aiResponse.status}): ${errorMessage.slice(0, 300)}`,
+        },
         { status: 502 }
       );
     }
@@ -188,16 +213,23 @@ You are a support assistant only.
       }>;
     };
 
-    return Response.json({
-      reply:
-        result.choices?.[0]?.message?.content ||
-        "Sorry, I couldn't generate a response. Please try again.",
-    });
+    const reply = result.choices?.[0]?.message?.content;
 
-  } catch {
+    if (!reply) {
+      return Response.json(
+        { error: "The AI returned an empty response. Please try again." },
+        { status: 502 }
+      );
+    }
+
+    return Response.json({ reply });
+
+  } catch (error) {
+    console.error("DollarFetch assistant route error:", error);
+
     return Response.json(
-      { error: "Something went wrong. Please try again." },
+      { error: "Something went wrong while processing your message." },
       { status: 500 }
     );
   }
-}
+      }
