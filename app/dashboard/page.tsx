@@ -38,18 +38,40 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
   return <svg {...common}>{paths[name] || paths.wallet}</svg>;
 }
 
+
 const activationPreviewMembers = [
-  { name: "Brian Mwangi", phone: "+254 7** *** 214", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Faith Wanjiku", phone: "+254 7** *** 583", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Kevin Otieno", phone: "+254 7** *** 761", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Mercy Njeri", phone: "+254 7** *** 492", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "David Kiptoo", phone: "+254 7** *** 138", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Esther Achieng", phone: "+254 7** *** 826", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Samuel Kamau", phone: "+254 7** *** 357", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Linda Chebet", phone: "+254 7** *** 905", country: "Kenya", flag: "🇰🇪", amount: "KES 260", currency: "KES" },
-  { name: "Amina Nakato", phone: "+256 7** *** 412", country: "Uganda", flag: "🇺🇬", amount: "UGX 7,500", currency: "UGX" },
-  { name: "Chiamaka Okafor", phone: "+234 8** *** 631", country: "Nigeria", flag: "🇳🇬", amount: "NGN 2,900", currency: "NGN" },
+  { name: "Brian Mwangi", phone: "+254 7** *** 214", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Faith Wanjiku", phone: "+254 7** *** 583", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Kevin Otieno", phone: "+254 7** *** 761", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Mercy Njeri", phone: "+254 7** *** 492", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "David Kiptoo", phone: "+254 7** *** 138", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Esther Achieng", phone: "+254 7** *** 826", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Samuel Kamau", phone: "+254 7** *** 357", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Linda Chebet", phone: "+254 7** *** 905", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Peter Maina", phone: "+254 7** *** 641", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Joyce Atieno", phone: "+254 7** *** 283", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Dennis Barasa", phone: "+254 7** *** 519", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Ruth Muthoni", phone: "+254 7** *** 746", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Collins Kibet", phone: "+254 7** *** 192", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Ann Wafula", phone: "+254 7** *** 834", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Martin Ouma", phone: "+254 7** *** 467", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Grace Nyambura", phone: "+254 7** *** 315", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Joseph Mutua", phone: "+254 7** *** 628", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Beatrice Wairimu", phone: "+254 7** *** 951", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Allan Karanja", phone: "+254 7** *** 174", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Diana Chepkemoi", phone: "+254 7** *** 542", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Felix Njoroge", phone: "+254 7** *** 398", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Sharon Adhiambo", phone: "+254 7** *** 716", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "George Muli", phone: "+254 7** *** 245", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Irene Jepkosgei", phone: "+254 7** *** 863", country: "Kenya", flag: "🇰🇪", amount: "KES 99", currency: "KES" },
+  { name: "Amina Nakato", phone: "+256 7** *** 412", country: "Uganda", flag: "🇺🇬", amount: "UGX 3,052", currency: "UGX" },
+  { name: "Moses Kato", phone: "+256 7** *** 735", country: "Uganda", flag: "🇺🇬", amount: "UGX 3,052", currency: "UGX" },
+  { name: "Sarah Namusoke", phone: "+256 7** *** 268", country: "Uganda", flag: "🇺🇬", amount: "UGX 3,052", currency: "UGX" },
+  { name: "Chiamaka Okafor", phone: "+234 8** *** 631", country: "Nigeria", flag: "🇳🇬", amount: "NGN 1,026", currency: "NGN" },
+  { name: "Tunde Adeyemi", phone: "+234 8** *** 459", country: "Nigeria", flag: "🇳🇬", amount: "NGN 1,026", currency: "NGN" },
+  { name: "Ngozi Eze", phone: "+234 8** *** 872", country: "Nigeria", flag: "🇳🇬", amount: "NGN 1,026", currency: "NGN" },
 ];
+
 
 function SampleActivationFeed() {
   const members = [...activationPreviewMembers, ...activationPreviewMembers];
