@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
+import ActivationChat from "@/components/ActivationChat";
 type Screen = "Home" | "Earnings" | "Rewards" | "Scratch" | "Settings" | "Activation" | "Deposit" | "Withdraw";
 type ActivationStatus = "checking" | "active" | "pending" | "rejected" | "not_submitted" | "unknown";
 
@@ -708,6 +708,7 @@ async function submitWithdrawal() {
           )}
           
         </div>
+        <ActivationChat memberName={memberName} />
       </main>
     );
   }
@@ -1358,6 +1359,7 @@ async function submitWithdrawal() {
         <button className={screen === "Settings" ? "active" : ""} onClick={() => openScreen("Settings")}><Icon name="settings" size={22} />Settings</button>
                   </nav>
       </div>
+      <ActivationChat memberName={memberName} />
     </main>
   );
 }
