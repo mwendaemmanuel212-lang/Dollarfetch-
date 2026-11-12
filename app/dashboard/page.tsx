@@ -870,7 +870,7 @@ async function submitWithdrawal() {
               📢 SPECIAL ANNOUNCEMENT: TO OUR SPECIAL AND TRUSTED DOLLARFETCH MEMBERS, THE ACTIVATION FEE IS NOW AS LOW AS $0.76 USD (APPROXIMATELY KSH 99). • TRANSACT WISELY. • IN CASE OF ANY WITHDRAWAL DELAYS, PLEASE CONTACT OUR TEAM FOR ASSISTANCE. • THANK YOU FOR BEING PART OF DOLLARFETCH! 💜 •
             </div>
           </section>
-
+<SampleWithdrawalActivity />
           <section className="balance">
             <div className="balance-icon">🇺🇸</div>
             <div className="balance-value">${walletBalance.toFixed(2)}</div>
