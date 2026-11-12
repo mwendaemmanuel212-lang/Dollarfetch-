@@ -216,56 +216,7 @@ function ActivationFeed() {
                     </div>
                     <div style={{
                       color: "#fff",
-                      fontSize: 10,
-                      marginTop: 3
-                    }}>
-                      {member.country}
-                    </div>
-                  </div>
 
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{
-                      color: "#f0abfc",
-                      fontWeight: 900,
-                      fontSize: 12
-                    }}>
-                      {member.amount}
-                    </div>
-                    <div style={{
-                      color: "#86efac",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      marginTop: 3
-                    }}>
-                      Activating
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <style jsx>{`
-        .df-activation-track {
-          animation: dollarfetchActivationScroll 30s linear infinite;
-        }
-
-        @keyframes dollarfetchActivationScroll {
-          from { transform: translateY(0); }
-          to { transform: translateY(-50%); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .df-activation-track {
-            animation: none;
-          }
-        }
-      `}</style>
-    </div>
-  );
-                      }
                       
 
 
