@@ -38,7 +38,7 @@ function Icon({ name, size = 24 }: { name: string; size?: number }) {
   return <svg {...common}>{paths[name] || paths.wallet}</svg>;
 }
 
-const sampleActivationMembers = [
+        </divconst sampleActivationMembers = [
   { name: "Brian Mwangi", phone: "+254 7** *** 481", country: "Kenya", amount: "KES 99" },
   { name: "Amina Hassan", phone: "+254 7** *** 206", country: "Kenya", amount: "KES 99" },
   { name: "Chinedu Okafor", phone: "+234 8** *** 714", country: "Nigeria", amount: "NGN 1,200" },
@@ -100,7 +100,7 @@ function SampleActivationFeed() {
         <div className="df-activation-track">
           {[0, 1].map(copy => (
             <div key={copy} aria-hidden={copy === 1}>
-              {sampleActivationMembers.map(member => (
+              {ActivationMembers.map(member => (
                 <div key={member.name} style={{
                   display: "flex",
                   alignItems: "center",
@@ -135,42 +135,8 @@ function SampleActivationFeed() {
                       fontWeight: 900,
                       fontSize: 12
                     }}>
-                      {member.amount}
-                    </div>
-                    <div style={{
-                      color: "#86efac",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      marginTop: 3
-                    }}>
-                      ✓ Activated
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
 
-      <style jsx>{`
-        .df-activation-track {
-          animation: dollarfetchActivationScroll 30s linear infinite;
-        }
-
-        @keyframes dollarfetchActivationScroll {
-          from { transform: translateY(0); }
-          to { transform: translateY(-50%); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .df-activation-track {
-            animation: none;
-          }
-        }
-      `}</style>
-
-const sampleActivationMembers = [
+const ActivationMembers = [
   { name: "Brian Mwangi", phone: "+254 7** *** 481", country: "🇰🇪 Kenya", amount: "KES 99" },
   { name: "Amina Hassan", phone: "+254 7** *** 206", country: "🇰🇪 Kenya", amount: "KES 99" },
   { name: "Chinedu Okafor", phone: "+234 8** *** 714", country: "🇳🇬 Nigeria", amount: "NGN 1,200" },
@@ -188,7 +154,7 @@ const sampleActivationMembers = [
   { name: "Josephine Chebet", phone: "+254 7** *** 288", country: "🇰🇪 Kenya", amount: "KES 99" }
 ];
 
-function SampleActivationFeed() {
+function ActivationFeed() {
   return (
     <div style={{
       margin: "0 auto 28px",
@@ -210,7 +176,7 @@ function SampleActivationFeed() {
         marginTop: 5,
         marginBottom: 13
       }}>
-        activity preview
+         activity preview
       </div>
 
       <div style={{
@@ -221,7 +187,7 @@ function SampleActivationFeed() {
         <div className="df-activation-track">
           {[0, 1].map(copy => (
             <div key={copy} aria-hidden={copy === 1}>
-              {sampleActivationMembers.map(member => (
+              {ActivationMembers.map(member => (
                 <div key={`${copy}-${member.name}`} style={{
                   display: "flex",
                   alignItems: "center",
@@ -299,8 +265,10 @@ function SampleActivationFeed() {
       `}</style>
     </div>
   );
-      }
-      
+                      }
+                      
+
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);const [walletBalance, setWalletBalance] = useState<number>(0);
