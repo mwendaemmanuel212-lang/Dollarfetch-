@@ -415,9 +415,11 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
       }
 
       setPhone("");
-      setMessage(
-        `STK prompt sent! Enter your M-PESA PIN on your phone to pay KES ${result.amount}. Your account will remain pending until payment is verified and an administrator approves it.`
-      );
+setStkPromptSent(true);
+localStorage.setItem(`dollarfetch-stk-${user.id}`, "yes");
+setMessage(
+  `STK prompt sent! Enter your M-PESA PIN to pay KES ${result.amount}. After paying, enter your M-PESA confirmation code below.`
+);
     } else {
       const { error } = await supabase.from("activation_requests").insert({
         user_id: user.id,
