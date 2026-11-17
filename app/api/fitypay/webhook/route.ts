@@ -102,22 +102,20 @@ export async function POST(request: NextRequest) {
     const callbackPhone = getItem("PhoneNumber");
 
     if (resultCode === 0 && receipt) {
-      // Verify the amount against the payment record.
-      if (
-        callbackAmount !== undefined &&
-        Number(callbackAmount) !== Number(payment.amount)
-      ) {
-        throw new Error("Callback amount does not match the payment record.");
-      }
+  if (
+    callbackAmount === undefined ||
+    Number(callbackAmount) !== Number(payment.amount)
+  ) {
+    throw new Error("M-PESA payment amount could not be confirmed.");
+  }
 
-      // Verify the payer's phone when the callback supplies it.
-      if (
-        callbackPhone !== undefined &&
-        String(callbackPhone).replace(/\D/g, "") !==
-          String(payment.phone).replace(/\D/g, "")
-      ) {
-        throw new Error("Callback phone does not match the payment record.");
-      }
+  if (
+    callbackPhone === undefined ||
+    String(callbackPhone).replace(/\D/g, "") !==
+      String(payment.phone).replace(/\D/g, "")
+  ) {
+    throw new Error("M-PESA payment phone could not be confirmed.");
+  }
 
       if (payment.purpose === "deposit") {
         if (!payment.deposit_request_id) {
