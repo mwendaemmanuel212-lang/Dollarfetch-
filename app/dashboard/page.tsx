@@ -1187,6 +1187,39 @@ async function submitWithdrawal() {
   <div className="message">{message || copied}</div>
 )}
 
+<div className="notice" style={{ marginTop: 18 }}>
+  <h3>Step 2: Verify your payment</h3>
+  <p>After paying, copy the M-PESA confirmation code from your SMS and paste it below.</p>
+
+  <input
+    type="text"
+    value={receiptCode}
+    onChange={e => setReceiptCode(e.target.value.toUpperCase())}
+    placeholder="Enter M-PESA code"
+    autoCapitalize="characters"
+    disabled={!stkPromptSent || verifyingReceipt}
+  />
+
+  <button
+    className="primary"
+    style={{
+      marginTop: 12,
+      opacity: !stkPromptSent || !receiptCode.trim() || verifyingReceipt ? 0.45 : 1,
+      cursor: !stkPromptSent || !receiptCode.trim() || verifyingReceipt ? "not-allowed" : "pointer"
+    }}
+    disabled={!stkPromptSent || !receiptCode.trim() || verifyingReceipt}
+    onClick={verifyActivationReceipt}
+  >
+    {verifyingReceipt ? "Checking payment..." : "Verify M-PESA code"}
+  </button>
+
+  {!stkPromptSent && (
+    <p className="muted">
+      Complete Step 1 first. This button becomes available after the payment prompt is sent.
+    </p>
+  )}
+</div>
+              
 <button className="primary" disabled={busy} onClick={submitActivation}>
   {busy ? "Submitting..." : "Submit payment details"}
 </button>
