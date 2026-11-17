@@ -227,6 +227,15 @@ export default function DashboardPage() {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState("");
   const [activationStatus, setActivationStatus] = useState<ActivationStatus>("checking");
+  const [receiptCode, setReceiptCode] = useState("");
+const [stkPromptSent, setStkPromptSent] = useState(false);
+const [verifyingReceipt, setVerifyingReceipt] = useState(false);
+  useEffect(() => {
+  if (!user?.id) return;
+  setStkPromptSent(
+    localStorage.getItem(`dollarfetch-stk-${user.id}`) === "yes"
+  );
+}, [user?.id]);
   const [usd, setUsd] = useState("1");
   const [rate, setRate] = useState<number | null>(null);
   const [rateError, setRateError] = useState("");
