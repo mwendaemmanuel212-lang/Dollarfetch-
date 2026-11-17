@@ -1287,31 +1287,39 @@ async function submitWithdrawal() {
       marginTop: "20px",
       boxShadow: "0 8px 25px rgba(0,0,0,0.08)"
     }}>
+      
       <div style={{
         width: "115px",
         height: "115px",
-        borderRadius: "50%",
-        border: "7px solid #16a34a",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         margin: "0 auto 22px"
       }}>
-        <svg viewBox="0 0 60 60" width="85" height="85">
+        <svg viewBox="0 0 100 100" width="115" height="115">
           <path
-            d="M10 31 L24 46 L52 13"
+            d="M50 4 L91 19 V45 C91 68 74 87 50 97 C26 87 9 68 9 45 V19 Z"
+            fill="#16a34a"
+          />
+          <path
+            d="M23 49 L34 60 L51 41"
             fill="none"
-            stroke="#16a34a"
-            strokeWidth="8"
+            stroke="#ffffff"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M45 58 L56 69 L77 46"
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth="7"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </div>
-
-      <div style={{ fontSize: "38px", marginBottom: "12px" }}>
-        🎉
-      </div>
+      
 
       <h2 style={{
         color: "#111111",
