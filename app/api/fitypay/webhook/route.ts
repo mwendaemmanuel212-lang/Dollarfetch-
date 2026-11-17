@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
           .upsert(
             {
               user_id: payment.user_id,
-              amount: 2,
+              amount: 0.76,
               currency: "USD",
               status: "pending",
             },
