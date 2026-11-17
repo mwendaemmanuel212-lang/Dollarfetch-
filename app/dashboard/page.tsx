@@ -444,6 +444,62 @@ setMessage(
   }
     
 
+async function verifyActivationReceipt() {
+  setMessage("");
+
+  if (!stkPromptSent) {
+    setMessage("Complete Step 1 first by requesting the M-PESA prompt.");
+    return;
+  }
+
+  const receipt = receiptCode.trim().toUpperCase();
+
+  if (!receipt) {
+    setMessage("Enter your M-PESA confirmation code.");
+    return;
+  }
+
+  setVerifyingReceipt(true);
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+
+    if (!token) throw new Error("Please log in again.");
+
+    const response = await fetch("/api/activation/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ receipt }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || "Payment verification failed.");
+    }
+
+    setActivationStatus("active");
+    setReceiptCode("");
+    setStkPromptSent(false);
+    localStorage.removeItem(`dollarfetch-stk-${user.id}`);
+    setMessage(
+      result.message || "Payment verified! Your account is now activated."
+    );
+  } catch (error) {
+    setMessage(
+      error instanceof Error
+        ? error.message
+        : "Payment verification failed. Please try again."
+    );
+  } finally {
+    setVerifyingReceipt(false);
+  }
+}
+  
   
 async function submitDeposit() {
   setMessage("");
