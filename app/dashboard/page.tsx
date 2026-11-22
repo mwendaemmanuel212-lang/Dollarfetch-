@@ -492,6 +492,43 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  async function openOfferwall() {
+    if (activationStatus !== "active") {
+      setOfferwallError("Activate your DollarFetch account before earning.");
+      return;
+    }
+
+    setOfferwallLoading(true);
+    setOfferwallError("");
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      if (sessionError || !sessionData.session?.access_token) {
+        throw new Error("Please sign in again.");
+      }
+
+      const response = await fetch("/api/offerwall/launch", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.url) {
+        throw new Error(result.error || "Could not open earning tasks.");
+      }
+
+      window.location.assign(result.url);
+    } catch (error: any) {
+      setOfferwallError(error.message || "Unable to open earning tasks.");
+      setOfferwallLoading(false);
+    }
+  }
+  
   async function copyValue(value: string, label: string) {
     try {
       await navigator.clipboard.writeText(value);
