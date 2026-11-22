@@ -323,7 +323,8 @@ export default function DashboardPage() {
   }>>([]);
   const [scratchLoading, setScratchLoading] = useState(false);
   const [scratchError, setScratchError] = useState("");
-
+const [offerwallLoading, setOfferwallLoading] = useState(false);
+const [offerwallError, setOfferwallError] = useState("");
   useEffect(() => {
     if (screen !== "Scratch" || !user?.id) return;
 
