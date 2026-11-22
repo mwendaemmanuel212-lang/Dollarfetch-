@@ -34,15 +34,15 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <head>
+            <head>
         <meta name="Bidvertiser2109160" content="2109160" />
+        <meta name="offerwall-verification" content="6b02fe0e02e2d8f6a3dd8bf1" />
       </head>
       <body>
         {children}
-        <div
-          dangerouslySetInnerHTML={{
+                   dangerouslySetInnerHTML={{
             __html: "<!-- Bidvertiser2109160 -->",
-            <meta name="offerwall-verification" content="6b02fe0e02e2d8f6a3dd8bf1" />
+          }}
           }}
         />
       </body>
