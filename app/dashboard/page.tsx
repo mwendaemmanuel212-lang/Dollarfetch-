@@ -1525,7 +1525,7 @@ p_destination_details: destination,
 </div>
 
 <p style={{ fontWeight: 700, marginTop: "12px" }}>
-  Mobile number paid to:
+  {withdrawMethod === "PayPal" ? "PayPal email:" : "M-PESA number:"}
 </p>
 
 <p style={{ fontSize: "18px", color: "#6d28d9", fontWeight: 800 }}>
