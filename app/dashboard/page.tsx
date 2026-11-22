@@ -851,7 +851,7 @@ p_destination_details: destination,
 
     setWithdrawalTransactionId(String(data));
     setCompletedWithdrawalAmount(amount);
-    setCompletedWithdrawalPhone(withdrawPhone.trim());
+    setCompletedWithdrawalPhone(destination);
     setCompletedWithdrawalKES(amount * (rate ?? 0));
 
     setWithdrawAmount("");
