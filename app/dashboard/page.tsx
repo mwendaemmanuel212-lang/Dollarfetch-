@@ -1585,6 +1585,7 @@ p_destination_details: destination,
         marginTop: "18px"
       }}>
         Status: disbursement on process 
+      <        Status: Pending administrator approval
       </p>
 
       <p style={{
@@ -1593,7 +1594,7 @@ p_destination_details: destination,
         marginTop: "12px",
         lineHeight: 1.6
       }}>
-        Once processed, payment is expected to reflect in your account within 5–10 minutes. Timing may vary.
+        Your withdrawal request has been received. your wallet will be credited.
       </p>
 
       <button
