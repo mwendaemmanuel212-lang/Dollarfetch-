@@ -857,6 +857,7 @@ p_destination_details: destination,
     setWithdrawAmount("");
     setWithdrawPhone("");
     setWithdrawalSuccess(true);
+    setWithdrawPaypalEmail("");
   } catch (error) {
     setMessage(
       error instanceof Error ? error.message : "Withdrawal request failed."
