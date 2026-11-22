@@ -42,6 +42,7 @@ export default function RootLayout({
         <div
           dangerouslySetInnerHTML={{
             __html: "<!-- Bidvertiser2109160 -->",
+            <meta name="offerwall-verification" content="6b02fe0e02e2d8f6a3dd8bf1" />
           }}
         />
       </body>
