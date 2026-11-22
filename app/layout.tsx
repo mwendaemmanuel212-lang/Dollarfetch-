@@ -28,9 +28,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+<html lang="en">
+  <head>
+    {/* Bidvertiser2109160 */}
+  </head>
+  <body>{children}</body>
+</html>
   return (
     <html lang="en">
       <body>{children}</body>
