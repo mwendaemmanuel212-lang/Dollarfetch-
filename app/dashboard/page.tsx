@@ -1645,17 +1645,72 @@ async function submitWithdrawal() {
   )}
 </>}
         
-  
-            
+{screen === "Earnings" && <>
+  <div className="pagehead">
+    <h1>Earnings</h1>
+  </div>
 
+  <section className="section">
+    <h2>Your earnings</h2>
+    <p className="muted">
+      Complete available tasks and eligible offers to earn rewards.
+    </p>
 
+    <div className="rowline">
+      <span>Available wallet balance</span>
+      <b>${walletBalance.toFixed(2)}</b>
+    </div>
 
-        {screen === "Earnings" && <>
-          <div className="pagehead"><h1>Earnings</h1></div>
-          <section className="section"><h2>Your earnings</h2><p className="muted">Your earnings summary will appear here when earning activity is connected.</p>
-            <div className="rowline"><span>Total earnings</span><b>$0.00</b></div><div className="rowline"><span>Available balance</span><b>$0.00</b></div>
-          </section>
-        </>}
+    <div style={{
+      marginTop: 22,
+      padding: 20,
+      borderRadius: 18,
+      background: "linear-gradient(135deg,#310052,#7200a8)",
+      color: "#fff"
+    }}>
+      <div style={{ fontSize: 38, textAlign: "center" }}>💰</div>
+
+      <h2 style={{ textAlign: "center", color: "#fff" }}>
+        Earn with Offerwall
+      </h2>
+
+      <p style={{ textAlign: "center", color: "#ead8ff" }}>
+        Discover tasks and offers. Complete eligible activities to earn
+        DollarFetch rewards.
+      </p>
+
+      <button
+        className="primary"
+        style={{
+          width: "100%",
+          marginTop: 12,
+          background: "#f5d36b",
+          color: "#321044",
+          fontWeight: 900
+        }}
+        disabled={offerwallLoading || activationStatus !== "active"}
+        onClick={openOfferwall}
+      >
+        {offerwallLoading
+          ? "Opening earning tasks..."
+          : activationStatus === "active"
+          ? "START EARNING →"
+          : "ACTIVATE ACCOUNT TO EARN"}
+      </button>
+
+      {offerwallError && (
+        <p style={{ color: "#ffd1d1", marginTop: 12 }}>
+          {offerwallError}
+        </p>
+      )}
+    </div>
+
+    <p className="muted" style={{ marginTop: 15 }}>
+      Rewards are credited after the offer provider confirms completion.
+    </p>
+  </section>
+</>}
+        
 {screen === "Scratch" && <>
   <div className="pagehead">
     <h1>🎁 Scratch & Win</h1>
