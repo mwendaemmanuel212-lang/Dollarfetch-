@@ -1533,6 +1533,8 @@ p_destination_details: destination,
 </p>
 
   <p style={{
+  {withdrawMethod === "M-PESA" && (
+  <p style={{
     color: "#15803d",
     fontSize: "21px",
     fontWeight: 800,
@@ -1541,6 +1543,9 @@ p_destination_details: destination,
     KES {completedWithdrawalKES.toLocaleString("en-KE", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
+    })}
+  </p>
+)}
     })}
   </p>
 
