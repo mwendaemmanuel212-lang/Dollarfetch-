@@ -17,6 +17,12 @@ function safeCompare(a: string, b: string) {
   );
 }
 
+function parseAmount(value: string) {
+  const cleaned = value.trim().replace(/,/g, "");
+  if (!/^\d+(\.\d+)?$/.test(cleaned)) return NaN;
+  return Number(cleaned);
+}
+
 async function getParams(request: Request) {
   if (request.method === "GET") {
     return new URL(request.url).searchParams;
@@ -81,20 +87,22 @@ async function handlePostback(request: Request) {
       });
     }
 
-    const reward = Number(rewardText);
-    const payout = Number(payoutText);
+    const reward = parseAmount(rewardText);
+    const payout = parseAmount(payoutText);
 
-    if (
-      !Number.isFinite(reward) ||
-      reward <= 0 ||
-      !Number.isFinite(payout) ||
-      payout < 0
-    ) {
-      return new Response("Invalid reward", { status: 400 });
+    if (!Number.isFinite(reward) || reward <= 0) {
+      return new Response("Invalid reward value", {
+        status: 400,
+      });
     }
 
-    // Offerwall.me postback signature:
-    // MD5(subId + transId + reward + private secret)
+    if (!Number.isFinite(payout) || payout < 0) {
+      return new Response("Invalid payout value", {
+        status: 400,
+      });
+    }
+
+    // Verify signature using the original reward text.
     const expected = createHash("md5")
       .update(userId + transId + rewardText + secret, "utf8")
       .digest("hex");
