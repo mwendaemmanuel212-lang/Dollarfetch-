@@ -1070,10 +1070,7 @@ async function submitWithdrawal() {
   padding-bottom:100px
 }
 .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#4b12b2}
-.spinner{width:36px;height:36px;border:4px solid #e8ddff;border-top-color:#6726d9;border-radius:50%;animation:spin .8s linear infinite}
-
-{activationStatus === "active" && <LaunchCountdown />}
-
+.spinner{width:36px;height:36px;border:4px solid #e8ddff;border-top-color:#6726d9;border-radius:50%;animation:spin .8s linear infinite} 
 @keyframes spin{to{transform:rotate(360deg)}}
 .wrap{width:min(100%,760px);margin:auto;padding:20px 17px 35px}
 .top{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:8px 2px 24px}
@@ -1206,12 +1203,12 @@ async function submitWithdrawal() {
             <p>lets make some cash 💷💰</p>
             <div className="hero-art">$</div>
                     </section>
-
+{activationStatus === "active" && <LaunchCountdown />}
           <section className="announcement">
             <div className="announcement-track">
               📢 SPECIAL ANNOUNCEMENT: TO OUR SPECIAL AND TRUSTED DOLLARFETCH MEMBERS, THE ACTIVATION FEE IS NOW AS LOW AS $0.76 USD (APPROXIMATELY KSH 99). • TRANSACT WISELY. • IN CASE OF ANY WITHDRAWAL DELAYS, PLEASE CONTACT OUR TEAM FOR ASSISTANCE. • THANK YOU FOR BEING PART OF DOLLARFETCH! 💜 •
             </div>
-          </section>
+          </section/>
 <SampleWithdrawalActivity />
           <section className="balance">
             <div className="balance-icon">🇺🇸</div>
