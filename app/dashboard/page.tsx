@@ -1608,7 +1608,7 @@ async function submitWithdrawal() {
           <label>Amount (USD)</label>
           <input
             type="number"
-            min="1"
+            min="10"
             value={withdrawAmount}
             onChange={e => setWithdrawAmount(e.target.value)}
             placeholder="Enter amount"
