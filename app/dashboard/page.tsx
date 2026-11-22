@@ -1532,8 +1532,7 @@ p_destination_details: destination,
   {completedWithdrawalPhone}
 </p>
 
-  <p style={{
-  {withdrawMethod === "M-PESA" && (
+{withdrawMethod === "M-PESA" && (
   <p style={{
     color: "#15803d",
     fontSize: "21px",
@@ -1546,7 +1545,6 @@ p_destination_details: destination,
     })}
   </p>
 )}
-    })}
   </p>
 
   <p style={{ fontSize: "13px", marginTop: "15px" }}>
