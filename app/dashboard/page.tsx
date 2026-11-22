@@ -1546,7 +1546,7 @@ p_destination_details: destination,
     })}
   </p>
 )}
-  </p>
+  
 
   <p style={{ fontSize: "13px", marginTop: "15px" }}>
     Transaction ID
