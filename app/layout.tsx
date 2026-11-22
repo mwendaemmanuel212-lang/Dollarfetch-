@@ -1,3 +1,4 @@
+
 import type { Metadata, Viewport } from "next";
 import "../globals.css";
 
@@ -28,15 +29,22 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-<html lang="en">
-  <head>
-    {/* Bidvertiser2109160 */}
-  </head>
-  <body>{children}</body>
-</html>
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <meta name="Bidvertiser2109160" content="2109160" />
+      </head>
+      <body>
+        {children}
+        <div
+          dangerouslySetInnerHTML={{
+            __html: "<!-- Bidvertiser2109160 -->",
+          }}
+        />
+      </body>
     </html>
   );
 }
