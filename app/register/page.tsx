@@ -38,7 +38,6 @@ export default function Register() {
     const dialCode = countryCode.replace(/\D/g, "");
     const expectedLength = selectedCountry?.length ?? 9;
 
-    // Remove pasted international country code.
     if (
       digits.startsWith(dialCode) &&
       digits.length === expectedLength + dialCode.length
@@ -46,7 +45,6 @@ export default function Register() {
       digits = digits.slice(dialCode.length);
     }
 
-    // Remove the national trunk zero where applicable.
     if (digits.length === expectedLength + 1 && digits.startsWith("0")) {
       digits = digits.slice(1);
     }
@@ -131,128 +129,267 @@ export default function Register() {
     }
   }
 
-  const style: CSSProperties = {
+  const inputStyle: CSSProperties = {
     display: "block",
     width: "100%",
-    padding: 12,
-    margin: "8px 0 16px",
+    padding: "14px 15px",
+    marginTop: 8,
     boxSizing: "border-box",
-    border: "1px solid #cbd5e1",
-    borderRadius: 6
+    background: "#071F18",
+    border: "1px solid #315744",
+    borderRadius: 12,
+    color: "#FFFFFF",
+    fontSize: 15,
+    outline: "none",
+    minHeight: 49
+  };
+
+  const labelStyle: CSSProperties = {
+    display: "block",
+    color: "#E8C76C",
+    fontSize: 13,
+    fontWeight: 600,
+    marginTop: 17,
+    letterSpacing: "0.2px"
+  };
+
+  const helperStyle: CSSProperties = {
+    display: "block",
+    color: "#A9BDB1",
+    fontSize: 11,
+    lineHeight: 1.6,
+    marginTop: 7
   };
 
   return (
     <main style={{
-      maxWidth: 400,
-      margin: "40px auto",
-      padding: 20,
-      fontFamily: "Arial"
+      minHeight: "100vh",
+      width: "100%",
+      boxSizing: "border-box",
+      background: "radial-gradient(circle at top, #17432D 0%, #071F18 48%, #04140F 100%)",
+      padding: "28px 15px 35px",
+      fontFamily: "Arial, sans-serif",
+      color: "#FFFFFF"
     }}>
-      <h1 style={{ color: "#073b83" }}>BWK</h1>
-      <h2>Join DollarFetch</h2>
+      <div style={{
+        maxWidth: 440,
+        margin: "0 auto"
+      }}>
+        <header style={{
+          textAlign: "center",
+          marginBottom: 23
+        }}>
+          <div style={{
+            width: 66,
+            height: 66,
+            borderRadius: 20,
+            margin: "0 auto 13px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "linear-gradient(145deg, #F1D17B, #B88D36)",
+            color: "#071F18",
+            fontSize: 24,
+            fontWeight: 900,
+            boxShadow: "0 8px 28px rgba(214,180,95,0.22)"
+          }}>
+            BWK
+          </div>
 
-      <form onSubmit={register}>
-        <label>Full name</label>
-        <input
-          required
-          style={style}
-          value={name}
-          onChange={e => setName(e.target.value)}
-          autoComplete="name"
-        />
+          <h1 style={{
+            color: "#F1D17B",
+            fontSize: 27,
+            margin: "0 0 7px",
+            fontWeight: 800,
+            letterSpacing: "0.3px"
+          }}>
+            Join DollarFetch
+          </h1>
 
-        <label>Email</label>
-        <input
-          required
-          type="email"
-          style={style}
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          autoComplete="email"
-        />
+          <p style={{
+            color: "#B9CFC1",
+            fontSize: 13,
+            margin: 0
+          }}>
+            Create your account and get started
+          </p>
+        </header>
 
-        <label>Country code</label>
-        <select
-          style={style}
-          value={countryCode}
-          onChange={e => setCountryCode(e.target.value)}
-        >
-          {countries.map(country => (
-            <option key={country.code} value={country.code}>
-              {country.name} ({country.code})
-            </option>
-          ))}
-        </select>
+        <section style={{
+          background: "linear-gradient(160deg, #103526, #0A251B)",
+          border: "1px solid rgba(214,180,95,0.27)",
+          borderRadius: 22,
+          padding: "23px 20px",
+          boxShadow: "0 18px 55px rgba(0,0,0,0.3)"
+        }}>
+          <form onSubmit={register}>
+            <label style={labelStyle}>Full name</label>
+            <input
+              required
+              style={inputStyle}
+              placeholder="Enter your full name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              autoComplete="name"
+            />
 
-        <label>Mobile / M-PESA phone number</label>
-        <input
-          required
-          type="tel"
-          style={style}
-          placeholder="712345678"
-          value={phone}
-          onChange={e => setPhone(e.target.value)}
-          autoComplete="tel-national"
-        />
-        <small style={{ color: "#64748b" }}>
-          Enter your number without the country code.
-        </small>
+            <label style={labelStyle}>Email</label>
+            <input
+              required
+              type="email"
+              style={inputStyle}
+              placeholder="Enter your email address"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              autoComplete="email"
+            />
 
-        <label style={{ display: "block", marginTop: 16 }}>
-          Password
-        </label>
-        <input
-          required
-          type="password"
-          minLength={8}
-          style={style}
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          autoComplete="new-password"
-        />
-        <small style={{ color: "#64748b" }}>
-          Minimum 8 characters, uppercase, lowercase, number and special character.
-        </small>
+            <label style={labelStyle}>Country code</label>
+            <select
+              style={{
+                ...inputStyle,
+                colorScheme: "dark",
+                cursor: "pointer"
+              }}
+              value={countryCode}
+              onChange={e => setCountryCode(e.target.value)}
+            >
+              {countries.map(country => (
+                <option key={country.code} value={country.code}>
+                  {country.name} ({country.code})
+                </option>
+              ))}
+            </select>
 
-        <label style={{ display: "block", marginTop: 16 }}>
-          Confirm password
-        </label>
-        <input
-          required
-          type="password"
-          style={style}
-          value={confirmPassword}
-          onChange={e => setConfirmPassword(e.target.value)}
-          autoComplete="new-password"
-        />
+            <label style={labelStyle}>
+              Mobile / M-PESA phone number
+            </label>
+            <input
+              required
+              type="tel"
+              style={inputStyle}
+              placeholder="712345678"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              autoComplete="tel-national"
+            />
+            <small style={helperStyle}>
+              Enter your number without the country code.
+            </small>
 
-        <label>Referral code (optional)</label>
-        <input
-          style={style}
-          placeholder="Enter invitation code"
-          value={referralCode}
-          onChange={e => setReferralCode(e.target.value)}
-        />
+            <label style={labelStyle}>Password</label>
+            <input
+              required
+              type="password"
+              minLength={8}
+              style={inputStyle}
+              placeholder="Create a strong password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            <small style={helperStyle}>
+              Minimum 8 characters, uppercase, lowercase, number and special character.
+            </small>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: "100%",
-            padding: 14,
-            background: "#073b83",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: loading ? "not-allowed" : "pointer"
-          }}
-        >
-          {loading ? "Creating account..." : "Create account"}
-        </button>
-      </form>
+            <label style={labelStyle}>Confirm password</label>
+            <input
+              required
+              type="password"
+              style={inputStyle}
+              placeholder="Enter your password again"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+            />
 
-      <p style={{ color: "#b91c1c" }}>{message}</p>
-      <a href="/app/login">Already registered? Log in</a>
+            <label style={labelStyle}>
+              Referral code <span style={{ color: "#A9BDB1", fontWeight: 400 }}>(optional)</span>
+            </label>
+            <input
+              style={inputStyle}
+              placeholder="Enter invitation code"
+              value={referralCode}
+              onChange={e => setReferralCode(e.target.value)}
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: "100%",
+                padding: 16,
+                marginTop: 25,
+                background: loading
+                  ? "#9D854B"
+                  : "linear-gradient(100deg, #B88D36, #F1D17B, #D6B45F)",
+                color: "#10251A",
+                border: "none",
+                borderRadius: 13,
+                fontSize: 15,
+                fontWeight: 800,
+                letterSpacing: "0.7px",
+                cursor: loading ? "not-allowed" : "pointer",
+                boxShadow: "0 7px 22px rgba(214,180,95,0.18)"
+              }}
+            >
+              {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+            </button>
+          </form>
+
+          {message && (
+            <div
+              role="status"
+              style={{
+                marginTop: 17,
+                padding: 13,
+                borderRadius: 10,
+                background: message.toLowerCase().includes("success") ||
+                  message.toLowerCase().includes("created")
+                  ? "rgba(46,160,95,0.15)"
+                  : "rgba(220,70,70,0.12)",
+                border: "1px solid rgba(214,180,95,0.25)",
+                color: "#F1D17B",
+                fontSize: 13,
+                lineHeight: 1.6,
+                textAlign: "center"
+              }}
+            >
+              {message}
+            </div>
+          )}
+
+          <div style={{
+            textAlign: "center",
+            marginTop: 22,
+            fontSize: 13,
+            color: "#C3D2C8"
+          }}>
+            Already registered?{" "}
+            <a
+              href="/app/login"
+              style={{
+                color: "#F1D17B",
+                fontWeight: 700,
+                textDecoration: "none"
+              }}
+            >
+              Log in
+            </a>
+          </div>
+        </section>
+
+        <footer style={{
+          textAlign: "center",
+          marginTop: 23,
+          color: "#91A99A",
+          fontSize: 11,
+          letterSpacing: "0.5px"
+        }}>
+          Powered by <strong style={{ color: "#D6B45F" }}>BWK Solutions</strong>
+        </footer>
+      </div>
     </main>
   );
-}
+      }
+                
