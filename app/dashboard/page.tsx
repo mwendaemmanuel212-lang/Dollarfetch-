@@ -1624,14 +1624,43 @@ async function submitWithdrawal() {
         </div>
 
         <div className="field">
-          <label>M-PESA phone number</label>
-          <input
-            value={withdrawPhone}
-            onChange={e => setWithdrawPhone(e.target.value)}
-            placeholder="+254712345678"
-            inputMode="tel"
-          />
-        </div>
+          <div className="field">
+  <label>Withdrawal method</label>
+  <select
+    value={withdrawMethod}
+    onChange={e => setWithdrawMethod(e.target.value)}
+  >
+    <option value="M-PESA">M-PESA</option>
+    <option value="PayPal">PayPal</option>
+  </select>
+</div>
+
+{withdrawMethod === "PayPal" ? (
+  <div className="field">
+    <img
+      src="https://cdn.simpleicons.org/paypal/003087"
+      alt="PayPal"
+      style={{ width: "110px", height: "40px", objectFit: "contain" }}
+    />
+    <label>PayPal email address</label>
+    <input
+      type="email"
+      value={withdrawPaypalEmail}
+      onChange={e => setWithdrawPaypalEmail(e.target.value)}
+      placeholder="Enter your PayPal email"
+    />
+  </div>
+) : (
+  <div className="field">
+    <label>M-PESA phone number</label>
+    <input
+      value={withdrawPhone}
+      onChange={e => setWithdrawPhone(e.target.value)}
+      placeholder="+254712345678"
+      inputMode="tel"
+    />
+  </div>
+)}
 
         <div className="notice">
           Your request requires administrator approval before payment is released.
