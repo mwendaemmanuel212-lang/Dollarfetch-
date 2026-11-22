@@ -838,8 +838,8 @@ if (withdrawMethod === "PayPal") {
   try {
     const { data, error } = await supabase.rpc("member_request_withdrawal", {
       p_amount: amount,
-      p_method: "M-PESA",
-      p_destination_details: withdrawPhone.trim(),
+      p_method: withdrawMethod,
+p_destination_details: destination,
     });
 
     if (error) throw error;
