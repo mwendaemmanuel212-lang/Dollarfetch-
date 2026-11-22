@@ -1584,8 +1584,7 @@ p_destination_details: destination,
         fontWeight: 700,
         marginTop: "18px"
       }}>
-        Status: disbursement on process 
-      <        Status: Pending administrator approval
+        Status: Pending administrator approval
       </p>
 
       <p style={{
