@@ -175,6 +175,139 @@ function SampleActivationFeed() {
   );
 }
 
+const COUNTDOWN_END = new Date("2026-11-29T10:15:00+03:00").getTime();
+
+function LaunchCountdown() {
+  const [remainingMs, setRemainingMs] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      setRemainingMs(Math.max(0, COUNTDOWN_END - Date.now()));
+    };
+
+    update();
+    const timer = window.setInterval(update, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const total = Math.floor(remainingMs / 1000);
+
+  const units = [
+    { label: "DAYS", value: Math.floor(total / 86400) },
+    { label: "HOURS", value: Math.floor((total % 86400) / 3600) },
+    { label: "MINS", value: Math.floor((total % 3600) / 60) },
+    { label: "SECS", value: total % 60 },
+  ];
+
+  return (
+    <section style={{
+      margin: "18px 0",
+      padding: "20px 15px",
+      borderRadius: 20,
+      color: "#fff",
+      textAlign: "center",
+      background: "linear-gradient(145deg,#101C32,#1d2c45)",
+      border: "1px solid #D5A83D",
+      boxShadow: "0 0 18px rgba(213,168,61,0.18)"
+    }}>
+      {remainingMs > 0 ? (
+        <>
+          <div style={{
+            color: "#F5D47A",
+            fontSize: 12,
+            fontWeight: 900,
+            letterSpacing: 1.5
+          }}>
+            ✨ DOLLARFETCH MEMBER UPDATE ✨
+          </div>
+
+          <h2 style={{
+            color: "#F5D47A",
+            fontSize: 21,
+            fontWeight: 900,
+            margin: "10px 0 6px"
+          }}>
+            BIG THINGS ARE COMING!
+          </h2>
+
+          <p style={{
+            color: "#E5E7EB",
+            fontSize: 13,
+            margin: "0 0 16px"
+          }}>
+            New earning opportunities and an additional cash-out method are on the way.
+          </p>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4,minmax(0,1fr))",
+            gap: 8
+          }}>
+            {units.map(unit => (
+              <div key={unit.label} style={{
+                padding: "12px 4px",
+                borderRadius: 12,
+                background: "#29364A",
+                border: "1px solid #ffffff18"
+              }}>
+                <div style={{
+                  color: "#F5D47A",
+                  fontSize: 25,
+                  fontWeight: 900,
+                  fontVariantNumeric: "tabular-nums"
+                }}>
+                  {String(unit.value).padStart(2, "0")}
+                </div>
+                <div style={{
+                  color: "#fff",
+                  fontSize: 9,
+                  fontWeight: 800
+                }}>
+                  {unit.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            marginTop: 15,
+            color: "#F5D47A",
+            fontSize: 11,
+            fontWeight: 800
+          }}>
+            LAUNCH: 29 NOVEMBER 2026 · 10:15 AM EAT
+          </div>
+
+          <p style={{ color: "#C7CED8", fontSize: 11 }}>
+            Stay active. Your next opportunity awaits!
+          </p>
+        </>
+      ) : (
+        <>
+          <div style={{ fontSize: 30 }}>🎉</div>
+          <h2 style={{ color: "#F5D47A", fontSize: 21 }}>
+            THE COUNTDOWN IS OVER!
+          </h2>
+          <p>
+            The DollarFetch launch date has arrived.
+            Watch this space for announcements about
+            new earning opportunities and cash-out options.
+          </p>
+        </>
+      )}
+
+      <div style={{
+        color: "#AAB5C5",
+        fontSize: 10,
+        marginTop: 14
+      }}>
+        Powered by BWK Solutions
+      </div>
+    </section>
+  );
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -938,6 +1071,9 @@ async function submitWithdrawal() {
 }
 .loading{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:#4b12b2}
 .spinner{width:36px;height:36px;border:4px solid #e8ddff;border-top-color:#6726d9;border-radius:50%;animation:spin .8s linear infinite}
+
+{activationStatus === "active" && <LaunchCountdown />}
+
 @keyframes spin{to{transform:rotate(360deg)}}
 .wrap{width:min(100%,760px);margin:auto;padding:20px 17px 35px}
 .top{display:flex;align-items:center;justify-content:space-between;color:#fff;padding:8px 2px 24px}
