@@ -814,10 +814,19 @@ async function submitWithdrawal() {
     return;
   }
 
-  if (!/^\+254\d{9}$/.test(withdrawPhone.trim())) {
-    setMessage("Enter your M-PESA number in format +2547XXXXXXXX.");
+  const destination = withdrawMethod === "PayPal"
+  ? withdrawPaypalEmail.trim()
+  : withdrawPhone.trim();
+
+if (withdrawMethod === "PayPal") {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destination)) {
+    setMessage("Enter a valid PayPal email address.");
     return;
   }
+} else if (!/^\+254\d{9}$/.test(destination)) {
+  setMessage("Enter your M-PESA number in format +2547XXXXXXXX.");
+  return;
+}
 
   if (!user?.id) {
     setMessage("Please log in again.");
