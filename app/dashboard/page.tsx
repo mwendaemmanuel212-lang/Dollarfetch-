@@ -802,8 +802,8 @@ async function submitWithdrawal() {
 
   const amount = Number(withdrawAmount);
 
-  if (!amount || amount < 5) {
-  setMessage("Minimum withdrawal amount is $5 USD.");
+  if (!amount || amount < 10) {
+  setMessage("Minimum withdrawal amount is $10 USD.");
   return;
   }
 
