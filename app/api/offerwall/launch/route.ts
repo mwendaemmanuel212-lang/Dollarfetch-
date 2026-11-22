@@ -1,4 +1,3 @@
-
 import { createClient } from "@supabase/supabase-js";
 import { createHmac } from "node:crypto";
 
@@ -42,11 +41,10 @@ export async function POST(request: Request) {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
-    const { data: activation, error: activationError } = await admin
+    const { data: activations, error: activationError } = await admin
       .from("activation_requests")
       .select("status")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
+      .eq("user_id", data.user.id);
 
     if (activationError) {
       return Response.json(
@@ -55,9 +53,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const status = String(activation?.status || "").toLowerCase();
+    const isActive = (activations || []).some((item) =>
+      ["active", "approved"].includes(
+        String(item.status || "").toLowerCase()
+      )
+    );
 
-    if (!["active", "approved"].includes(status)) {
+    if (!isActive) {
       return Response.json(
         { error: "Activate your DollarFetch account before earning." },
         { status: 403 }
@@ -83,4 +85,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-       }
+}
