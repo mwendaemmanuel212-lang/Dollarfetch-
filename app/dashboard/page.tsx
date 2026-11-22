@@ -1603,7 +1603,13 @@ async function submitWithdrawal() {
         <p className="muted">
           Available balance: ${walletBalance.toFixed(2)}
         </p>
-
+<div className="notice">
+  Withdrawal requirements:
+  <br />• Minimum withdrawal: $10 USD
+  <br />• At least 5 approved tasks completed
+  <br />• At least 1,000 approved task points
+  <br />All three requirements must be met.
+</div>
         <div className="field">
           <label>Amount (USD)</label>
           <input
