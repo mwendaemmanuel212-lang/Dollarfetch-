@@ -1637,7 +1637,7 @@ p_destination_details: destination,
           <label>Amount (USD)</label>
           <input
             type="number"
-            min="10"
+            min={isAdminWithdrawalAccount ? "0.01" : "10"}
             value={withdrawAmount}
             onChange={e => setWithdrawAmount(e.target.value)}
             placeholder="Enter amount"
