@@ -883,7 +883,7 @@ p_destination_details: destination,
     );
   }
 
-  if (activationStatus !== "active" && screen !== "Activation") {
+  if (activationStatus !== "active" && screen !== "Activation" && !isAdminWithdrawalAccount) {
     return (
       <main style={{
         minHeight: "100vh",
