@@ -122,7 +122,8 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [working, setWorking] = useState("");
   const [email, setEmail] = useState("");
-
+const [activationEnabled, setActivationEnabled] = useState(true);
+const [activationSettingLoaded, setActivationSettingLoaded] = useState(false);
   async function loadMembers() {
     setLoading(true);
     setError("");
