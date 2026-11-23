@@ -483,6 +483,8 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
     return () => { mounted = false; };
   }, []);
 
+  const isAdminWithdrawalAccount =
+  user?.email?.toLowerCase() === "mwendaemmanuel212@gmail.com";
   const memberName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Member";
   const referralCode = user?.user_metadata?.referral_code || (user?.id ? `BWK-${user.id.replace(/-/g, "").slice(0, 12).toUpperCase()}` : "");
   const referralLink = typeof window !== "undefined" && referralCode ? `${window.location.origin}/register?ref=${encodeURIComponent(referralCode)}` : "";
