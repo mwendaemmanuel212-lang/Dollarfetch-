@@ -168,7 +168,30 @@ const { data, error: rpcError } = await supabase.rpc(
   useEffect(() => {
     loadMembers();
   }, []);
+async function changeActivationSetting(enabled: boolean) {
+  const action = enabled ? "REACTIVATE" : "DEACTIVATE";
 
+  if (!confirm(`${action} activation for all new members?`)) return;
+
+  setWorking("activation-setting");
+  setError("");
+
+  const { data, error: settingError } = await supabase.rpc(
+    "admin_set_activation_enabled",
+    { p_enabled: enabled }
+  );
+
+  if (settingError) {
+    setError(settingError.message);
+  } else {
+    setActivationEnabled(Boolean(data));
+    alert(enabled
+      ? "Activation is ON. New members must pay."
+      : "Activation is OFF. New members can join free.");
+  }
+
+  setWorking("");
+}
   async function updateStatus(member: Member, status: string) {
     if (member.status !== "pending") {
       alert("This request is no longer pending.");
