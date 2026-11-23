@@ -465,8 +465,11 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
     checkStatus();
     return () => { mounted = false; };
   }, [user?.id]);
+  
   useEffect(() => {
     if (!user?.id) return;
+
+    let mounted = true;
 
     async function loadWalletBalance() {
       const { data, error } = await supabase
@@ -475,13 +478,31 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (!error) {
+      if (!error && mounted) {
         setWalletBalance(Number(data?.balance ?? 0));
       }
     }
 
+    function refreshWhenVisible() {
+      if (document.visibilityState === "visible") {
+        loadWalletBalance();
+      }
+    }
+
     loadWalletBalance();
+
+    window.addEventListener("focus", loadWalletBalance);
+    window.addEventListener("pageshow", loadWalletBalance);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener("focus", loadWalletBalance);
+      window.removeEventListener("pageshow", loadWalletBalance);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [user?.id]);
+  
   useEffect(() => {
     let mounted = true;
     fetch("https://open.er-api.com/v6/latest/USD")
