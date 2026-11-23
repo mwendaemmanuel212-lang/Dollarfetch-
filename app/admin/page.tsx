@@ -298,6 +298,55 @@ async function changeActivationSetting(enabled: boolean) {
         <div>
           <div style={{ fontSize: 23, fontWeight: 900 }}>
             BWK <span style={{ color: "#7db8ff" }}>·</span> DollarFetch
+                  <section style={{
+        background: "#172641",
+        border: "1px solid #344968",
+        borderRadius: 16,
+        padding: 18,
+        marginBottom: 20
+      }}>
+        <h3 style={{ marginTop: 0 }}>Activation Control</h3>
+
+        <p>
+          Status: <strong style={{
+            color: activationEnabled ? "#4ade80" : "#fbbf24"
+          }}>
+            {activationEnabled ? "ACTIVATION ON" : "ACTIVATION OFF"}
+          </strong>
+        </p>
+
+        <button
+          onClick={() => changeActivationSetting(false)}
+          disabled={!activationSettingLoaded || !activationEnabled || working === "activation-setting"}
+          style={{
+            padding: 12,
+            marginRight: 10,
+            marginBottom: 10,
+            border: 0,
+            borderRadius: 9,
+            background: "#dc2626",
+            color: "white",
+            fontWeight: 800
+          }}
+        >
+          Deactivate Activation
+        </button>
+
+        <button
+          onClick={() => changeActivationSetting(true)}
+          disabled={!activationSettingLoaded || activationEnabled || working === "activation-setting"}
+          style={{
+            padding: 12,
+            border: 0,
+            borderRadius: 9,
+            background: "#16a34a",
+            color: "white",
+            fontWeight: 800
+          }}
+        >
+          Reactivate Activation
+        </button>
+      </section>
           </div>
           <div style={{
             color: "#8ebeff",
