@@ -858,7 +858,7 @@ p_destination_details: destination,
 
     setWithdrawAmount("");
     setWithdrawPhone("");
-    setWithdrawalSuccess(true);
+    setWithdrawalCountdown(5);
     setWithdrawPaypalEmail("");
   } catch (error) {
     setMessage(
