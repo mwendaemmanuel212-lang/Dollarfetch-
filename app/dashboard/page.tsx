@@ -1898,6 +1898,33 @@ p_destination_details: destination,
 
         {screen === "Settings" && <>
   <div className="pagehead"><h1>Settings</h1></div>
+          <div style={{ marginTop: 18, textAlign: "center" }}>
+  <h3>DollarFetch QR Code</h3>
+  <p>Scan this code to open your personal invitation link.</p>
+
+  <img
+    src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(referralLink)}`}
+    alt="DollarFetch referral QR code"
+    style={{
+      width: 220,
+      height: 220,
+      maxWidth: "100%",
+      background: "white",
+      padding: 10,
+      borderRadius: 14
+    }}
+  />
+
+  <p>Can't scan? Open DollarFetch directly on this device.</p>
+
+  <button
+    className="copy-action"
+    type="button"
+    onClick={() => window.location.href = referralLink}
+  >
+    Open DollarFetch
+  </button>
+</div>
   <section className="section">
     <h2>Member profile</h2>
     <div className="rowline">
