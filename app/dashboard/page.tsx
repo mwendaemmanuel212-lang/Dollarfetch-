@@ -388,6 +388,20 @@ const [completedWithdrawalAmount, setCompletedWithdrawalAmount] = useState(0);
 const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
   const [withdrawalCountdown, setWithdrawalCountdown] = useState(0);
   useEffect(() => {
+  if (withdrawalCountdown <= 0) return;
+
+  const timer = setTimeout(() => {
+    if (withdrawalCountdown === 1) {
+      setWithdrawalCountdown(0);
+      setWithdrawalSuccess(true);
+    } else {
+      setWithdrawalCountdown(current => current - 1);
+    }
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, [withdrawalCountdown]);
+  useEffect(() => {
     let mounted = true;
 
     async function loadUser() {
