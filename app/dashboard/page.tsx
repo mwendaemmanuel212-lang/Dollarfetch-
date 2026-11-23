@@ -1476,7 +1476,27 @@ p_destination_details: destination,
 
 
 {screen === "Withdraw" && <>
-  {withdrawalSuccess ? (
+  {withdrawalCountdown > 0 ? (
+  <section style={{
+    background: "#ffffff",
+    color: "#111111",
+    borderRadius: "20px",
+    padding: "40px 22px",
+    textAlign: "center",
+    marginTop: "20px"
+  }}>
+    <div style={{
+      fontSize: "75px",
+      fontWeight: 900,
+      color: "#6d28d9"
+    }}>
+      {withdrawalCountdown}
+    </div>
+    <h2>Processing your request...</h2>
+    <p>Your withdrawal request was submitted successfully.</p>
+    <p>Status: Pending administrator approval.</p>
+  </section>
+) : withdrawalSuccess ? (
     <section style={{
       background: "#ffffff",
       color: "#111111",
