@@ -501,7 +501,7 @@ const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
   user?.email?.toLowerCase() === "mwendaemmanuel212@gmail.com";
   const memberName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Member";
   const referralCode = user?.user_metadata?.referral_code || (user?.id ? `BWK-${user.id.replace(/-/g, "").slice(0, 12).toUpperCase()}` : "");
-  const referralLink = typeof window !== "undefined" && referralCode ? `${window.location.origin}/register?ref=${encodeURIComponent(referralCode)}` : "";
+  const referralLink = typeof window !== "undefined" && referralCode ? `${window.location.origin}/invite?ref=${encodeURIComponent(referralCode)}` : "";
   const kes = rate === null ? null : Number(usd || 0) * rate;
 
   function openScreen(next: Screen) {
