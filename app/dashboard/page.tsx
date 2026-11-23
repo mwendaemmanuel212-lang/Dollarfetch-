@@ -804,10 +804,10 @@ async function submitWithdrawal() {
 
   const amount = Number(withdrawAmount);
 
-  if (!amount || amount < 10) {
-  setMessage("Minimum withdrawal amount is $10 USD.");
+if (!amount || amount <= 0 || (!isAdminWithdrawalAccount && amount < 10)) {
+  setMessage(isAdminWithdrawalAccount ? "Enter a withdrawal amount greater than zero." : "Minimum withdrawal amount is $10 USD.");
   return;
-  }
+}
 
   if (amount > walletBalance) {
     setMessage("Your withdrawal amount exceeds your available balance.");
