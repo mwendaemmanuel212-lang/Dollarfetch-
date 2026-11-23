@@ -386,7 +386,7 @@ const [withdrawPaypalEmail, setWithdrawPaypalEmail] = useState("");
 const [completedWithdrawalAmount, setCompletedWithdrawalAmount] = useState(0);
   const [completedWithdrawalPhone, setCompletedWithdrawalPhone] = useState("");
 const [completedWithdrawalKES, setCompletedWithdrawalKES] = useState(0);
-  
+  const [withdrawalCountdown, setWithdrawalCountdown] = useState(0);
   useEffect(() => {
     let mounted = true;
 
