@@ -138,9 +138,22 @@ const [activationSettingLoaded, setActivationSettingLoaded] = useState(false);
 
     setEmail(sessionData.session.user.email || "");
 
-    const { data, error: rpcError } = await supabase.rpc(
-      "admin_list_activation_requests"
-    );
+    const { data: activationSetting, error: settingError } = await supabase.rpc(
+  "admin_get_activation_enabled"
+);
+
+if (settingError) {
+  setError("Could not load activation setting: " + settingError.message);
+  setLoading(false);
+  return;
+}
+
+setActivationEnabled(Boolean(activationSetting));
+setActivationSettingLoaded(true);
+
+const { data, error: rpcError } = await supabase.rpc(
+  "admin_list_activation_requests"
+);
 
     if (rpcError) {
       setError("Administrator access check failed: " + rpcError.message);
